@@ -46,10 +46,16 @@ module.exports = function(intervals) {
       
         dateList = []
         while (utcDay(currentDate) <= utcDay(endDate)) {
-          dateList.push(new Date(currentDate))
+          if(isWorkingDay(currentDate))
+            dateList.push(new Date(currentDate))
           currentDate.setUTCDate(currentDate.getUTCDate() + 1);
         }
         return dateList
+    }
+    
+    function isWorkingDay(date) {
+        var day = date.getDay();
+        return day != 0 && day != 6
     }
     
     function utcDay(date) {
