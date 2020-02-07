@@ -65,6 +65,7 @@ async function createTimeEntryByCopying(timeEntry, projectIdOrName, description)
       {
         description: description,
         pid: project.id,
+        billable: project.billable,
         duration: timeSlot.duration,
         start: timeSlot.start,
         created_with: "toggl-sheet"
