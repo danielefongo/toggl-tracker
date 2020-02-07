@@ -10,6 +10,7 @@ const intervals = [new UTCHoursInterval(8, 12), new UTCHoursInterval(13, 17)]
 
 var toggl = new TogglClient({apiToken: API_TOKEN});
 var timeSlotter = new TimeSlotter(intervals)
+var args = process.argv.slice(2);
 
 async function getLastTimeEntry(workspace_id) {
   return new Promise((resolve, reject) => {
@@ -23,23 +24,29 @@ async function getLastTimeEntry(workspace_id) {
   })
 }
 
-function createTimeEntryByCopying(timeEntry) {
+function createTimeEntryByCopying(timeEntry, projectId, description) {
+  if(description === undefined && projectId == undefined) {
+    description = timeEntry.description
+    projectId = timeEntry.pid
+  }
+
   var timeEntryStop = new Date(timeEntry.stop)
   timeSlotter.slotsFrom(timeEntryStop).forEach((timeSlot) => {
     toggl.createTimeEntry(
       {
-        description: timeEntry.description,
+        description: description,
+        pid: projectId,
         duration: timeSlot.duration,
         start: timeSlot.start,
-        pid: timeEntry.pid,
         created_with: "toggl-sheet"
       }, (err) => {
         if(err) console.log(err)
         else {
-          console.log("recorded \"" + timeEntry.description + "\" from " + timeSlot.start.toISOString() + " to " + timeSlot.end.toISOString())
+          console.log("recorded \"" + description + "\" from " + timeSlot.start.toISOString() + " to " + timeSlot.end.toISOString())
         }
       })
   })
 }
 
-getLastTimeEntry(WORKSPACE).then(createTimeEntryByCopying)
+
+getLastTimeEntry(WORKSPACE).then((timeEntry) => createTimeEntryByCopying(timeEntry, args[0], args[1]))
