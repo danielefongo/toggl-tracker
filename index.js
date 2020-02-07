@@ -54,7 +54,7 @@ async function createTimeEntryByCopying(timeEntry, projectIdOrName, description)
   }
   if(projects.length > 1) {
     console.log("Too many matching projects:")
-    console.log(projects.map(it => it.name))
+    console.log(JSON.stringify(projects.map(it => {return {id: it.id, it: it.name}}), null, 2))
     return
   }
   project = projects[0]
