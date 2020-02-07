@@ -6,8 +6,13 @@ WORKSPACE=process.env.TOGGL_WORKSPACE
 var TogglClient = require('toggl-api');
 var toggl = new TogglClient({apiToken: API_TOKEN});
 
-function secondsFrom(timeString) {
-  return Math.floor((new Date() - new Date(timeString)) / 1000)
+function timeSlotsFrom(timeString) {
+  start_time = new Date(timeString)
+  durationInSeconds = Math.floor((new Date() - new Date(timeString)) / 1000)
+  return [{
+    start: start_time,
+    duration: durationInSeconds
+  }]
 }
 
 async function getLastTimeEntry(workspace_id) {
@@ -23,15 +28,17 @@ async function getLastTimeEntry(workspace_id) {
 }
 
 function createTimeEntryByCopying(timeEntry) {
-  toggl.createTimeEntry(
-  {
-    description: timeEntry.description,
-    duration: secondsFrom(timeEntry.stop),
-    start: timeEntry.stop,
-    pid: timeEntry.pid,
-    created_with: "toggl-sheet"
-  }, (err) => {
-    if(err) console.log(err)
+  timeSlotsFrom(timeEntry.stop).forEach((timeSlot) => {
+    toggl.createTimeEntry(
+      {
+        description: timeEntry.description,
+        duration: timeSlot.duration,
+        start: timeSlot.start,
+        pid: timeEntry.pid,
+        created_with: "toggl-sheet"
+      }, (err) => {
+        if(err) console.log(err)
+      })
   })
 }
 
