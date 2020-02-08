@@ -2,40 +2,27 @@ module.exports = function(intervals) {
     this.intervals = intervals
 
     this.slotsIn = function(start_time, end_time) {
-        a = toDateRange(start_time, end_time).map(date => {
+        slots = toDateRange(start_time, end_time).map(date => {
           return this.intervals.map(interval => {
-            slot = timeSlotWithinInterval(start_time, end_time, date, interval)
-            return {
-              start: slot.start,
-              end: slot.end,
-              duration: slot.duration
-            }
+            return timeSlotWithinInterval(start_time, end_time, date, interval)
           })
         })
-      
-        return a.flat().filter(it => it.start !== undefined)
+        return slots.flat().filter(it => it !== undefined)
     }
       
     function timeSlotWithinInterval(start, end, day, utcHoursInterval) {
-        seconds = secondsBetween(start, end)
-        
         interval_start = utcDayWithCustomHour(day, utcHoursInterval.start)
         interval_end = utcDayWithCustomHour(day, utcHoursInterval.end)
         
         if(end <= interval_start || start >= interval_end)
-          return 0
-        if(start < interval_start) {
-          seconds -= secondsBetween(start, interval_start)
-          start = interval_start
-        }
-        if(end > interval_end) {
-          seconds -= secondsBetween(interval_end, end)
-          end = interval_end
-        }
+          return undefined
+        
+        start = new Date(Math.max(start, interval_start))
+        end = new Date(Math.min(end, interval_end))
         return {
           start: start,
           end: end,
-          duration: seconds
+          duration: secondsBetween(start, end)
         }
     }
       
