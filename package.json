@@ -12,6 +12,8 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "fuzzy-search": "^3.1.0",
+    "inquirer": "^7.0.4",
+    "inquirer-autocomplete-prompt": "^1.0.2",
     "toggl-api": "^1.0.1"
   }
 }

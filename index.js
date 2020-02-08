@@ -11,7 +11,9 @@ const intervals = [new UTCHoursInterval(8, 12), new UTCHoursInterval(13, 17)]
 
 var toggl = new TogglClient({apiToken: API_TOKEN});
 var timeSlotter = new TimeSlotter(intervals)
-var args = process.argv.slice(2);
+var inquirer = require('inquirer');
+
+inquirer.registerPrompt('ask-for-project', require('inquirer-autocomplete-prompt'));
 
 async function getLastTimeEntry(workspace_id) {
   return new Promise((resolve, reject) => {
@@ -34,31 +36,12 @@ async function getProjects(workspace_id) {
   })
 }
 
-async function searchProject(keyword) {
-  return getProjects(WORKSPACE).then(function(projs) {
-    const searcher = new FuzzySearch(projs, ['name', 'id'], {caseSensitive: false, sort: true});
-    return searcher.search(keyword)
-  })
+async function searchProject(projects, keyword) {
+  const searcher = new FuzzySearch(projects, ['name'], {caseSensitive: false, sort: true});
+  return searcher.search(keyword)
 }
 
-async function createTimeEntryByCopying(timeEntry, projectIdOrName, description) {
-  if(description === undefined && projectIdOrName == undefined) {
-    description = timeEntry.description
-    projectIdOrName = timeEntry.pid
-  }
-  projects = await searchProject(projectIdOrName)
-
-  if(projects.length == 0) {
-    console.log("No matching for \"" + projectIdOrName + "\"")
-    return
-  }
-  if(projects.length > 1) {
-    console.log("Too many matching projects:")
-    console.log(JSON.stringify(projects.map(it => {return {id: it.id, it: it.name}}), null, 2))
-    return
-  }
-  project = projects[0]
-
+async function createTimeEntry(timeEntry, project, description) {
   var timeEntryStop = new Date(timeEntry.stop)
   timeSlotter.slotsFrom(timeEntryStop).forEach((timeSlot) => {
     toggl.createTimeEntry(
@@ -78,5 +61,24 @@ async function createTimeEntryByCopying(timeEntry, projectIdOrName, description)
   })
 }
 
+async function askAndCompileToggl() {
+  projects = await getProjects(WORKSPACE)
+  inquirer.prompt([{
+    name: 'description',
+    message: 'What have you done?',
+  },{
+    type: 'ask-for-project',
+    name: 'projectName',
+    message: 'Select project name',
+    source: function(previousAnser, id) {
+      return searchProject(projects, id)
+    },
+  }])
+  .then(function(answers) {
+    project = projects.filter(it => it.name == answers.projectName)[0]
+    description = answers.description
+    getLastTimeEntry(WORKSPACE).then((timeEntry) => createTimeEntry(timeEntry, project, description))
+  });
+}
 
-getLastTimeEntry(WORKSPACE).then((timeEntry) => createTimeEntryByCopying(timeEntry, args[0], args[1]))
+askAndCompileToggl()
