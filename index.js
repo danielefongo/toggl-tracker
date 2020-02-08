@@ -36,6 +36,15 @@ async function getProjects(workspace_id) {
   })
 }
 
+async function getProject(project_id) {
+  return new Promise((resolve, reject) => {
+    toggl.getProjectData(project_id, function(err, data) {
+      if(err) reject()
+      resolve(data)
+    });
+  })
+}
+
 async function searchProject(projects, keyword) {
   const searcher = new FuzzySearch(projects, ['name'], {caseSensitive: false, sort: true});
   return searcher.search(keyword)
@@ -61,7 +70,8 @@ async function createTimeEntry(timeEntry, project, description) {
   })
 }
 
-async function askForCustomTimeEntry(lastTimeEntry, projects) {
+async function askForCustomTimeEntry(lastTimeEntry) {
+  projects = await getProjects(WORKSPACE)
   inquirer.prompt([{
     name: 'description',
     message: 'What have you done?',
@@ -81,9 +91,8 @@ async function askForCustomTimeEntry(lastTimeEntry, projects) {
 }
 
 async function ask() {
-  projects = await getProjects(WORKSPACE)
   lastTimeEntry = await getLastTimeEntry(WORKSPACE)
-  lastTimeEntryProject = projects.filter(it => it.id == lastTimeEntry.pid)[0]
+  lastTimeEntryProject = await getProject(lastTimeEntry.pid)
   lastTimeEntryDescription = lastTimeEntry.description
 
   inquirer.prompt([
@@ -100,9 +109,8 @@ async function ask() {
     if (answers.usePreviousEntry == "True")
       createTimeEntry(lastTimeEntry, lastTimeEntryProject, lastTimeEntryDescription)
     else
-      askForCustomTimeEntry(lastTimeEntry, projects)
+      askForCustomTimeEntry(lastTimeEntry)
   });
-
 }
 
 ask()
