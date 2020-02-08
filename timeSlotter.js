@@ -1,9 +1,7 @@
 module.exports = function(intervals) {
     this.intervals = intervals
 
-    this.slotsFrom = function(start_time) {
-        end_time = new Date()
-      
+    this.slotsIn = function(start_time, end_time) {
         a = toDateRange(start_time, end_time).map(date => {
           return this.intervals.map(interval => {
             slot = timeSlotWithinInterval(start_time, end_time, date, interval)

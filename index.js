@@ -52,7 +52,8 @@ async function searchProject(projects, keyword) {
 
 async function createTimeEntry(timeEntry, project, description) {
   var timeEntryStop = new Date(timeEntry.stop)
-  timeSlotter.slotsFrom(timeEntryStop).forEach((timeSlot) => {
+  var now = new Date()
+  timeSlotter.slotsIn(timeEntryStop, now).forEach((timeSlot) => {
     toggl.createTimeEntry(
       {
         description: description,
