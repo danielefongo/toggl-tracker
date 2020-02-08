@@ -61,8 +61,7 @@ async function createTimeEntry(timeEntry, project, description) {
   })
 }
 
-async function askAndCompileToggl() {
-  projects = await getProjects(WORKSPACE)
+async function askForCustomTimeEntry(lastTimeEntry, projects) {
   inquirer.prompt([{
     name: 'description',
     message: 'What have you done?',
@@ -77,8 +76,33 @@ async function askAndCompileToggl() {
   .then(function(answers) {
     project = projects.filter(it => it.name == answers.projectName)[0]
     description = answers.description
-    getLastTimeEntry(WORKSPACE).then((timeEntry) => createTimeEntry(timeEntry, project, description))
+    createTimeEntry(lastTimeEntry, project, description)
   });
 }
 
-askAndCompileToggl()
+async function ask() {
+  projects = await getProjects(WORKSPACE)
+  lastTimeEntry = await getLastTimeEntry(WORKSPACE)
+  lastTimeEntryProject = projects.filter(it => it.id == lastTimeEntry.pid)[0]
+  lastTimeEntryDescription = lastTimeEntry.description
+
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'usePreviousEntry',
+      message: 'Continue with the previous activity? ("' + lastTimeEntryDescription + '" on project "' + lastTimeEntryProject.name + '")',
+      choices: [
+        'True', 'False',
+      ],
+    },
+  ])
+  .then(answers => {
+    if (answers.usePreviousEntry == "True")
+      createTimeEntry(lastTimeEntry, lastTimeEntryProject, lastTimeEntryDescription)
+    else
+      askForCustomTimeEntry(lastTimeEntry, projects)
+  });
+
+}
+
+ask()
