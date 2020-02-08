@@ -102,12 +102,12 @@ async function ask() {
       name: 'usePreviousEntry',
       message: 'Continue with the previous activity? ("' + lastTimeEntryDescription + '" on project "' + lastTimeEntryProject.name + '")',
       choices: [
-        'True', 'False',
+        'Yes', 'No',
       ],
     },
   ])
   .then(answers => {
-    if (answers.usePreviousEntry == "True")
+    if (answers.usePreviousEntry == "Yes")
       createTimeEntry(lastTimeEntry, lastTimeEntryProject, lastTimeEntryDescription)
     else
       askForCustomTimeEntry(lastTimeEntry)
