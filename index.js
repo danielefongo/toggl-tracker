@@ -53,21 +53,23 @@ async function searchProject(projects, keyword) {
 async function createTimeEntry(timeEntry, project, description) {
   var timeEntryStop = new Date(timeEntry.stop)
   var now = new Date()
-  timeSlotter.slotsIn(timeEntryStop, now).forEach((timeSlot) => {
-    toggl.createTimeEntry(
-      {
-        description: description,
-        pid: project.id,
-        billable: project.billable,
-        duration: timeSlot.duration,
-        start: timeSlot.start,
-        created_with: "toggl-sheet"
-      }, (err) => {
-        if(err) console.log(err)
-        else {
-          console.log("recorded \"" + description + "\" for \"" + project.name + "\" from " + timeSlot.start.toISOString() + " to " + timeSlot.end.toISOString())
-        }
-      })
+  timeSlotter.slotsIn(timeEntryStop, now).forEach((timeSlot, index) => {
+    setTimeout(function timer() {
+      toggl.createTimeEntry(
+        {
+          description: description,
+          pid: project.id,
+          billable: project.billable,
+          duration: timeSlot.duration,
+          start: timeSlot.start,
+          created_with: "toggl-sheet"
+        }, (err) => {
+          if(err)
+            console.log(err)
+          else
+            console.log("recorded \"" + description + "\" for \"" + project.name + "\" from " + timeSlot.start.toISOString() + " to " + timeSlot.end.toISOString())
+        })
+    }, index * 100);
   })
 }
 
