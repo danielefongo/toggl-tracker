@@ -13,37 +13,26 @@ var toggl = new Toggl(API_TOKEN);
 var timeSlotter = new TimeSlotter(intervals)
 var asker = new Asker()
 
-async function createTimeEntry(timeEntry, project, description) {
-  var timeEntryStop = new Date(timeEntry.stop)
-  var now = new Date()
-
-  timeSlotter.slotsIn(timeEntryStop, now).forEach((timeSlot, index) => {
-    setTimeout(function timer() {
-      toggl.createTimeEntry(project, description, timeSlot)
-      .then(_ => {
-        console.log("recorded \"" + description + "\" for \"" + project.name + "\" from " + timeSlot.start.toISOString() + " to " + timeSlot.end.toISOString())
-      })
-      .catch(console.log)
-    }, index * 100);
-  })
+async function createTimeEntry(start, end, project, description) {
+  slots = timeSlotter.slotsIn(start, end)
+  toggl.createTimeEntries(project, description, slots)
 }
 
 async function compileToggl() {
   lastTimeEntry = await toggl.getLastTimeEntry(WORKSPACE)
-  lastTimeEntryProject = await toggl.getProject(lastTimeEntry.pid)
-  lastTimeEntryProjectName = lastTimeEntryProject.name
-  lastTimeEntryDescription = lastTimeEntry.description
+  project = await toggl.getProject(lastTimeEntry.pid)
+  description = lastTimeEntry.description
+  newEntryStart = new Date(lastTimeEntry.stop)
+  newEntryStop = new Date()
 
-  continueLastActivity = await asker.shouldContinueLastActivity(lastTimeEntryProjectName, lastTimeEntryDescription)
+  continueLastActivity = await asker.shouldContinueLastActivity(project.name, description)
 
-  if (continueLastActivity == true)
-    createTimeEntry(lastTimeEntry, lastTimeEntryProject, lastTimeEntryDescription)
-  else {
+  if (continueLastActivity == false) {
     projects = await toggl.getProjects(WORKSPACE)
     description = await asker.whatHaveYouDone()
     project = await asker.chooseProject(projects)
-    createTimeEntry(lastTimeEntry, project, description)
   }
+  createTimeEntry(newEntryStart, newEntryStop, project, description)
 }
 
 compileToggl()

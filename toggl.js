@@ -3,7 +3,18 @@ const TogglClient = require('toggl-api');
 module.exports = function(token) {
     this.toggl = new TogglClient({apiToken: token});
     
-    this.createTimeEntry = async function(project, description, timeSlot) {
+    this.createTimeEntries = async function(project, description, timeSlots) {
+        self = this
+        timeSlots.forEach((timeSlot, index) => {
+            setTimeout(function timer() {
+                self.createSingleTimeEntry(project, description, timeSlot)
+                .then(_ => { console.log("recorded \"" + description + "\" for \"" + project.name + "\" from " + timeSlot.start.toISOString() + " to " + timeSlot.end.toISOString()) })
+                .catch(console.log)
+            }, index * 100);
+        })
+    }
+
+    this.createSingleTimeEntry = async function(project, description, timeSlot) {
         return new Promise((resolve, reject) => {
             this.toggl.createTimeEntry({
                 description: description,
