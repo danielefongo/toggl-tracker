@@ -35,12 +35,17 @@ async function createTimeEntry(timeEntry, project, description) {
   })
 }
 
-async function askForCustomTimeEntry(lastTimeEntry) {
-  projects = await toggl.getProjects(WORKSPACE)
-  inquirer.prompt([{
+async function whatHaveYouDone() {
+  answer = await inquirer.prompt([{
     name: 'description',
     message: 'What have you done?',
-  },{
+  }])
+
+  return answer.description
+}
+
+async function chooseProject(projects) {
+  answer = await inquirer.prompt([{
     type: 'ask-for-project',
     name: 'projectName',
     message: 'Select project name',
@@ -48,34 +53,39 @@ async function askForCustomTimeEntry(lastTimeEntry) {
       return searchProject(projects, id)
     },
   }])
-  .then(function(answers) {
-    project = projects.filter(it => it.name == answers.projectName)[0]
-    description = answers.description
-    createTimeEntry(lastTimeEntry, project, description)
-  });
+
+  return projects.filter(it => it.name == answer.projectName)[0]
+}
+
+async function shouldContinueLastActivity(projectName, description) {
+  answer = await inquirer.prompt([{
+      type: 'list',
+      name: 'usePreviousEntry',
+      message: 'Continue with the previous activity? ("' + description + '" on project "' + projectName + '")',
+      choices: [
+        'Yes', 'No',
+      ],
+    }
+  ])
+  return answer.usePreviousEntry == "Yes"
 }
 
 async function ask() {
   lastTimeEntry = await toggl.getLastTimeEntry(WORKSPACE)
   lastTimeEntryProject = await toggl.getProject(lastTimeEntry.pid)
+  lastTimeEntryProjectName = lastTimeEntryProject.name
   lastTimeEntryDescription = lastTimeEntry.description
 
-  inquirer.prompt([
-    {
-      type: 'list',
-      name: 'usePreviousEntry',
-      message: 'Continue with the previous activity? ("' + lastTimeEntryDescription + '" on project "' + lastTimeEntryProject.name + '")',
-      choices: [
-        'Yes', 'No',
-      ],
-    },
-  ])
-  .then(answers => {
-    if (answers.usePreviousEntry == "Yes")
-      createTimeEntry(lastTimeEntry, lastTimeEntryProject, lastTimeEntryDescription)
-    else
-      askForCustomTimeEntry(lastTimeEntry)
-  });
+  continueLastActivity = await shouldContinueLastActivity(lastTimeEntryProjectName, lastTimeEntryDescription)
+
+  if (continueLastActivity == true)
+    createTimeEntry(lastTimeEntry, lastTimeEntryProject, lastTimeEntryDescription)
+  else {
+    projects = await toggl.getProjects(WORKSPACE)
+    description = await whatHaveYouDone()
+    project = await chooseProject(projects)
+    createTimeEntry(lastTimeEntry, project, description)
+  }
 }
 
 ask()
