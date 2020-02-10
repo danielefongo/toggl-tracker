@@ -20,6 +20,16 @@ TOGGL_WORKSPACE=<workspace_id>
 
 You can put these variables in a `.env` file in the project root or export them before running the tool.
 
+#### Obtain toggl token
+
+* Go to toggl profile [page](https://toggl.com/app/profile) and scroll down until the end.
+
+#### Obtain toggl workspace
+
+* Go to projects [page](https://toggl.com/app/projects/)
+* Select the workspace
+* The url contains the workspace id: `https://toggl.com/app/projects/<WORKSPACE_ID>/list`
+
 ### Run
 To run the tool just execute the following command:
 ```
