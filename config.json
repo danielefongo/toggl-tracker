@@ -1,0 +1,13 @@
+{
+  "utcWorkingHoursIntervals":
+  [
+    {
+      "start": 8,
+      "end": 12
+    },
+    {
+      "start": 13,
+      "end": 17
+    }
+  ]
+}

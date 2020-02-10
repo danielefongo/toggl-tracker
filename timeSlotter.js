@@ -47,8 +47,8 @@ module.exports = function(intervals) {
         return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
     }
     
-    function utcDayWithCustomHour(date, hours) {
-        return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), hours, 0))
+    function utcDayWithCustomHour(date, hour) {
+      return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), hour))
     }
     
     function secondsBetween(start, end) {

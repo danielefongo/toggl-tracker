@@ -6,8 +6,8 @@ const Asker = require('./asker')
 API_TOKEN=process.env.TOGGL_TOKEN
 WORKSPACE=process.env.TOGGL_WORKSPACE
 
-const UTCHoursInterval = require('./utcHoursInterval')
-const intervals = [new UTCHoursInterval(8, 12), new UTCHoursInterval(13, 17)]
+const config = require('./config.json')
+const intervals = config.utcWorkingHoursIntervals
 
 var toggl = new Toggl(API_TOKEN);
 var timeSlotter = new TimeSlotter(intervals)
