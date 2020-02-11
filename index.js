@@ -2,19 +2,23 @@ require('dotenv').config()
 const Toggl = require('./toggl');
 const TimeSlotter = require('./timeSlotter')
 const Asker = require('./asker')
+const DaysApi = require('./daysApi');
 
-API_TOKEN=process.env.TOGGL_TOKEN
+GOOGLE_API_TOKEN=process.env.GOOGLE_TOKEN
+GOOGLE_API_LOCALE=process.env.GOOGLE_LOCALE
+TOGGL_API_TOKEN=process.env.TOGGL_TOKEN
 WORKSPACE=process.env.TOGGL_WORKSPACE
 
 const config = require('./config.json')
 const intervals = config.utcWorkingHoursIntervals
 
-var toggl = new Toggl(API_TOKEN);
-var timeSlotter = new TimeSlotter(intervals)
+var daysApi = new DaysApi(GOOGLE_API_TOKEN, GOOGLE_API_LOCALE)
+var toggl = new Toggl(TOGGL_API_TOKEN);
+var timeSlotter = new TimeSlotter(daysApi, intervals)
 var asker = new Asker()
 
 async function createTimeEntry(start, end, project, description) {
-  slots = timeSlotter.slotsIn(start, end)
+  slots = await timeSlotter.slotsIn(start, end)
   toggl.createTimeEntries(project, description, slots)
 }
 

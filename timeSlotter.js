@@ -1,11 +1,14 @@
-module.exports = function(intervals) {
+module.exports = function(daysApi, intervals) {
+  this.daysApi = daysApi
   this.intervals = intervals
 
-  this.slotsIn = function(start_time, end_time) {
-    slots = toDateRange(start_time, end_time).map(date => {
-      return this.intervals.map(interval => timeSlotWithinInterval(start_time, end_time, date, interval))
-    })
-    return slots.flat().filter(it => it !== undefined)
+  this.slotsIn = async function(start_time, end_time) {
+    workingDays = await this.daysApi.workingDaysIn(start_time, end_time)
+    
+    return workingDays
+    .map(date => this.intervals.map(interval => timeSlotWithinInterval(start_time, end_time, date, interval)))
+    .flat()
+    .filter(it => it !== undefined)
   }
     
   function timeSlotWithinInterval(start, end, day, utcHoursInterval) {
@@ -23,28 +26,7 @@ module.exports = function(intervals) {
       duration: secondsBetween(start, end)
     }
   }
-    
-  function toDateRange(startDate, endDate) {
-    var currentDate = utcDay(startDate);
-  
-    dateList = []
-    while (utcDay(currentDate) <= utcDay(endDate)) {
-      if(isWorkingDay(currentDate))
-        dateList.push(new Date(currentDate))
-      currentDate.setUTCDate(currentDate.getUTCDate() + 1);
-    }
-    return dateList
-  }
-  
-  function isWorkingDay(date) {
-    var day = date.getDay();
-    return day != 0 && day != 6
-  }
-  
-  function utcDay(date) {
-    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
-  }
-  
+
   function utcDayWithCustomHour(date, hour) {
     return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), hour))
   }
