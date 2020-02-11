@@ -30,8 +30,8 @@ async function compileToggl() {
 
   if (continueLastActivity == false) {
     projects = await toggl.getProjects(WORKSPACE)
-    description = await asker.whatHaveYouDone()
     project = await asker.chooseProject(projects)
+    description = await asker.whatHaveYouDone()
   }
   
   now = new Date()
