@@ -1,5 +1,5 @@
 require('dotenv').config()
-const Toggl = require('./toggl');
+const Toggl = require('./togglApi');
 const TimeSlotter = require('./timeSlotter')
 const Asker = require('./asker')
 const DaysApi = require('./daysApi');
@@ -13,23 +13,23 @@ const config = require('./config.json')
 const intervals = config.utcWorkingHoursIntervals
 
 var daysApi = new DaysApi(GOOGLE_API_TOKEN, GOOGLE_API_LOCALE)
-var toggl = new Toggl(TOGGL_API_TOKEN);
+var togglApi = new Toggl(TOGGL_API_TOKEN);
 var timeSlotter = new TimeSlotter(daysApi, intervals)
 var asker = new Asker()
 
 async function createTimeEntry(start, end, project, description) {
   slots = await timeSlotter.slotsIn(start, end)
-  toggl.createTimeEntries(project, description, slots)
+  togglApi.createTimeEntries(project, description, slots)
 }
 
 async function compileToggl() {
-  lastTimeEntry = await toggl.getLastTimeEntry(WORKSPACE)
-  project = await toggl.getProject(lastTimeEntry.pid)
+  lastTimeEntry = await togglApi.getLastTimeEntry(WORKSPACE)
+  project = await togglApi.getProject(lastTimeEntry.pid)
   description = lastTimeEntry.description
   continueLastActivity = await asker.shouldContinueLastActivity(project.name, description)
 
   if (continueLastActivity == false) {
-    projects = await toggl.getProjects(WORKSPACE)
+    projects = await togglApi.getProjects(WORKSPACE)
     project = await asker.chooseProject(projects)
     description = await asker.whatHaveYouDone()
   }
