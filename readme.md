@@ -49,5 +49,6 @@ node index.js
 ```
 
 ## Todos
+- Use local hours
 - Handle temporal holes (greater than 6 days) between last time entry and now.
 - Make working days configurable
