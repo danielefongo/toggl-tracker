@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 module.exports = function(daysApi, intervals) {
   this.daysApi = daysApi
   this.intervals = intervals
@@ -11,27 +13,19 @@ module.exports = function(daysApi, intervals) {
     .filter(it => it !== undefined)
   }
     
-  function timeSlotWithinInterval(start, end, day, utcHoursInterval) {
-    interval_start = utcDayWithCustomHour(day, utcHoursInterval.start)
-    interval_end = utcDayWithCustomHour(day, utcHoursInterval.end)
+  function timeSlotWithinInterval(start, end, day, hoursInterval) {
+    interval_start = moment(day).hours(hoursInterval.start)
+    interval_end = moment(day).hours(hoursInterval.end)
     
     if(end <= interval_start || start >= interval_end)
       return undefined
     
-    start = new Date(Math.max(start, interval_start))
-    end = new Date(Math.min(end, interval_end))
+    start = moment.max(start, interval_start)
+    end = moment.min(end, interval_end)
     return {
       start: start,
       end: end,
-      duration: secondsBetween(start, end)
+      duration: end.diff(start) / 1000
     }
-  }
-
-  function utcDayWithCustomHour(date, hour) {
-    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), hour))
-  }
-  
-  function secondsBetween(start, end) {
-    return Math.round((end - start) / 1000)
   }
 }

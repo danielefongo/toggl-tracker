@@ -1,4 +1,5 @@
 const axios = require('axios').default;
+const moment = require('moment')
 
 module.exports = function(apiKey, locale) {
   this.API_KEY = apiKey
@@ -31,18 +32,19 @@ module.exports = function(apiKey, locale) {
   }
 
   function toDateRangeExcludingLast(it) {
-    startDay = new Date(it.start.date)
-    endDay = addDaysTo(new Date(it.end.date), -1)
+    startDay = moment(it.start.date)
+    endDay = moment(it.end.date).add(-1, 'day')
     return toDateRange(startDay, endDay)
   }
 
   function toDateRange(startDate, endDate) {
-    var currentDate = utcDay(startDate);
+    currentDate = moment(startDate).startOf('day')
+    endDate = moment(endDate).startOf('day')
 
     dateList = []
-    while (utcDay(currentDate) <= utcDay(endDate)) {
-      dateList.push(new Date(currentDate))
-      currentDate = addDaysTo(currentDate, 1)
+    while (currentDate <= endDate) {
+      dateList.push(moment(currentDate))
+      currentDate.add(1, 'day')
     }
     return dateList
   }
@@ -54,21 +56,10 @@ module.exports = function(apiKey, locale) {
   }
 
   function isWeekDay(date) {
-    var day = date.getDay();
-    return day != 0 && day != 6
+    return date.weekday() != 0 && date.weekday() != 6
   }
 
   function isNotFestive(date, festiveDays) {
-    return ! festiveDays.some(it => it.getTime() == date.getTime())
-  }
-
-  function utcDay(date) {
-    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
-  }
-
-  function addDaysTo(date, days) {
-    newDate = new Date(date)
-    newDate.setUTCDate(newDate.getUTCDate() + days)
-    return newDate
+    return ! festiveDays.some(it => it.diff(date) == 0)
   }
 }

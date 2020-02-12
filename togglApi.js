@@ -8,7 +8,7 @@ module.exports = function(token) {
     timeSlots.forEach((timeSlot, index) => {
       setTimeout(function timer() {
         self.createSingleTimeEntry(project, description, timeSlot)
-        .then(_ => console.log("recorded \"" + description + "\" for \"" + project.name + "\" from " + timeSlot.start.toISOString() + " to " + timeSlot.end.toISOString()))
+        .then(_ => console.log("recorded \"" + description + "\" for \"" + project.name + "\" from " + timeSlot.start.format() + " to " + timeSlot.end.format()))
         .catch(console.log)
       }, index * 100);
     })
@@ -21,7 +21,7 @@ module.exports = function(token) {
         pid: project.id,
         billable: project.billable,
         duration: timeSlot.duration,
-        start: timeSlot.start,
+        start: timeSlot.start.toDate(),
         created_with: "toggl-sheet"
       }, (err) => {
         if(err)

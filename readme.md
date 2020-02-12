@@ -4,8 +4,8 @@
 
 By default only working hours are included in time entry generation:
 - From monday to friday
-- From 8:00 to 12:00 (Zulu Time)
-- From 13:00 to 17:00 (Zulu Time)
+- From 9:00 to 13:00 (Local Time)
+- From 14:00 to 18:00 (Local Time)
 
 Working hours can be configured by changing the `config.json` file while working days are still hardcoded.
 
@@ -49,6 +49,5 @@ node index.js
 ```
 
 ## Todos
-- Use local hours
 - Handle temporal holes (greater than 6 days) between last time entry and now.
 - Make working days configurable
