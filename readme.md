@@ -47,6 +47,3 @@ To run the tool just execute the following command:
 ```
 node index.js
 ```
-
-## Todos
-- Handle temporal holes (greater than 6 days) between last time entry and now.

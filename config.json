@@ -1,4 +1,5 @@
 {
+  "lookBehindDays": 30,
   "workingDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
   "workingHoursIntervals":
   [

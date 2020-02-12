@@ -31,9 +31,9 @@ module.exports = function(token) {
     })
   }
 
-  this.getLastTimeEntry = async function(workspace_id) {
+  this.getLastTimeEntry = async function(workspace_id, fromMoment, toMoment) {
     return new Promise((resolve, reject) => {
-      this.toggl.getTimeEntries(function(err, data) {
+      this.toggl.getTimeEntries(date(fromMoment), date(toMoment), function(err, data) {
         if(err) reject()
         resolve(data
           .filter(element => element.wid == workspace_id)
@@ -59,5 +59,9 @@ module.exports = function(token) {
         resolve(data)
       });
     })
+  }
+
+  function date(moment) {
+    return moment.toDate()
   }
 }

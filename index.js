@@ -13,6 +13,7 @@ WORKSPACE=process.env.TOGGL_WORKSPACE
 const config = require('./config.json')
 const intervals = config.workingHoursIntervals
 const workingDays = config.workingDays
+const lookBehindDays = config.lookBehindDays
 
 var daysApi = new DaysApi(workingDays, GOOGLE_API_TOKEN, GOOGLE_API_LOCALE)
 var togglApi = new Toggl(TOGGL_API_TOKEN);
@@ -25,7 +26,7 @@ async function createTimeEntry(start, end, project, description) {
 }
 
 async function compileToggl() {
-  lastTimeEntry = await togglApi.getLastTimeEntry(WORKSPACE)
+  lastTimeEntry = await togglApi.getLastTimeEntry(WORKSPACE, moment().add(-lookBehindDays, 'day'), moment())
   project = await togglApi.getProject(lastTimeEntry.pid)
   description = lastTimeEntry.description
   continueLastActivity = await asker.shouldContinueLastActivity(project.name, description)
