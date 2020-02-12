@@ -5,48 +5,48 @@ module.exports = function(apiKey, locale) {
   this.API_KEY = apiKey
   this.locale = locale
 
-  this.workingDaysIn = async function(startDate, endDate) {
-    var festiveDays = await this.festiveDaysIn(startDate, endDate)
+  this.workingDaysIn = async function(startMoment, endMoment) {
+    var festiveDays = await this.festiveDaysIn(startMoment, endMoment)
 
-    return toDateRange(startDate, endDate)
-    .filter(it => isWeekDay(it) && isNotFestive(it, festiveDays))
+    return toDaysRange(startMoment, endMoment)
+    .filter(day => isWeekDay(day) && isNotFestive(day, festiveDays))
   }
 
-  this.weekendDaysIn = async function(startDate, endDate) {
-    return toDateRange(startDate, endDate)
-    .filter(it => ! isWeekDay(it))
+  this.weekendDaysIn = async function(startMoment, endMoment) {
+    return toDaysRange(startMoment, endMoment)
+    .filter(day => ! isWeekDay(day))
   }
 
-  this.festiveDaysIn = async function(startDate, endDate) {
+  this.festiveDaysIn = async function(startMoment, endMoment) {
     return axios.get('https://www.googleapis.com/calendar/v3/calendars/en.' + this.locale + '%23holiday%40group.v.calendar.google.com/events?key=' + this.API_KEY)
     .then(response => {
       return response.data.items
         .reduce(removeDuplicateFestivities, [])
-        .map(toDateRangeExcludingLast)
+        .map(toDaysRangeExcludingLast)
         .flat()
-        .filter(it => it >= startDate && it <= endDate)
+        .filter(day => day >= startMoment && day <= endMoment)
     }).catch(_ => {
       console.log("WARNING: Error while retreiving festive days. They wont be skipped.")
       return []
     })
   }
 
-  function toDateRangeExcludingLast(it) {
+  function toDaysRangeExcludingLast(it) {
     startDay = moment(it.start.date)
     endDay = moment(it.end.date).add(-1, 'day')
-    return toDateRange(startDay, endDay)
+    return toDaysRange(startDay, endDay)
   }
 
-  function toDateRange(startDate, endDate) {
-    currentDate = moment(startDate).startOf('day')
-    endDate = moment(endDate).startOf('day')
+  function toDaysRange(startMoment, endMoment) {
+    currentDay = moment(startMoment).startOf('day')
+    endDay = moment(endMoment).startOf('day')
 
-    dateList = []
-    while (currentDate <= endDate) {
-      dateList.push(moment(currentDate))
-      currentDate.add(1, 'day')
+    daysList = []
+    while (currentDay <= endDay) {
+      daysList.push(moment(currentDay))
+      currentDay.add(1, 'day')
     }
-    return dateList
+    return daysList
   }
 
   function removeDuplicateFestivities(acc, curr) {
@@ -55,11 +55,11 @@ module.exports = function(apiKey, locale) {
     return acc
   }
 
-  function isWeekDay(date) {
-    return date.weekday() != 0 && date.weekday() != 6
+  function isWeekDay(day) {
+    return day.weekday() != 0 && day.weekday() != 6
   }
 
-  function isNotFestive(date, festiveDays) {
-    return ! festiveDays.some(it => it.diff(date) == 0)
+  function isNotFestive(day, festiveDays) {
+    return ! festiveDays.some(festive => festive.diff(day) == 0)
   }
 }

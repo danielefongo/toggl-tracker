@@ -4,28 +4,28 @@ module.exports = function(daysApi, intervals) {
   this.daysApi = daysApi
   this.intervals = intervals
 
-  this.slotsIn = async function(start_time, end_time) {
-    workingDays = await this.daysApi.workingDaysIn(start_time, end_time)
+  this.slotsIn = async function(startTime, endTime) {
+    workingDays = await this.daysApi.workingDaysIn(startTime, endTime)
     
     return workingDays
-    .map(date => this.intervals.map(interval => timeSlotWithinInterval(start_time, end_time, date, interval)))
+    .map(day => this.intervals.map(interval => timeSlotWithinInterval(startTime, endTime, day, interval)))
     .flat()
     .filter(it => it !== undefined)
   }
     
   function timeSlotWithinInterval(start, end, day, hoursInterval) {
-    interval_start = moment(day).hours(hoursInterval.start)
-    interval_end = moment(day).hours(hoursInterval.end)
+    intervalStartMoment = moment(day).hours(hoursInterval.start)
+    intervalEndMoment = moment(day).hours(hoursInterval.end)
     
-    if(end <= interval_start || start >= interval_end)
+    if(end <= intervalStartMoment || start >= intervalEndMoment)
       return undefined
     
-    start = moment.max(start, interval_start)
-    end = moment.min(end, interval_end)
+    startMoment = moment.max(start, intervalStartMoment)
+    endMoment = moment.min(end, intervalEndMoment)
     return {
-      start: start,
-      end: end,
-      duration: end.diff(start) / 1000
+      start: startMoment,
+      end: endMoment,
+      duration: endMoment.diff(startMoment) / 1000
     }
   }
 }
