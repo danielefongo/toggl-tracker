@@ -2,7 +2,7 @@ const axios = require('axios').default;
 
 module.exports = function(apiKey, locale) {
   this.API_KEY = apiKey
-  this.locale = "italian"
+  this.locale = locale
 
   this.workingDaysIn = async function(startDate, endDate) {
     var festiveDays = await this.festiveDaysIn(startDate, endDate)
