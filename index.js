@@ -12,8 +12,9 @@ WORKSPACE=process.env.TOGGL_WORKSPACE
 
 const config = require('./config.json')
 const intervals = config.workingHoursIntervals
+const workingDays = config.workingDays
 
-var daysApi = new DaysApi(GOOGLE_API_TOKEN, GOOGLE_API_LOCALE)
+var daysApi = new DaysApi(workingDays, GOOGLE_API_TOKEN, GOOGLE_API_LOCALE)
 var togglApi = new Toggl(TOGGL_API_TOKEN);
 var timeSlotter = new TimeSlotter(daysApi, intervals)
 var asker = new Asker()

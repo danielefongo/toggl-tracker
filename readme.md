@@ -7,7 +7,7 @@ By default only working hours are included in time entry generation:
 - From 9:00 to 13:00 (Local Time)
 - From 14:00 to 18:00 (Local Time)
 
-Working hours can be configured by changing the `config.json` file while working days are still hardcoded.
+Working days and Working hours can be configured by changing the `config.json` file.
 
 ## Getting started
 
@@ -50,4 +50,3 @@ node index.js
 
 ## Todos
 - Handle temporal holes (greater than 6 days) between last time entry and now.
-- Make working days configurable

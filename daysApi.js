@@ -1,7 +1,8 @@
 const axios = require('axios').default;
 const moment = require('moment')
 
-module.exports = function(apiKey, locale) {
+module.exports = function(workingDays, apiKey, locale) {
+  this.workingDays = workingDays
   this.API_KEY = apiKey
   this.locale = locale
 
@@ -9,12 +10,12 @@ module.exports = function(apiKey, locale) {
     var festiveDays = await this.festiveDaysIn(startMoment, endMoment)
 
     return toDaysRange(startMoment, endMoment)
-    .filter(day => isWeekDay(day) && isNotFestive(day, festiveDays))
+    .filter(day => isWeekDay(day, this.workingDays) && isNotFestive(day, festiveDays))
   }
 
   this.weekendDaysIn = async function(startMoment, endMoment) {
     return toDaysRange(startMoment, endMoment)
-    .filter(day => ! isWeekDay(day))
+    .filter(day => ! isWeekDay(day, this.workingDays))
   }
 
   this.festiveDaysIn = async function(startMoment, endMoment) {
@@ -55,8 +56,8 @@ module.exports = function(apiKey, locale) {
     return acc
   }
 
-  function isWeekDay(day) {
-    return day.weekday() != 0 && day.weekday() != 6
+  function isWeekDay(day, workingDays) {
+    return workingDays.some(working => working == day.format("dddd"))
   }
 
   function isNotFestive(day, festiveDays) {
