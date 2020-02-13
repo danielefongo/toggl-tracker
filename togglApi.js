@@ -8,7 +8,7 @@ module.exports = function(token) {
     timeSlots.forEach((timeSlot, index) => {
       setTimeout(function timer() {
         self.createSingleTimeEntry(project, description, timeSlot)
-        .then(_ => console.log("recorded \"" + description + "\" for \"" + project.name + "\" from " + timeSlot.start.format('MMM DD HH:mm') + " to " + timeSlot.end.format('MMM DD HH:mm')))
+        .then(_ => console.log("recorded \"" + description + "\" on project \"" + project.name + "\" for " + timeSlot.start.format('MMM DD') + ", from " + timeSlot.start.format('HH:mm') + " to " + timeSlot.end.format('HH:mm')))
         .catch(console.log)
       }, index * 100);
     })

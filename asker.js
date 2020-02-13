@@ -54,7 +54,7 @@ module.exports = function() {
   function intervalsToChoices(intervals) {
     return intervals.map(it => {
       return {
-        name: it.start.format('MMM DD HH:mm') + " -> " + it.end.format('MMM DD HH:mm'),
+        name: it.start.format("MMM DD") + ": " + it.start.format('HH:mm') + " -> " + it.end.format('HH:mm'),
         value: it
       }
     })
