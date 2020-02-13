@@ -14,6 +14,7 @@ const config = require('./config.json')
 const intervals = config.workingHoursIntervals
 const workingDays = config.workingDays
 const lookBehindDays = config.lookBehindDays
+const lookForwardDays = config.lookForwardDays
 
 var daysApi = new DaysApi(workingDays, GOOGLE_API_TOKEN, GOOGLE_API_LOCALE)
 var togglApi = new Toggl(TOGGL_API_TOKEN);
@@ -42,7 +43,7 @@ async function holesBetween(start, end) {
 
 async function compileToggl() {
   start = moment().add(-lookBehindDays, 'day')
-  end = moment().endOf('day')
+  end = moment().startOf('day').add(lookForwardDays, 'day')
 
   holes = await holesBetween(start, end)
   slots = await timeSlotter.slotsInMany(holes)

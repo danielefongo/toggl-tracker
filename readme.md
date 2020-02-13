@@ -2,7 +2,7 @@
 
 **toggl-compile** is a simple nodejs tool to automatically generate time entries on Toggl. It can be used in 2 different ways:
 - **Append mode**, by recording from the last recorded activity.
-- **Picky mode**, by compiling not-filled selected past holes.
+- **Picky mode**, by compiling not-filled selected past (and future) holes.
 
 By default only working hours are included in time entry generation:
 - From monday to friday
