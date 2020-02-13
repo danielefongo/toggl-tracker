@@ -7,21 +7,29 @@ module.exports = function(daysApi, intervals) {
   this.slotsIn = async function(startTime, endTime) {
     workingDays = await this.daysApi.workingDaysIn(startTime, endTime)
     
-    return workingDays
-    .map(day => this.intervals.map(interval => timeSlotWithinInterval(startTime, endTime, day, interval)))
-    .flat()
-    .filter(it => it !== undefined)
+    return slots(startTime, endTime, workingDays, this.intervals)
   }
 
   this.slotsInMany = async function(startEnd) {
-    promises = startEnd.map(async(it) => await this.slotsIn(it.start, it.end), this)
+    globalStart = moment.min(startEnd.map(it => it.start))
+    globalEnd = moment.max(startEnd.map(it => it.end))
 
-    return Promise
-    .all(promises)
-    .then(result => result.flat().filter(it => it.end.diff(it.start) > 0))
+    workingDays = await this.daysApi.workingDaysIn(globalStart, globalEnd)
+
+    return startEnd
+    .map(it => slots(it.start, it.end, workingDays, this.intervals))
+    .flat()
+    .filter(it => it.end.diff(it.start) > 0)
+  }
+
+  function slots(startTime, endTime, workingDays, intervals) {
+    return workingDays
+    .map(day => intervals.map(interval => slotWithinInterval(startTime, endTime, day, interval)))
+    .flat()
+    .filter(it => it !== undefined)
   }
     
-  function timeSlotWithinInterval(start, end, day, hoursInterval) {
+  function slotWithinInterval(start, end, day, hoursInterval) {
     intervalStartMoment = moment(day).hours(hoursInterval.start)
     intervalEndMoment = moment(day).hours(hoursInterval.end)
     
