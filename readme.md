@@ -49,11 +49,11 @@ The `GOOGLE_TOKEN` and `GOOGLE_LOCALE` variables are used to retrieve national h
 #### Append mode
 To run the tool in append mode just execute the following command:
 ```
-node append.js
+npm run append
 ```
 
 #### Picky mode
 To run the tool in random mode just execute the following command:
 ```
-node picky.js
+npm run picky
 ```
