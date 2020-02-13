@@ -14,23 +14,24 @@ module.exports = function() {
   }
     
   this.chooseProject = async function(projects) {
+    choices = projectsToChoices(projects)
     answer = await inquirer.prompt([{
       type: 'ask-for-project',
-      name: 'projectName',
+      name: 'project',
       message: 'Select project name',
-      source: (_, id) => searchProject(projects, id)
+      source: (_, id) => searchProject(choices, id)
     }])
     
-    return projects.filter(it => it.name == answer.projectName)[0]
+    return projects.filter(it => it.id == answer.project.id)[0]
   }
 
   this.pickIntervals = async function(intervals) {
-    intervals = intervalsToChoices(intervals)
+    choices = intervalsToChoices(intervals)
     answer = await inquirer.prompt([{
       type: 'checkbox',
       name: 'interval',
       message: 'Pick interval(s)',
-      choices: intervals
+      choices: choices
     }])
 
     return answer.interval
@@ -55,6 +56,15 @@ module.exports = function() {
     return intervals.map(it => {
       return {
         name: it.start.format("MMM DD") + ": " + it.start.format('HH:mm') + " -> " + it.end.format('HH:mm'),
+        value: it
+      }
+    })
+  }
+
+  function projectsToChoices(projects) {
+    return projects.map(it => {
+      return {
+        name: it.name,
         value: it
       }
     })
