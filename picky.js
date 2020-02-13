@@ -39,7 +39,7 @@ async function holesBetween(start, end) {
 
 async function compileToggl() {
   start = moment().add(-lookBehindDays, 'day')
-  end = moment()
+  end = moment().endOf('day')
 
   holes = await holesBetween(start, end)
   slots = await timeSlotter.slotsInMany(holes)
