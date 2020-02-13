@@ -18,12 +18,24 @@ module.exports = function() {
       type: 'ask-for-project',
       name: 'projectName',
       message: 'Select project name',
-      source: (previousAnser, id) => searchProject(projects, id)
+      source: (_, id) => searchProject(projects, id)
     }])
     
     return projects.filter(it => it.name == answer.projectName)[0]
   }
-    
+
+  this.pickIntervals = async function(intervals) {
+    intervals = intervalsToChoices(intervals)
+    answer = await inquirer.prompt([{
+      type: 'checkbox',
+      name: 'interval',
+      message: 'Pick interval(s)',
+      choices: intervals
+    }])
+
+    return answer.interval
+  }
+
   this.shouldContinueLastActivity = async function(projectName, description) {
     answer = await inquirer.prompt([{
       type: 'list',
@@ -37,5 +49,14 @@ module.exports = function() {
   async function searchProject(projects, keyword) {
     const searcher = new FuzzySearch(projects, ['name'], {caseSensitive: false, sort: true});
     return searcher.search(keyword)
+  }
+
+  function intervalsToChoices(intervals) {
+    return intervals.map(it => {
+      return {
+        name: it.start.format('MMM DD HH:mm') + " -> " + it.end.format('MMM DD HH:mm'),
+        value: it
+      }
+    })
   }
 }

@@ -1,6 +1,8 @@
 # toggl-compile
 
-**toggl-compile** is a simple nodejs tool to automatically generate time entries on Toggl from the last recorded activity.
+**toggl-compile** is a simple nodejs tool to automatically generate time entries on Toggl. It can be used in 2 different ways:
+- **Append mode**, by recording from the last recorded activity.
+- **Picky mode**, by compiling not-filled selected past holes.
 
 By default only working hours are included in time entry generation:
 - From monday to friday
@@ -43,7 +45,15 @@ The `GOOGLE_TOKEN` and `GOOGLE_LOCALE` variables are used to retrieve national h
 * Go in this [page](https://gist.github.com/danielefongo/0bce52012cde8f714cfb7ec1e677c7bd) and search for the locale you want to use
 
 ### Run
-To run the tool just execute the following command:
+
+#### Append mode
+To run the tool in append mode just execute the following command:
 ```
-node index.js
+node append.js
+```
+
+#### Picky mode
+To run the tool in random mode just execute the following command:
+```
+node picky.js
 ```

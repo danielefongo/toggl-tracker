@@ -8,7 +8,7 @@ module.exports = function(token) {
     timeSlots.forEach((timeSlot, index) => {
       setTimeout(function timer() {
         self.createSingleTimeEntry(project, description, timeSlot)
-        .then(_ => console.log("recorded \"" + description + "\" for \"" + project.name + "\" from " + timeSlot.start.format() + " to " + timeSlot.end.format()))
+        .then(_ => console.log("recorded \"" + description + "\" for \"" + project.name + "\" from " + timeSlot.start.format('MMM DD HH:mm') + " to " + timeSlot.end.format('MMM DD HH:mm')))
         .catch(console.log)
       }, index * 100);
     })
@@ -31,16 +31,18 @@ module.exports = function(token) {
     })
   }
 
-  this.getLastTimeEntry = async function(workspace_id, fromMoment, toMoment) {
+  this.getTimeEntries = async function(workspace_id, fromMoment, toMoment) {
     return new Promise((resolve, reject) => {
       this.toggl.getTimeEntries(date(fromMoment), date(toMoment), function(err, data) {
         if(err) reject()
-        resolve(data
-          .filter(element => element.wid == workspace_id)
-          .pop()
-        );
+        resolve(data.filter(element => element.wid == workspace_id));
       })
     })
+  }
+
+  this.getLastTimeEntry = async function(workspace_id, fromMoment, toMoment) {
+    timeEntries = await this.getTimeEntries(workspace_id, fromMoment, toMoment)
+    return timeEntries.pop()
   }
 
   this.getProjects = async function(workspace_id) {

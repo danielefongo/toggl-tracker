@@ -12,6 +12,14 @@ module.exports = function(daysApi, intervals) {
     .flat()
     .filter(it => it !== undefined)
   }
+
+  this.slotsInMany = async function(startEnd) {
+    promises = startEnd.map(async(it) => await this.slotsIn(it.start, it.end), this)
+
+    return Promise
+    .all(promises)
+    .then(result => result.flat().filter(it => it.end.diff(it.start) > 0))
+  }
     
   function timeSlotWithinInterval(start, end, day, hoursInterval) {
     intervalStartMoment = moment(day).hours(hoursInterval.start)
