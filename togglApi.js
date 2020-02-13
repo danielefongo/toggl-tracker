@@ -54,6 +54,15 @@ module.exports = function(token) {
     })
   }
 
+  this.getClients = async function() {
+    return new Promise((resolve, reject) => {
+      this.toggl.getClients(function(err, data) {
+        if(err) reject()
+        resolve(data)
+      });
+    })
+  }
+
   this.getProject = async function(project_id) {
     return new Promise((resolve, reject) => {
       this.toggl.getProjectData(project_id, function(err, data) {

@@ -13,8 +13,8 @@ module.exports = function() {
     return answer.description
   }
     
-  this.chooseProject = async function(projects) {
-    choices = projectsToChoices(projects)
+  this.chooseProject = async function(projects, clients) {
+    choices = projectsToChoices(projects, clients)
     answer = await inquirer.prompt([{
       type: 'ask-for-project',
       name: 'project',
@@ -61,11 +61,14 @@ module.exports = function() {
     })
   }
 
-  function projectsToChoices(projects) {
-    return projects.map(it => {
+  function projectsToChoices(projects, clients) {
+    return projects.map(project => {
+      client = clients.filter(client => client.id == project.cid)[0]
+      clientTag = client ? "[" + client.name + "] " : ""
+
       return {
-        name: it.name,
-        value: it
+        name: clientTag + project.name,
+        value: project
       }
     })
   }

@@ -44,13 +44,14 @@ async function holesBetween(start, end) {
 async function compileToggl() {
   start = moment().add(-lookBehindDays, 'day')
   end = moment().startOf('day').add(lookForwardDays, 'day')
-
+  
   holes = await holesBetween(start, end)
   slots = await timeSlotter.slotsInMany(holes)
   selectedSlots = await asker.pickIntervals(slots)
 
+  clients = await togglApi.getClients()
   projects = await togglApi.getProjects(WORKSPACE)
-  project = await asker.chooseProject(projects)
+  project = await asker.chooseProject(projects, clients)
   description = await asker.whatHaveYouDone()
 
   togglApi.createTimeEntries(project, description, selectedSlots)
