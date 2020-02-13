@@ -23,6 +23,9 @@ var asker = new Asker()
 async function holesBetween(start, end) {
   lastTimeEntries = await togglApi.getTimeEntries(WORKSPACE, start, end)
 
+  if(lastTimeEntries.length == 0)
+    return [{start,end}]
+
   holes = []
   for(index = 1; index < lastTimeEntries.length; index++) {
     holeStart = moment(lastTimeEntries[index - 1].stop)
