@@ -25,7 +25,8 @@ exports.compileAppend = async (togglApi, timeSlotter, asker, config) => {
 
   if (continueLastActivity == false) {
     projects = await togglApi.getProjects(WORKSPACE)
-    project = await asker.chooseProject(projects)
+    clients = await togglApi.getClients()
+    project = await asker.chooseProject(projects, clients)
     description = await asker.whatHaveYouDone()
   }
 
