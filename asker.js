@@ -31,7 +31,11 @@ module.exports = function () {
       type: 'checkbox',
       name: 'interval',
       message: 'Pick interval(s)',
-      choices: choices
+      choices: choices,
+      validate: (answer) => {
+        if(answer.length == 0) return 'Pick at least 1 interval'
+        return true
+      }
     }])
 
     return answer.interval
