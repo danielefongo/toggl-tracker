@@ -5,7 +5,7 @@ module.exports = function (token) {
   this.toggl = new TogglClient({ apiToken: token })
 
   this.createTimeEntries = async function (project, description, timeSlots) {
-    self = this
+    const self = this
     timeSlots.forEach((timeSlot, index) => {
       setTimeout(function timer () {
         self.createSingleTimeEntry(project, description, timeSlot)
@@ -31,20 +31,20 @@ module.exports = function (token) {
     })
   }
 
-  this.getTimeEntries = async function (workspace_id, fromMoment, toMoment) {
+  this.getTimeEntries = async function (workspaceId, fromMoment, toMoment) {
     return new Promise((resolve, reject) => {
       this.toggl.getTimeEntries(date(fromMoment), date(toMoment), function (err, data) {
-        if (err) reject()
+        if (err) reject(err)
         resolve(data
-          .filter(element => element.wid == workspace_id)
+          .filter(element => element.wid.toString() === workspaceId)
           .map(useMoment)
         )
       })
     })
   }
 
-  this.getTimeEntriesHoles = async function (workspace_id, fromMoment, toMoment) {
-    entries = await this.getTimeEntries(workspace_id, fromMoment, toMoment)
+  this.getTimeEntriesHoles = async function (workspaceId, fromMoment, toMoment) {
+    var entries = await this.getTimeEntries(workspaceId, fromMoment, toMoment)
 
     entries.unshift({ stop: fromMoment })
     entries.push({ start: toMoment })
@@ -59,15 +59,15 @@ module.exports = function (token) {
       })
   }
 
-  this.getLastTimeEntry = async function (workspace_id, fromMoment, toMoment) {
-    timeEntries = await this.getTimeEntries(workspace_id, fromMoment, toMoment)
+  this.getLastTimeEntry = async function (workspaceId, fromMoment, toMoment) {
+    const timeEntries = await this.getTimeEntries(workspaceId, fromMoment, toMoment)
     return timeEntries.pop()
   }
 
-  this.getProjects = async function (workspace_id) {
+  this.getProjects = async function (workspaceId) {
     return new Promise((resolve, reject) => {
-      this.toggl.getWorkspaceProjects(workspace_id, {}, function (err, data) {
-        if (err) reject()
+      this.toggl.getWorkspaceProjects(workspaceId, {}, function (err, data) {
+        if (err) reject(err)
         resolve(data)
       })
     })
@@ -76,16 +76,16 @@ module.exports = function (token) {
   this.getClients = async function () {
     return new Promise((resolve, reject) => {
       this.toggl.getClients(function (err, data) {
-        if (err) reject()
+        if (err) reject(err)
         resolve(data)
       })
     })
   }
 
-  this.getProject = async function (project_id) {
+  this.getProject = async function (projectId) {
     return new Promise((resolve, reject) => {
-      this.toggl.getProjectData(project_id, function (err, data) {
-        if (err) reject()
+      this.toggl.getProjectData(projectId, function (err, data) {
+        if (err) reject(err)
         resolve(data)
       })
     })

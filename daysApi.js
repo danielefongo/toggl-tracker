@@ -33,33 +33,33 @@ module.exports = function (workingDays, apiKey, locale) {
   }
 
   function toDaysRangeExcludingLast (it) {
-    startDay = moment(it.start.date)
-    endDay = moment(it.end.date).add(-1, 'day')
+    const startDay = moment(it.start.date)
+    const endDay = moment(it.end.date).add(-1, 'day')
     return toDaysRange(startDay, endDay)
   }
 
   function toDaysRange (startMoment, endMoment) {
-    currentDay = moment(startMoment).startOf('day')
-    endDay = moment(endMoment).startOf('day')
+    var currentDay = moment(startMoment).startOf('day')
+    const endDay = moment(endMoment).startOf('day')
 
-    daysList = []
+    const daysList = []
     while (currentDay <= endDay) {
       daysList.push(moment(currentDay))
-      currentDay.add(1, 'day')
+      currentDay = currentDay.add(1, 'day')
     }
     return daysList
   }
 
   function removeDuplicateFestivities (acc, curr) {
-    if (acc.filter(it => it.start.date == curr.start.date).length == 0) { acc.push(curr) }
+    if (acc.filter(it => it.start.date === curr.start.date).length === 0) { acc.push(curr) }
     return acc
   }
 
   function isWeekDay (day, workingDays) {
-    return workingDays.some(working => working == day.format('dddd'))
+    return workingDays.some(working => working === day.format('dddd'))
   }
 
   function isNotFestive (day, festiveDays) {
-    return !festiveDays.some(festive => festive.diff(day) == 0)
+    return !festiveDays.some(festive => festive.diff(day) === 0)
   }
 }
