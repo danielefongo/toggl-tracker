@@ -1,4 +1,5 @@
 const TogglClient = require('toggl-api');
+const moment = require('moment')
 
 module.exports = function(token) {
   this.toggl = new TogglClient({apiToken: token});
@@ -21,7 +22,7 @@ module.exports = function(token) {
         pid: project.id,
         billable: project.billable,
         duration: timeSlot.duration,
-        start: timeSlot.start.toDate(),
+        start: date(timeSlot.start),
         created_with: "toggl-sheet"
       }, (err) => {
         if(err)
@@ -35,8 +36,27 @@ module.exports = function(token) {
     return new Promise((resolve, reject) => {
       this.toggl.getTimeEntries(date(fromMoment), date(toMoment), function(err, data) {
         if(err) reject()
-        resolve(data.filter(element => element.wid == workspace_id));
+        resolve(data
+          .filter(element => element.wid == workspace_id)
+          .map(useMoment)
+        );
       })
+    })
+  }
+
+  this.getTimeEntriesHoles = async function(workspace_id, fromMoment, toMoment) {
+    entries = await this.getTimeEntries(workspace_id, fromMoment, toMoment)
+    
+    entries.unshift({stop: fromMoment})
+    entries.push({start: toMoment})
+
+    return entries
+    .slice(1)
+    .map((_, idx) => {
+      return {
+        start: entries[idx].stop,
+        end: entries[idx+1].start
+      }
     })
   }
 
@@ -74,5 +94,11 @@ module.exports = function(token) {
 
   function date(moment) {
     return moment.toDate()
+  }
+
+  function useMoment(it) {
+    it.start = moment(it.start)
+    it.stop = moment(it.stop)
+    return it
   }
 }

@@ -20,11 +20,6 @@ var togglApi = new Toggl(TOGGL_API_TOKEN);
 var timeSlotter = new TimeSlotter(daysApi, intervals)
 var asker = new Asker()
 
-async function createTimeEntry(start, end, project, description) {
-  slots = await timeSlotter.slotsIn(start, end)
-  togglApi.createTimeEntries(project, description, slots)
-}
-
 async function compileToggl() {
   lastTimeEntry = await togglApi.getLastTimeEntry(WORKSPACE, moment().add(-lookBehindDays, 'day'), moment())
   project = await togglApi.getProject(lastTimeEntry.pid)
@@ -40,7 +35,8 @@ async function compileToggl() {
   newEntryStart = moment(lastTimeEntry.stop)
   newEntryStop = moment().startOf('minutes')
 
-  createTimeEntry(newEntryStart, newEntryStop, project, description)
+  slots = await timeSlotter.slotsIn(newEntryStart, newEntryStop)
+  togglApi.createTimeEntries(project, description, slots)
 }
 
 compileToggl()

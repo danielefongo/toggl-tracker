@@ -21,31 +21,11 @@ var togglApi = new Toggl(TOGGL_API_TOKEN);
 var timeSlotter = new TimeSlotter(daysApi, intervals)
 var asker = new Asker()
 
-async function holesBetween(start, end) {
-  lastTimeEntries = await togglApi.getTimeEntries(WORKSPACE, start, end)
-
-  if(lastTimeEntries.length == 0)
-    return [{start,end}]
-
-  holes = []
-  for(index = 1; index < lastTimeEntries.length; index++) {
-    holeStart = moment(lastTimeEntries[index - 1].stop)
-    holeEnd = moment(lastTimeEntries[index].start)
-    holes.push({start: holeStart, end: holeEnd})
-  }
-  holes.push({
-    start: moment(lastTimeEntries[lastTimeEntries.length - 1].stop),
-    end: end
-  })
-
-  return holes
-}
-
 async function compileToggl() {
-  start = moment().add(-lookBehindDays, 'day')
+  start = moment().startOf('day').add(-lookBehindDays, 'day')
   end = moment().startOf('day').add(lookForwardDays, 'day')
   
-  holes = await holesBetween(start, end)
+  holes = await togglApi.getTimeEntriesHoles(WORKSPACE, start, end)
   slots = await timeSlotter.slotsInMany(holes)
   selectedSlots = await asker.pickIntervals(slots)
 
