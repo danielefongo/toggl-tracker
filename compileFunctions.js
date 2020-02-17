@@ -9,25 +9,19 @@ exports.compilePicky = async (togglApi, timeSlotter, asker, config) => {
   const slots = await timeSlotter.slotsInMany(holes)
   const selectedSlots = await asker.pickIntervals(slots)
 
-  const clients = await togglApi.getClients()
-  const projects = await togglApi.getProjects(WORKSPACE)
-  const project = await asker.chooseProject(projects, clients)
-  const description = await asker.whatHaveYouDone()
+  const {project, description} = await chooseProjectAndDescription(togglApi, asker)
 
   togglApi.createTimeEntries(project, description, selectedSlots)
 }
 
 exports.compileAppend = async (togglApi, timeSlotter, asker, config) => {
   const lastTimeEntry = await togglApi.getLastTimeEntry(WORKSPACE, moment().add(-config.lookBehindDays, 'day'), moment())
-  var project = await togglApi.getProject(lastTimeEntry.pid)
-  var description = lastTimeEntry.description
+  var {project, description} = await getProjectAndDescriptionFrom(lastTimeEntry, togglApi)
+  
   const continueLastActivity = await asker.shouldContinueLastActivity(project.name, description)
 
   if (continueLastActivity === false) {
-    const projects = await togglApi.getProjects(WORKSPACE)
-    const clients = await togglApi.getClients()
-    project = await asker.chooseProject(projects, clients)
-    description = await asker.whatHaveYouDone()
+    var {project, description} = await chooseProjectAndDescription(togglApi, asker)
   }
 
   const newEntryStart = moment(lastTimeEntry.stop)
@@ -35,4 +29,20 @@ exports.compileAppend = async (togglApi, timeSlotter, asker, config) => {
 
   const slots = await timeSlotter.slotsIn(newEntryStart, newEntryStop)
   togglApi.createTimeEntries(project, description, slots)
+}
+
+async function chooseProjectAndDescription(togglApi, asker) {
+  const clients = await togglApi.getClients()
+  const projects = await togglApi.getProjects(WORKSPACE)
+  const project = await asker.chooseProject(projects, clients)
+  const description = await asker.whatHaveYouDone()
+
+  return {project, description}
+}
+
+async function getProjectAndDescriptionFrom(timeEntry, togglApi) {
+  var project = await togglApi.getProject(timeEntry.pid)
+  var description = timeEntry.description
+  
+  return {project, description}
 }
