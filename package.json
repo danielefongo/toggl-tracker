@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "append": "node index.js append",
-    "picky": "node index.js picky",
+    "append": "node compile.js append",
+    "picky": "node compile.js picky",
     "init": "node init.js"
   },
   "keywords": [],
