@@ -1,20 +1,23 @@
 {
-  "name": "toggl-sheet",
+  "name": "toggl-compile",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "append": "node compile.js append",
-    "picky": "node compile.js picky",
-    "config": "node configurate.js"
+    "append": "node bin.js append",
+    "picky": "node bin.js picky",
+    "config": "node bin.js config"
   },
+  "bin": {
+    "toggl-compile": "bin.js"
+  },
+  "preferGlobal": true,
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
     "fuzzy-search": "^3.1.0",
-    "inquirer": "^7.0.4",
+    "inquirer": "^6.0.0",
     "inquirer-autocomplete-prompt": "^1.0.2",
     "moment": "^2.24.0",
     "toggl-api": "^1.0.1"
