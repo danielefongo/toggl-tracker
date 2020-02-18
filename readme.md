@@ -53,3 +53,9 @@ To run the tool in random mode just execute the following command:
 ```
 toggl-tracker picky
 ```
+
+#### Config
+To change configuration just execute the following command:
+```
+toggl-tracker config
+```
