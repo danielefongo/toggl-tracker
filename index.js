@@ -7,12 +7,12 @@ if (!fs.existsSync(configFile)) {
   return
 }
 
-const IntervalsParser = require('./intervalsParser')
-const Toggl = require('./togglApi')
-const TimeSlotter = require('./timeSlotter')
-const Asker = require('./asker')
-const DaysApi = require('./daysApi')
-const { compilePicky, compileAppend } = require('./compileFunctions')
+const IntervalsParser = require('./src/intervalsParser')
+const Toggl = require('./src/togglApi')
+const TimeSlotter = require('./src/timeSlotter')
+const Asker = require('./src/asker')
+const DaysApi = require('./src/daysApi')
+const { compilePicky, compileAppend } = require('./src/compileFunctions')
 
 const config = require(configFile)
 
