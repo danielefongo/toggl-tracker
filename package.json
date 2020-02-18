@@ -1,6 +1,6 @@
 {
-  "name": "toggl-compile",
-  "version": "1.0.0",
+  "name": "toggl-tracker",
+  "version": "0.1.0",
   "description": "",
   "scripts": {
     "append": "node bin.js append",
@@ -8,7 +8,7 @@
     "config": "node bin.js config"
   },
   "bin": {
-    "toggl-compile": "bin.js"
+    "toggl-tracker": "bin.js"
   },
   "preferGlobal": true,
   "keywords": [],

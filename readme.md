@@ -1,18 +1,19 @@
-# toggl-compile
+# toggl-tracker
 
-**toggl-compile** is a simple nodejs tool to automatically generate time entries on Toggl. It can be used in 2 different ways:
-- **Append mode**, by recording from the last recorded activity.
-- **Picky mode**, by compiling not-filled selected past (and future) holes.
+**toggl-tracker** is a simple nodejs tool to automatically generate time entries on Toggl. It can be used in 2 different ways:
+- **append** mode, by recording from the last recorded activity.
+- **picky** mode, by compiling not-filled selected past (and future) holes.
 
 ## Getting started
 
 ### Setup
-To setup toggl-compile you have to run the following command:
+To use toggl-tracker just install it from npm and run it:
 ```
-npm run config
+npm install -g toggl-tracker
+toggl-tracker <mode>
 ```
 
-The command will ask you some useful informations like working days, working hours intervals and so on. It will also ask you to provide:
+If you run the tool for the first time, it will ask you some useful informations like working days, working hours intervals and so on (they will be stored in user home). It will also ask you to provide:
 * **toggl token**
 * **toggl workspace** 
 * **google token** (optional) 
@@ -44,11 +45,11 @@ Google token and google locale are used to retrieve national holidays from googl
 #### Append mode
 To run the tool in append mode just execute the following command:
 ```
-npm run append
+toggl-tracker append
 ```
 
 #### Picky mode
 To run the tool in random mode just execute the following command:
 ```
-npm run picky
+toggl-tracker picky
 ```
