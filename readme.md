@@ -12,7 +12,13 @@ To setup toggl-compile you have to run the following command:
 npm run config
 ```
 
-The command will ask you some useful informations like working days, working hours intervals and so on. It will also ask you to provide **toggl** token and workspace and **google** api to retrieve national holidays from google calendar api. The last two informations are optional: if not set, holidays wont be skipped.
+The command will ask you some useful informations like working days, working hours intervals and so on. It will also ask you to provide:
+* **toggl token**
+* **toggl workspace** 
+* **google token** (optional) 
+* **google locale** (optional)
+
+Google token and google locale are used to retrieve national holidays from google calendar api and are optionals. If not set, holidays wont be skipped.
 
 #### Obtain toggl token
 
