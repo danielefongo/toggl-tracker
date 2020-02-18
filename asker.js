@@ -45,7 +45,7 @@ module.exports = function () {
       message: 'Pick interval(s)',
       choices: choices,
       validate: (answer) => {
-        if(answer.length == 0) return 'Pick at least 1 interval'
+        if (answer.length === 0) return 'Pick at least 1 interval'
         return true
       }
     }])

@@ -124,7 +124,7 @@ module.exports = function (token) {
     return it
   }
 
-  function emptyTask() {
+  function emptyTask () {
     return { id: null, name: '[no task]' }
   }
 }
