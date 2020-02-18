@@ -5,14 +5,14 @@
   "main": "index.js",
   "scripts": {
     "append": "node index.js append",
-    "picky": "node index.js picky"
+    "picky": "node index.js picky",
+    "init": "node init.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
-    "dotenv": "^8.2.0",
     "fuzzy-search": "^3.1.0",
     "inquirer": "^7.0.4",
     "inquirer-autocomplete-prompt": "^1.0.2",

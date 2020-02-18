@@ -1,20 +1,25 @@
-require('dotenv').config()
+const path = require('path')
+const fs = require('fs')
+const configFile = path.join(require('os').homedir(), '.toggle-compile.json')
+
+if (!fs.existsSync(configFile)) {
+  console.log('run `npm run init` to configure app.')
+  return
+}
+
+const IntervalsParser = require('./intervalsParser')
 const Toggl = require('./togglApi')
 const TimeSlotter = require('./timeSlotter')
 const Asker = require('./asker')
 const DaysApi = require('./daysApi')
 const { compilePicky, compileAppend } = require('./compileFunctions')
 
-const GOOGLE_API_TOKEN = process.env.GOOGLE_TOKEN
-const GOOGLE_API_LOCALE = process.env.GOOGLE_LOCALE
-const TOGGL_API_TOKEN = process.env.TOGGL_TOKEN
+const config = require(configFile)
 
-const config = require('./config.json')
-const intervals = config.workingHoursIntervals
-const workingDays = config.workingDays
-
-var daysApi = new DaysApi(workingDays, GOOGLE_API_TOKEN, GOOGLE_API_LOCALE)
-var togglApi = new Toggl(TOGGL_API_TOKEN)
+var parser = new IntervalsParser()
+var intervals = parser.parse(config.workingHoursIntervals)
+var daysApi = new DaysApi(config.workingDays, config.googleToken, config.googleLocale)
+var togglApi = new Toggl(config.togglToken)
 var timeSlotter = new TimeSlotter(daysApi, intervals)
 var asker = new Asker()
 

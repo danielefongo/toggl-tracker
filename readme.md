@@ -4,26 +4,15 @@
 - **Append mode**, by recording from the last recorded activity.
 - **Picky mode**, by compiling not-filled selected past (and future) holes.
 
-By default only working hours are included in time entry generation:
-- From monday to friday
-- From 9:00 to 13:00 (Local Time)
-- From 14:00 to 18:00 (Local Time)
-
-Working days and Working hours can be configured by changing the `config.json` file.
-
 ## Getting started
 
 ### Setup
-To use toggl-compile you have to set up environment variables:
+To setup toggl-compile you have to run the following command:
 ```
-TOGGL_TOKEN=<token>
-TOGGL_WORKSPACE=<workspace_id>
-GOOGLE_TOKEN=<token> #optional
-GOOGLE_LOCALE=<locale> #optional
+npm run init
 ```
 
-You can put these variables in a `.env` file in the project root or export them before running the tool.
-The `GOOGLE_TOKEN` and `GOOGLE_LOCALE` variables are used to retrieve national holidays from google calendar api and they are optional. If not set, holidays wont be skipped.
+The command will ask you some useful informations like working days, working hours intervals and so on. It will also ask you to provide **toggl** token and workspace and **google** api to retrieve national holidays from google calendar api. The last two informations are optional: if not set, holidays wont be skipped.
 
 #### Obtain toggl token
 

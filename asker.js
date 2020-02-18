@@ -13,6 +13,49 @@ module.exports = function () {
     return answer.description
   }
 
+  this.init = async function (config) {
+    config = await inquirer.prompt([{
+      type: 'checkbox',
+      name: 'workingDays',
+      message: 'Pick working days',
+      default: config.workingDays,
+      choices: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    }, {
+      type: 'input',
+      name: 'workingHoursIntervals',
+      message: 'Select working hours intervals',
+      default: config.workingHoursIntervals
+    }, {
+      type: 'number',
+      name: 'lookForwardDays',
+      message: 'Select number of forward days',
+      default: config.lookForwardDays
+    }, {
+      type: 'input',
+      name: 'lookBehindDays',
+      message: 'Select number of behind days',
+      default: config.lookBehindDays
+    }, {
+      name: 'togglToken',
+      message: 'Insert toggl token',
+      default: config.togglToken
+    }, {
+      name: 'togglWorkspace',
+      message: 'Insert toggl workspace',
+      default: config.togglWorkspace
+    }, {
+      name: 'googleToken',
+      message: 'Insert google token (optional)',
+      default: config.googleToken
+    }, {
+      name: 'googleLocale',
+      message: 'Insert google locale (optional)',
+      default: config.googleLocale
+    }])
+
+    return config
+  }
+
   this.chooseProject = async function (projects, clients) {
     const choices = projectsToChoices(projects, clients)
     const answer = await inquirer.prompt([{
