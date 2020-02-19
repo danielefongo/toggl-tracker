@@ -59,3 +59,11 @@ To change configuration just execute the following command:
 ```
 toggl-tracker config
 ```
+
+## Authors
+
+* **[Daniele Fongo](https://github.com/danielefongo)**
+
+## License
+
+This project is licensed under the MIT - see the [LICENSE](LICENSE) file for details
