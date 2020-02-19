@@ -34,6 +34,7 @@ Google token and google locale are used to retrieve national holidays from googl
 #### Obtain google token
 
 * Create API app in google developer account [page](https://console.developers.google.com)
+* Create a New Project
 * Create an API Key from the `Credentials` tab
 
 #### Set google locale
