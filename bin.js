@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const configFile = path.join(require('os').homedir(), '.toggle-tracker.json')
+const configFile = path.join(require('os').homedir(), '.toggl-tracker.json')
 const { compile } = require('./compile')
 const { configurate } = require('./configurate')
 
