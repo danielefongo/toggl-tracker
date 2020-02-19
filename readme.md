@@ -1,6 +1,6 @@
 # toggl-tracker
 
-**toggl-tracker** is a simple nodejs tool to automatically generate time entries on Toggl. It can be used in 2 different ways:
+**toggl-tracker** is a simple Node.js tool to automatically generate time entries on Toggl. It can be used in 2 different ways:
 - **append** mode, by recording from the last recorded activity.
 - **picky** mode, by compiling not-filled selected past (and future) holes.
 
@@ -33,7 +33,7 @@ Google token and google locale are used to retrieve national holidays from Googl
 
 #### Obtain google token
 
-* Create API app in google developer account [page](https://console.developers.google.com)
+* Create API app in Google Developer account [page](https://console.developers.google.com)
 * Create an API Key from the `Credentials` tab
 
 #### Set google locale
