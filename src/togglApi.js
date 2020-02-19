@@ -24,7 +24,7 @@ module.exports = function (token) {
         billable: project.billable,
         duration: timeSlot.duration,
         start: date(timeSlot.start),
-        created_with: 'toggl-sheet'
+        created_with: 'toggl-tracker'
       }, (err) => {
         if (err) { reject(err) }
         resolve()

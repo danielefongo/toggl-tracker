@@ -2,14 +2,14 @@
 
 const fs = require('fs')
 const path = require('path')
-const configFile = path.join(require('os').homedir(), '.toggle-compile.json')
-const {compile} = require('./compile')
-const {configurate} = require('./configurate')
+const configFile = path.join(require('os').homedir(), '.toggle-tracker.json')
+const { compile } = require('./compile')
+const { configurate } = require('./configurate')
 
 async function main (command) {
   if (!fs.existsSync(configFile)) {
-    console.log("### No configuration found. Force setup ###\n")
-    await configurate()
+    console.log('### No configuration found. Force setup ###\n')
+    await configurate(configFile)
   }
 
   switch (command) {
