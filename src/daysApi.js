@@ -63,3 +63,7 @@ module.exports = function (workingDays, apiKey, locale) {
     return !festiveDays.some(festive => festive.diff(day) === 0)
   }
 }
+
+Array.prototype.flat = function () {
+  return [].concat(...this)
+}

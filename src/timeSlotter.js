@@ -44,3 +44,7 @@ module.exports = function (daysApi, intervals) {
     }
   }
 }
+
+Array.prototype.flat = function () {
+  return [].concat(...this)
+}
