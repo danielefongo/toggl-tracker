@@ -19,7 +19,7 @@ If you run the tool for the first time, it will ask you some useful informations
 * **google token** (optional) 
 * **google locale** (optional)
 
-Google token and google locale are used to retrieve national holidays from google calendar api and are optionals. If not set, holidays wont be skipped.
+Google token and google locale are used to retrieve national holidays from Google Calendar API and are optionals. If not set, holidays wont be skipped.
 
 #### Obtain toggl token
 
@@ -34,7 +34,6 @@ Google token and google locale are used to retrieve national holidays from googl
 #### Obtain google token
 
 * Create API app in google developer account [page](https://console.developers.google.com)
-* Create a New Project
 * Create an API Key from the `Credentials` tab
 
 #### Set google locale
