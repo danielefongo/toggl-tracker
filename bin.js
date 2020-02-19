@@ -9,7 +9,7 @@ const { configurate } = require('./configurate')
 async function main (command) {
   if (!fs.existsSync(configFile)) {
     console.log('### No configuration found. Force setup ###\n')
-    await configurate(configFile)
+    await configurate(require('./config.json'), configFile)
   }
 
   const config = require(configFile)

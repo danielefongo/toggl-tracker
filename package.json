@@ -1,6 +1,6 @@
 {
   "name": "toggl-tracker",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "simple tool to automatically generate time entries on Toggl.",
   "scripts": {
     "append": "node bin.js append",
@@ -11,10 +11,14 @@
     "toggl-tracker": "bin.js"
   },
   "preferGlobal": true,
-  "keywords": ["toggl", "tracker", "cli"],
+  "keywords": [
+    "toggl",
+    "tracker",
+    "cli"
+  ],
   "author": "Daniele Fongo",
   "license": "MIT",
-  "url" : "https://github.com/danielefongo/toggl-tracker",
+  "url": "https://github.com/danielefongo/toggl-tracker",
   "dependencies": {
     "axios": "^0.19.2",
     "fuzzy-search": "^3.1.0",
