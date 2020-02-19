@@ -5,7 +5,8 @@
   "scripts": {
     "append": "node bin.js append",
     "picky": "node bin.js picky",
-    "config": "node bin.js config"
+    "config": "node bin.js config",
+    "test": "mocha test/**/*"
   },
   "bin": {
     "toggl-tracker": "bin.js"
@@ -26,5 +27,14 @@
     "inquirer-autocomplete-prompt": "^1.0.2",
     "moment": "^2.24.0",
     "toggl-api": "^1.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "expect": "^25.1.0",
+    "mocha": "^7.0.1",
+    "sinon": "^9.0.0"
+  },
+  "standard": {
+    "globals": [ "describe", "it" ]
   }
 }
