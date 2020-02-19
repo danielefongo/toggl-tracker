@@ -12,9 +12,11 @@ async function main (command) {
     await configurate(configFile)
   }
 
+  const config = require(configFile)
+
   switch (command) {
-    case 'config': configurate(configFile); break
-    default: compile(command, require(configFile))
+    case 'config': configurate(config, configFile); break
+    default: compile(command, config)
   }
 }
 
