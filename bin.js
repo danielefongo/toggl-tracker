@@ -13,7 +13,7 @@ async function main (command) {
   }
 
   switch (command) {
-    case 'config': configurate(); break
+    case 'config': configurate(configFile); break
     default: compile(command, require(configFile))
   }
 }

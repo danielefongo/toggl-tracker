@@ -2,9 +2,6 @@ const fs = require('fs')
 const Asker = require('./src/asker')
 
 exports.configurate = async function (configFile) {
-  var config = require('./config.json')
-  if (fs.existsSync(configFile)) { config = require(configFile) }
-
   const asker = new Asker()
   const newConfig = await asker.init(config)
   fs.writeFileSync(configFile, JSON.stringify(newConfig, null, 2))
