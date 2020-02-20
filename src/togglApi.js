@@ -24,10 +24,11 @@ module.exports = function (token) {
         billable: project.billable,
         duration: timeSlot.duration,
         start: date(timeSlot.start),
+        stop: date(timeSlot.end),
         created_with: 'toggl-tracker'
-      }, (err) => {
+      }, (err, data) => {
         if (err) { reject(err) }
-        resolve()
+        resolve(data)
       })
     })
   }
@@ -58,6 +59,7 @@ module.exports = function (token) {
           end: entries[idx + 1].start
         }
       })
+      .filter(it => it.end.diff(it.start) > 0)
   }
 
   this.getLastTimeEntry = async function (workspaceId, fromMoment, toMoment) {
