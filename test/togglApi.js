@@ -39,6 +39,7 @@ describe('Toggl Api Integration', (self) => {
   })
 
   afterEach(async () => {
+    delay(500)
     await cleanEntries()
     await restDelete('/clients/' + client.id)
     await restDelete('/projects/' + project.id)
@@ -169,3 +170,7 @@ describe('Toggl Api Integration', (self) => {
     }
   })
 })
+
+async function delay (interval) {
+  await new Promise((resolve, reject) => setTimeout(() => resolve(), interval))
+}
