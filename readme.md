@@ -1,5 +1,7 @@
 # toggl-tracker
 
+![Continuous Integration](https://github.com/danielefongo/toggl-tracker/workflows/Continuous%20Integration/badge.svg)
+
 **toggl-tracker** is a simple Node.js tool to automatically generate time entries on Toggl. It can be used in 2 different ways:
 - **append** mode, by recording from the last recorded activity.
 - **picky** mode, by compiling not-filled selected past (and future) holes.
