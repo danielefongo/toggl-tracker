@@ -19,21 +19,18 @@ module.exports = function (daysApi, intervals) {
     return startEnd
       .map(it => slots(it.start, it.end, workingDays, this.intervals))
       .flat()
-      .filter(it => it.end.diff(it.start) > 0)
   }
 
   function slots (startTime, endTime, workingDays, intervals) {
     return workingDays
       .map(day => intervals.map(interval => slotWithinInterval(startTime, endTime, day, interval)))
       .flat()
-      .filter(it => it !== undefined)
+      .filter(it => it.duration > 0)
   }
 
   function slotWithinInterval (start, end, day, hoursInterval) {
     const intervalStartMoment = moment(day).hours(hoursInterval.start)
     const intervalEndMoment = moment(day).hours(hoursInterval.end)
-
-    if (end <= intervalStartMoment || start >= intervalEndMoment) { return undefined }
 
     const startMoment = moment.max(start, intervalStartMoment)
     const endMoment = moment.min(end, intervalEndMoment)

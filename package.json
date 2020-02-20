@@ -35,6 +35,6 @@
     "sinon": "^9.0.0"
   },
   "standard": {
-    "globals": [ "describe", "it", "afterEach" ]
+    "globals": [ "describe", "it", "afterEach", "beforeEach" ]
   }
 }
