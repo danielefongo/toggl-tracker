@@ -88,13 +88,19 @@ describe('Toggl Api Integration', (self) => {
   it('get projects', async () => {
     const projects = await api.getProjects(workspace)
 
-    expect(projects).to.containSubset([project])
+    expect(projects).to.containSubset([{
+      id: project.id,
+      name: project.name
+    }])
   }).timeout(1000)
 
   it('get clients', async () => {
     const clients = await api.getClients()
 
-    expect(clients).to.containSubset([client])
+    expect(clients).to.containSubset([{
+      id: client.id,
+      name: client.name
+    }])
   }).timeout(1000)
 
   it('get empty list of tasks if not available', async () => {
