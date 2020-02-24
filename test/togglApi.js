@@ -16,73 +16,65 @@ if (token === undefined || workspace === undefined) {
 }
 
 describe('Toggl Api Integration', (self) => {
-  const day = moment('2020-01-01')
+  const day = moment(moment().format('YYYY-MM-DD'))
   const startOfDay = moment(day).startOf('day')
   const endOfDay = moment(day).endOf('day')
-  const nineOClock = moment(day).hours(9)
-  const tenOClock = moment(day).hours(10)
-  const elevenOClock = moment(day).hours(11)
-  const twelveOClock = moment(day).hours(12)
+  const entryStart = moment(day).hours(9)
+  const entryStop = moment(day).hours(10)
 
   var api
   var client
   var project
+  var entry
 
-  beforeEach(async () => {
-    api = new TogglApi(token)
-
+  before(async () => {
     var clientData = { client: { name: randomName(), wid: workspace } }
     client = await restPost('/clients', clientData)
 
     var projectData = { project: { name: randomName(), wid: workspace, is_private: true, cid: client.id } }
     project = await restPost('/projects', projectData)
+
+    var entryData = { description: 'foo', pid: project.id, billable: project.billable, start: zuluFormat(entryStart), duration: entryStop.diff(entryStart) / 1000, created_with: 'toggl-tracker' }
+    entry = await restPost('/time_entries', { time_entry: entryData })
   })
 
-  afterEach(async () => {
+  after(async () => {
     await cleanEntries()
     await restDelete('/clients/' + client.id)
     await restDelete('/projects/' + project.id)
   })
 
-  it('create single time entry', async () => {
-    const slot = slotIn(nineOClock, tenOClock)
-    const entry = await api.createSingleTimeEntry(project, emptyTask(), 'foo', slot)
+  beforeEach(async () => {
+    api = new TogglApi(token)
+  })
 
-    expect(entry).to.containSubset({
+  it('create single time entry', async () => {
+    const description = randomName()
+    const slot = slotIn(entryStart, entryStop)
+    const createdEntry = await api.createSingleTimeEntry(project, emptyTask(), description, slot)
+
+    expect(createdEntry).to.containSubset({
       pid: project.id,
-      description: 'foo',
+      description: description,
       billable: project.billable,
-      start: zuluFormat(nineOClock),
-      stop: zuluFormat(tenOClock)
+      start: zuluFormat(entryStart),
+      stop: zuluFormat(entryStop)
     })
   }).timeout(1000)
 
   it('get time entries', async () => {
-    const slot = slotIn(nineOClock, tenOClock)
-    const expectedTimeEntry = await api.createSingleTimeEntry(project, emptyTask(), 'foo', slot)
-
     const entries = await api.getTimeEntries(workspace, startOfDay, endOfDay)
 
-    expect(entries[0].id).to.equal(expectedTimeEntry.id)
-    assertEntryIn(entries[0], nineOClock, tenOClock)
+    const retrievedEntry = entries.filter(it => it.id === entry.id)[0]
+    expect(retrievedEntry).to.not.equal(undefined)
+    assertEntryIn(retrievedEntry, entryStart, entryStop)
   }).timeout(1000)
 
-  it('get holes between created entries', async () => {
-    await api.createSingleTimeEntry(project, emptyTask(), 'foo', slotIn(nineOClock, tenOClock))
-    await api.createSingleTimeEntry(project, emptyTask(), 'foo', slotIn(elevenOClock, twelveOClock))
-
-    const holes = await api.getTimeEntriesHoles(workspace, nineOClock, twelveOClock)
-
-    assertHoleIn(holes[0], tenOClock, elevenOClock)
-  }).timeout(1000)
-
-  it('get holes outside created entries', async () => {
-    await api.createSingleTimeEntry(project, emptyTask(), 'foo', slotIn(nineOClock, tenOClock))
-
+  it('get holes between entries', async () => {
     const holes = await api.getTimeEntriesHoles(workspace, startOfDay, endOfDay)
 
-    assertHoleIn(holes[0], startOfDay, nineOClock)
-    assertHoleIn(holes[1], tenOClock, endOfDay)
+    assertHoleIn(holes[0], startOfDay, entryStart)
+    assertHoleIn(holes[1], entryStop, endOfDay)
   }).timeout(1000)
 
   it('get projects', async () => {
@@ -137,8 +129,8 @@ describe('Toggl Api Integration', (self) => {
 
   async function cleanEntries () {
     const query = querystring.stringify({
-      start_date: moment(day).startOf('day').utc().format(),
-      end_date: moment(day).endOf('day').utc().format()
+      start_date: moment(startOfDay).utc().format(),
+      end_date: moment(endOfDay).utc().format()
     })
 
     await restGet('/time_entries?' + query)

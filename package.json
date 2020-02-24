@@ -39,6 +39,8 @@
     "globals": [
       "describe",
       "it",
+      "after",
+      "before",
       "afterEach",
       "beforeEach"
     ]
