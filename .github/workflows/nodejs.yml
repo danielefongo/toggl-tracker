@@ -17,6 +17,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+        registry-url: https://registry.npmjs.org/
     - run: npm install
     - run: npm run build --if-present
     - run: npm test
@@ -24,3 +25,21 @@ jobs:
         CI: true
         TOGGL_TEST_TOKEN: ${{ secrets.toggl_token }}
         TOGGL_TEST_WORKSPACE: ${{ secrets.toggl_workspace }}
+
+    - name: extract npm versions
+      run: |
+        echo ::set-env name=PACKAGE_VERSION::$(jq .version -r package.json)
+        echo ::set-env name=RELEASED_VERSION::$(npm --silent view $PWD version)
+    - name: publish
+      if: env.PACKAGE_VERSION != env.RELEASED_VERSION && github.ref == 'refs/heads/master'
+      run: |
+        git config user.name ${{ github.event.pusher.name }}
+        git config user.email ${{ github.event.pusher.email }}
+        git tag --annotate ${PACKAGE_VERSION} --message v${PACKAGE_VERSION}
+        git push https://x-access-token:${GIT_TOKEN}@github.com/${GIT_REPO}.git --tags
+        npm publish --access public
+
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+        GIT_TOKEN: ${{ github.token }}
+        GIT_REPO: ${{ github.repository }}
