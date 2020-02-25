@@ -9,7 +9,6 @@ module.exports = function (token) {
     timeSlots.forEach((timeSlot, index) => {
       setTimeout(function timer () {
         self.createSingleTimeEntry(project, task, description, timeSlot)
-          .then(_ => console.log(formatter.entry(project, timeSlot.start, timeSlot.end)))
           .catch(console.log)
       }, index * 100)
     })
@@ -27,7 +26,7 @@ module.exports = function (token) {
         stop: date(timeSlot.end),
         created_with: 'toggl-tracker'
       }
-    })
+    }).then(_ => console.log(formatter.entry(project, timeSlot.start, timeSlot.end)))
   }
 
   this.getTimeEntries = async function (workspaceId, fromMoment, toMoment) {
