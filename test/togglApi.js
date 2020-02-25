@@ -86,6 +86,15 @@ describe('Toggl Api Integration', (self) => {
     }])
   }).timeout(1000)
 
+  it('get project', async () => {
+    const projects = await api.getProject(project.id)
+
+    expect(projects).to.containSubset({
+      id: project.id,
+      name: project.name
+    })
+  }).timeout(1000)
+
   it('get clients', async () => {
     const clients = await api.getClients()
 
