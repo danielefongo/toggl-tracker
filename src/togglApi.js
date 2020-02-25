@@ -1,6 +1,7 @@
 const moment = require('moment')
 const axios = require('axios')
 const querystring = require('querystring')
+const formatter = require('./formatter')
 
 module.exports = function (token) {
   this.createTimeEntries = async function (project, task, description, timeSlots) {
@@ -8,7 +9,7 @@ module.exports = function (token) {
     timeSlots.forEach((timeSlot, index) => {
       setTimeout(function timer () {
         self.createSingleTimeEntry(project, task, description, timeSlot)
-          .then(_ => console.log('recorded "' + description + '" on project "' + project.name + '" for ' + timeSlot.start.format('MMM DD') + ', from ' + timeSlot.start.format('HH:mm') + ' to ' + timeSlot.end.format('HH:mm')))
+          .then(_ => console.log(formatter.entry(project, timeSlot.start, timeSlot.end)))
           .catch(console.log)
       }, index * 100)
     })
