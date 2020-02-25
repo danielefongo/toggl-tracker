@@ -1,9 +1,8 @@
-const TogglClient = require('toggl-api')
 const moment = require('moment')
+const axios = require('axios')
+const querystring = require('querystring')
 
 module.exports = function (token) {
-  this.toggl = new TogglClient({ apiToken: token })
-
   this.createTimeEntries = async function (project, task, description, timeSlots) {
     const self = this
     timeSlots.forEach((timeSlot, index) => {
@@ -16,8 +15,8 @@ module.exports = function (token) {
   }
 
   this.createSingleTimeEntry = async function (project, task, description, timeSlot) {
-    return new Promise((resolve, reject) => {
-      this.toggl.createTimeEntry({
+    return post('/time_entries', {
+      time_entry: {
         description: description,
         pid: project.id,
         tid: task.id,
@@ -26,23 +25,18 @@ module.exports = function (token) {
         start: date(timeSlot.start),
         stop: date(timeSlot.end),
         created_with: 'toggl-tracker'
-      }, (err, data) => {
-        if (err) { reject(err) }
-        resolve(data)
-      })
+      }
     })
   }
 
   this.getTimeEntries = async function (workspaceId, fromMoment, toMoment) {
-    return new Promise((resolve, reject) => {
-      this.toggl.getTimeEntries(date(fromMoment), date(toMoment), function (err, data) {
-        if (err) reject(err)
-        resolve(data
-          .filter(element => element.wid.toString() === workspaceId)
-          .map(useMoment)
-        )
-      })
+    const entries = await get('/time_entries', {
+      start_date: fromMoment.format(),
+      stop_date: toMoment.format()
     })
+    return entries
+      .filter(element => element.wid.toString() === workspaceId)
+      .map(useMoment)
   }
 
   this.getTimeEntriesHoles = async function (workspaceId, fromMoment, toMoment) {
@@ -68,52 +62,28 @@ module.exports = function (token) {
   }
 
   this.getProjects = async function (workspaceId) {
-    return new Promise((resolve, reject) => {
-      this.toggl.getWorkspaceProjects(workspaceId, {}, function (err, data) {
-        if (err) reject(err)
-        resolve(data)
-      })
-    })
+    return get('/workspaces/' + workspaceId + '/projects')
   }
 
   this.getClients = async function () {
-    return new Promise((resolve, reject) => {
-      this.toggl.getClients(function (err, data) {
-        if (err) reject(err)
-        resolve(data)
-      })
-    })
+    return get('/clients')
   }
 
   this.getProject = async function (projectId) {
-    return new Promise((resolve, reject) => {
-      this.toggl.getProjectData(projectId, function (err, data) {
-        if (err) reject(err)
-        resolve(data)
-      })
-    })
+    return get('/projects/' + projectId)
   }
 
   this.getTasks = async function (projectId) {
-    return new Promise((resolve, reject) => {
-      this.toggl.getProjectTasks(projectId, function (err, data) {
-        if (data === null) data = []
-        if (err) reject(err)
+    var tasks = await get('/projects/' + projectId + '/tasks')
+    if (tasks === null) tasks = []
+    tasks.push(emptyTask())
 
-        data.push(emptyTask())
-        resolve(data)
-      })
-    })
+    return tasks
   }
 
   this.getTask = async function (taskId) {
     if (taskId === undefined) return emptyTask()
-    return new Promise((resolve, reject) => {
-      this.toggl.getTaskData(taskId, function (err, data) {
-        if (err) reject(err)
-        resolve(data)
-      })
-    })
+    return get('/tasks/' + taskId)
   }
 
   function date (moment) {
@@ -129,4 +99,23 @@ module.exports = function (token) {
   function emptyTask () {
     return { id: null, name: '[no task]' }
   }
+
+  async function get (url, queryObject) {
+    return instance.get(url + '?' + querystring.stringify(queryObject)).then(response => { return extractDataIfNeeded(response.data) })
+  }
+
+  async function post (url, data) {
+    return instance.post(url, data).then(response => { return extractDataIfNeeded(response.data) })
+  }
+
+  function extractDataIfNeeded (payload) {
+    if (payload === null || payload === undefined) return null
+    return (payload.data !== undefined) ? payload.data : payload
+  }
+
+  const instance = axios.create({
+    baseURL: 'https://www.toggl.com/api/v8/',
+    auth: { username: token, password: 'api_token' },
+    headers: { 'Content-type': 'application/json' }
+  })
 }

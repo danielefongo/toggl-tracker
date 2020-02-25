@@ -8,7 +8,7 @@ const moment = require('moment')
 const querystring = require('querystring')
 
 const TogglApi = require('../src/togglApi')
-const token = process.env.TOGGL_TEST_TOKEN // TODO: process.env.token
+const token = process.env.TOGGL_TEST_TOKEN
 const workspace = process.env.TOGGL_TEST_WORKSPACE
 
 if (token === undefined || workspace === undefined) {
@@ -63,7 +63,7 @@ describe('Toggl Api Integration', (self) => {
   }).timeout(1000)
 
   it('get time entries', async () => {
-    const entries = await api.getTimeEntries(workspace, startOfDay, endOfDay)
+    const entries = await api.getTimeEntries(workspace, entryStart, entryStop)
 
     const retrievedEntry = entries.filter(it => it.id === entry.id)[0]
     expect(retrievedEntry).to.not.equal(undefined)
