@@ -3,10 +3,12 @@ var chaiSubset = require('chai-subset')
 chai.use(chaiSubset)
 
 const expect = chai.expect
+const sinon = require('sinon')
 const axios = require('axios')
 const moment = require('moment')
 const querystring = require('querystring')
 
+const printer = require('../src/printer')
 const TogglApi = require('../src/togglApi')
 const token = process.env.TOGGL_TEST_TOKEN
 const workspace = process.env.TOGGL_TEST_WORKSPACE
@@ -36,12 +38,16 @@ describe('Toggl Api Integration', (self) => {
 
     var entryData = { description: 'foo', pid: project.id, billable: project.billable, start: zuluFormat(entryStart), duration: entryStop.diff(entryStart) / 1000, created_with: 'toggl-tracker' }
     entry = await restPost('/time_entries', { time_entry: entryData })
+
+    sinon.stub(printer, 'entry')
   })
 
   after(async () => {
     await cleanEntries()
     await restDelete('/clients/' + client.id)
     await restDelete('/projects/' + project.id)
+
+    sinon.restore()
   })
 
   beforeEach(async () => {
