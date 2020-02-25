@@ -2,9 +2,10 @@
 
 ![Continuous Integration](https://github.com/danielefongo/toggl-tracker/workflows/Continuous%20Integration/badge.svg)
 
-**toggl-tracker** is a simple Node.js tool to automatically generate time entries on Toggl. It can be used in 2 different ways:
-- **append** mode, by recording from the last recorded activity.
-- **picky** mode, by compiling not-filled selected past (and future) holes.
+**toggl-tracker** is a simple Node.js tool to automatically generate time entries on Toggl. It can be used in different ways:
+- **append** mode: compiles from the last recorded activity.
+- **picky** mode: compiles not-filled selected past (and future) holes.
+- **check** mode: show last inserted entries.
 
 ## Getting started
 
@@ -42,21 +43,8 @@ If you run the tool for the first time, it will ask you some useful informations
 
 * Go in this [page](https://gist.github.com/danielefongo/0bce52012cde8f714cfb7ec1e677c7bd) and search for the locale you want to use
 
-### Run
+### Configuration
 
-#### Append mode
-To run the tool in append mode just execute the following command:
-```
-toggl-tracker append
-```
-
-#### Picky mode
-To run the tool in random mode just execute the following command:
-```
-toggl-tracker picky
-```
-
-#### Config
 To change configuration just execute the following command:
 ```
 toggl-tracker config

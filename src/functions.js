@@ -1,4 +1,5 @@
 const moment = require('moment')
+const formatter = require('./formatter')
 
 exports.compilePicky = async (togglApi, timeSlotter, asker, config) => {
   const workspace = config.togglWorkspace
@@ -30,6 +31,20 @@ exports.compileAppend = async (togglApi, timeSlotter, asker, config) => {
 
   const slots = await timeSlotter.slotsIn(newEntryStart, newEntryStop)
   togglApi.createTimeEntries(project, task, description, slots)
+}
+
+exports.check = async (togglApi, config) => {
+  const workspace = config.togglWorkspace
+  const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
+  const end = moment().startOf('day').add(config.lookForwardDays, 'day')
+  const projects = await togglApi.getProjects(workspace)
+
+  togglApi.getTimeEntries(workspace, start, end).then(entries => {
+    entries.forEach(entry => {
+      const project = projects.filter(project => project.id === entry.pid)[0]
+      console.log(formatter.entry(project, entry.start, entry.stop))
+    })
+  })
 }
 
 async function chooseProjectTaskAndDescription (workspace, togglApi, asker) {

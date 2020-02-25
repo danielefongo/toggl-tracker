@@ -5,6 +5,7 @@
   "scripts": {
     "append": "node bin.js append",
     "picky": "node bin.js picky",
+    "check": "node bin.js check",
     "config": "node bin.js config",
     "test": "mocha test/**/*"
   },
