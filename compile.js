@@ -3,7 +3,7 @@ const Toggl = require('./src/togglApi')
 const TimeSlotter = require('./src/timeSlotter')
 const Asker = require('./src/asker')
 const DaysApi = require('./src/daysApi')
-const { compilePicky, compileAppend } = require('./src/compileFunctions')
+const { compilePicky, compileAppend } = require('./src/functions')
 
 exports.compile = function (command, config) {
   var parser = new IntervalsParser()
