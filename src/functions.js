@@ -1,5 +1,5 @@
 const moment = require('moment')
-const formatter = require('./formatter')
+const printer = require('./printer')
 
 exports.compilePicky = async (togglApi, timeSlotter, asker, config) => {
   const workspace = config.togglWorkspace
@@ -42,7 +42,7 @@ exports.check = async (togglApi, config) => {
   togglApi.getTimeEntries(workspace, start, end).then(entries => {
     entries.forEach(entry => {
       const project = projects.filter(project => project.id === entry.pid)[0]
-      console.log(formatter.entry(project, entry.start, entry.stop))
+      printer.entry(project, entry.start, entry.stop)
     })
   })
 }

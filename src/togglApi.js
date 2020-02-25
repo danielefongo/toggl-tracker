@@ -1,7 +1,7 @@
 const moment = require('moment')
 const axios = require('axios')
 const querystring = require('querystring')
-const formatter = require('./formatter')
+const printer = require('./printer')
 
 module.exports = function (token) {
   this.createTimeEntries = async function (project, task, description, timeSlots) {
@@ -26,7 +26,10 @@ module.exports = function (token) {
         stop: date(timeSlot.end),
         created_with: 'toggl-tracker'
       }
-    }).then(_ => console.log(formatter.entry(project, timeSlot.start, timeSlot.end)))
+    }).then(entry => {
+      printer.entry(project, timeSlot.start, timeSlot.end)
+      return entry
+    })
   }
 
   this.getTimeEntries = async function (workspaceId, fromMoment, toMoment) {
