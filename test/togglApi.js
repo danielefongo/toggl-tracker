@@ -83,8 +83,8 @@ describe('Toggl Api Integration', (self) => {
     assertHoleIn(holes[1], entryStop, endOfDay)
   }).timeout(1000)
 
-  it('get projects', async () => {
-    const projects = await api.getProjects(workspace)
+  it('get active projects', async () => {
+    const projects = await api.getActiveProjects(workspace)
 
     expect(projects).to.containSubset([{
       id: project.id,

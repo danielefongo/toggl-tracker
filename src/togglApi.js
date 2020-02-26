@@ -64,8 +64,12 @@ module.exports = function (token) {
     return timeEntries.pop()
   }
 
-  this.getProjects = async function (workspaceId) {
+  this.getActiveProjects = async function (workspaceId) {
     return get('/workspaces/' + workspaceId + '/projects')
+  }
+
+  this.getAllProjects = async function (workspaceId) {
+    return get('/workspaces/' + workspaceId + '/projects', { active: 'both' })
   }
 
   this.getClients = async function () {

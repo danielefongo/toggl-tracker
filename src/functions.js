@@ -37,7 +37,7 @@ exports.check = async (togglApi, config) => {
   const workspace = config.togglWorkspace
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
   const end = moment().startOf('day').add(config.lookForwardDays, 'day')
-  const projects = await togglApi.getProjects(workspace)
+  const projects = await togglApi.getAllProjects(workspace)
 
   togglApi.getTimeEntries(workspace, start, end).then(entries => {
     entries.forEach(entry => {
@@ -49,7 +49,7 @@ exports.check = async (togglApi, config) => {
 
 async function chooseProjectTaskAndDescription (workspace, togglApi, asker) {
   const clients = await togglApi.getClients()
-  const projects = await togglApi.getProjects(workspace)
+  const projects = await togglApi.getActiveProjects(workspace)
   const project = await asker.chooseProject(projects, clients)
   const tasks = await togglApi.getTasks(project.id)
 
