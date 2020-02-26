@@ -92,6 +92,18 @@ describe('Toggl Api Integration', (self) => {
     }])
   }).timeout(1000)
 
+  it('get active projects has fake empty project as first element', async () => {
+    const projects = await api.getActiveProjects(workspace)
+
+    expect(projects[0]).to.containSubset({ id: undefined, name: 'NO PROJECT' })
+  }).timeout(1000)
+
+  it('get all projects has fake empty project as first element', async () => {
+    const projects = await api.getAllProjects(workspace)
+
+    expect(projects[0]).to.containSubset({ id: undefined, name: 'NO PROJECT' })
+  }).timeout(1000)
+
   it('get project', async () => {
     const projects = await api.getProject(project.id)
 
@@ -108,6 +120,12 @@ describe('Toggl Api Integration', (self) => {
       id: client.id,
       name: client.name
     }])
+  }).timeout(1000)
+
+  it('get empty list of tasks project id is undefined', async () => {
+    const tasks = await api.getTasks(undefined)
+
+    expect(tasks).to.containSubset([{ id: null, name: '[no task]' }])
   }).timeout(1000)
 
   it('get empty list of tasks if not available', async () => {

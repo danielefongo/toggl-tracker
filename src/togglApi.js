@@ -65,11 +65,11 @@ module.exports = function (token) {
   }
 
   this.getActiveProjects = async function (workspaceId) {
-    return get('/workspaces/' + workspaceId + '/projects')
+    return getProjects(workspaceId)
   }
 
   this.getAllProjects = async function (workspaceId) {
-    return get('/workspaces/' + workspaceId + '/projects', { active: 'both' })
+    return getProjects(workspaceId, { active: 'both' })
   }
 
   this.getClients = async function () {
@@ -81,6 +81,8 @@ module.exports = function (token) {
   }
 
   this.getTasks = async function (projectId) {
+    if (projectId === undefined) return [emptyTask()]
+
     var tasks = await get('/projects/' + projectId + '/tasks')
     if (tasks === null) tasks = []
     tasks.push(emptyTask())
@@ -91,6 +93,12 @@ module.exports = function (token) {
   this.getTask = async function (taskId) {
     if (taskId === undefined) return emptyTask()
     return get('/tasks/' + taskId)
+  }
+
+  async function getProjects (workspaceId, queryObject) {
+    const projects = await get('/workspaces/' + workspaceId + '/projects', queryObject)
+    projects.unshift(emptyProject())
+    return projects
   }
 
   function date (moment) {
@@ -105,6 +113,10 @@ module.exports = function (token) {
 
   function emptyTask () {
     return { id: null, name: '[no task]' }
+  }
+
+  function emptyProject () {
+    return { id: undefined, name: 'NO PROJECT' }
   }
 
   async function get (url, queryObject) {
