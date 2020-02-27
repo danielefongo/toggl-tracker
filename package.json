@@ -23,7 +23,7 @@
   "url": "https://github.com/danielefongo/toggl-tracker",
   "dependencies": {
     "axios": "^0.19.2",
-    "fuzzy-search": "^3.1.0",
+    "fuzzysort": "^1.1.4",
     "inquirer": "^6.0.0",
     "inquirer-autocomplete-prompt": "^1.0.2",
     "moment": "^2.24.0"

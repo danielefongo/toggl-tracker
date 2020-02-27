@@ -1,4 +1,4 @@
-const FuzzySearch = require('fuzzy-search')
+const fuzzysort = require('fuzzysort')
 
 var inquirer = require('inquirer')
 inquirer.registerPrompt('autocomplete-list', require('inquirer-autocomplete-prompt'))
@@ -107,8 +107,8 @@ module.exports = function () {
   }
 
   async function search (projects, keyword) {
-    const searcher = new FuzzySearch(projects, ['name'], { caseSensitive: false, sort: true })
-    return searcher.search(keyword)
+    if (keyword === undefined || keyword === '') return projects
+    return fuzzysort.go(keyword, projects, {key:'name'}).map(it => it.obj)
   }
 
   function intervalsToChoices (intervals) {
