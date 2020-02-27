@@ -14,7 +14,7 @@ describe('Time Slotter', (self) => {
   const twelveOClock = moment(day).hours(12)
 
   it('slotsIn returns empty list if slots have start equal to end', done => {
-    const intervals = [{ start: 9, end: 12 }]
+    const intervals = [intervalIn(9, 12)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
@@ -25,7 +25,7 @@ describe('Time Slotter', (self) => {
   }).timeout(100)
 
   it('slotsIn returns empty list if outside interval', done => {
-    const intervals = [{ start: 7, end: 8 }]
+    const intervals = [intervalIn(7, 8)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
@@ -36,7 +36,7 @@ describe('Time Slotter', (self) => {
   }).timeout(100)
 
   it('slotsIn does not trim range inside interval', done => {
-    const intervals = [{ start: 9, end: 12 }]
+    const intervals = [intervalIn(9, 12)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
@@ -47,7 +47,7 @@ describe('Time Slotter', (self) => {
   }).timeout(100)
 
   it('slotsIn trims to interval', done => {
-    const intervals = [{ start: 10, end: 11 }]
+    const intervals = [intervalIn(10, 11)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
@@ -58,7 +58,7 @@ describe('Time Slotter', (self) => {
   }).timeout(100)
 
   it('slotsIn gives multiple slots', done => {
-    const intervals = [{ start: 10, end: 11 }, { start: 11, end: 12 }]
+    const intervals = [intervalIn(10, 11), intervalIn(11, 12)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
@@ -71,7 +71,7 @@ describe('Time Slotter', (self) => {
   }).timeout(100)
 
   it('slotsInMany returns empty list if slots have start equal to end', done => {
-    const intervals = [{ start: 9, end: 12 }]
+    const intervals = [intervalIn(9, 12)]
     const startEnd = [{ start: nineOClock, end: nineOClock }]
 
     const slotter = new TimeSlotter(daysApi, intervals)
@@ -83,7 +83,7 @@ describe('Time Slotter', (self) => {
   }).timeout(100)
 
   it('slotsInMany handles multiple data', done => {
-    const intervals = [{ start: 9, end: 12 }]
+    const intervals = [intervalIn(9, 12)]
     const startEnd = [{ start: nineOClock, end: tenOClock }, { start: elevenOClock, end: twelveOClock }]
 
     const slotter = new TimeSlotter(daysApi, intervals)
@@ -94,6 +94,10 @@ describe('Time Slotter', (self) => {
       done()
     })
   }).timeout(100)
+
+  function intervalIn(startHour, endHour) {
+    return { start: {hours: startHour, minutes: 0}, end: {hours: endHour, minutes: 0} } 
+  }
 
   beforeEach(function () {
     sinon.stub(daysApi, 'workingDaysIn').returns([day])

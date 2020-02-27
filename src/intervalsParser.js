@@ -6,8 +6,8 @@ module.exports = function () {
       .map(removeSpaces)
       .map(interval => {
         return {
-          start: Number(interval.split('-')[0]),
-          end: Number(interval.split('-')[1])
+          start: extractHoursAndMinutes(interval.split('-')[0]),
+          end: extractHoursAndMinutes(interval.split('-')[1])
         }
       })
   }
@@ -17,6 +17,12 @@ module.exports = function () {
   }
 
   function isNotValid (string) {
-    return string.match(/(\s*\d+\s*-\s*\d+\s*)+/g, '') === null
+    return string.match(/(\s*[0-23](:[0-59])?\s*-\s*[0-23](:[0-59])?\s*)+/g, '') === null
+  }
+
+  function extractHoursAndMinutes (it) {
+    const hours = Number(it.split(':')[0])
+    const minutes = it.split(':')[1] !== undefined ? Number(it.split(':')[1]) : 0
+    return { hours, minutes }
   }
 }

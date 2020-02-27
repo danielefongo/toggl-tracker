@@ -29,8 +29,8 @@ module.exports = function (daysApi, intervals) {
   }
 
   function slotWithinInterval (start, end, day, hoursInterval) {
-    const intervalStartMoment = moment(day).hours(hoursInterval.start)
-    const intervalEndMoment = moment(day).hours(hoursInterval.end)
+    const intervalStartMoment = moment(day).hours(hoursInterval.start.hours).minutes(hoursInterval.start.minutes)
+    const intervalEndMoment = moment(day).hours(hoursInterval.end.hours).minutes(hoursInterval.end.minutes)
 
     const startMoment = moment.max(start, intervalStartMoment)
     const endMoment = moment.min(end, intervalEndMoment)

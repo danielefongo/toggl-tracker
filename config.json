@@ -2,5 +2,5 @@
   "lookForwardDays": 1,
   "lookBehindDays": 30,
   "workingDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-  "workingHoursIntervals": "9-13, 14-18"
+  "workingHoursIntervals": "8:30-13, 14-17:30"
 }
