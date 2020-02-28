@@ -4,200 +4,229 @@ chai.use(chaiSubset)
 
 const expect = chai.expect
 const sinon = require('sinon')
-const axios = require('axios')
 const moment = require('moment')
-const querystring = require('querystring')
 
 const printer = require('../src/printer')
 const Toggl = require('../src/toggl')
 const TogglApi = require('../src/togglApi')
-const token = process.env.TOGGL_TEST_TOKEN
-const workspace = process.env.TOGGL_TEST_WORKSPACE
 
-if (token === undefined || workspace === undefined) {
-  throw new Error('use environment properties: TOGGL_TEST_TOKEN, TOGGL_TEST_WORKSPACE')
-}
-
-describe('Toggl', (self) => {
-  const day = moment(moment().format('YYYY-MM-DD'))
-  const startOfDay = moment(day).startOf('day')
-  const endOfDay = moment(day).endOf('day')
-  const entryStart = moment(day).hours(9)
-  const entryStop = moment(day).hours(10)
+describe('Toggl', () => {
+  var mockPrinter
 
   var toggl
-  var client
-  var project
-  var entry
-
-  before(async () => {
-    var clientData = { client: { name: randomName(), wid: workspace } }
-    client = await restPost('/clients', clientData)
-
-    var projectData = { project: { name: randomName(), wid: workspace, is_private: true, cid: client.id } }
-    project = await restPost('/projects', projectData)
-
-    var entryData = { description: 'foo', pid: project.id, billable: project.billable, start: zuluFormat(entryStart), duration: entryStop.diff(entryStart) / 1000, created_with: 'toggl-tracker' }
-    entry = await restPost('/time_entries', { time_entry: entryData })
-
-    sinon.stub(printer, 'entry')
-  })
-
-  after(async () => {
-    await cleanEntries()
-    await restDelete('/clients/' + client.id)
-    await restDelete('/projects/' + project.id)
-
-    sinon.restore()
-  })
+  const api = new TogglApi('123')
 
   beforeEach(async () => {
-    toggl = new Toggl(new TogglApi(token))
+    mockPrinter = sinon.mock(printer)
+    toggl = new Toggl(api)
   })
 
-  it('create single time entry', async () => {
-    const description = randomName()
-    const slot = slotIn(entryStart, entryStop)
-    const createdEntry = await toggl.createTimeEntry(project, emptyTask(), description, slot)
+  afterEach(async () => {
+    sinon.restore()
+    mockPrinter.restore()
+  })
 
-    expect(createdEntry).to.containSubset({
-      pid: project.id,
-      description: description,
-      billable: project.billable,
-      start: zuluFormat(entryStart),
-      stop: zuluFormat(entryStop)
+  it('prints entry on successful entry creation', async () => {
+    simulateEntryCreation({})
+    mockPrinter.expects('entry').once()
+
+    await toggl.createTimeEntry(PROJECT, TASK, 'FOO', TIMESLOT)
+
+    mockPrinter.verify()
+  })
+
+  it('converts moments to dates when creating entry', async () => {
+    const stubbed = simulateEntryCreation({})
+    mockPrinter.expects('entry') // TODO remove this when passing printer as dependency
+
+    await toggl.createTimeEntry(PROJECT, TASK, 'FOO', TIMESLOT)
+
+    expect(stubbed.getCalls()[0].firstArg).to.containSubset({
+      start: TIMESLOT.start.toDate(),
+      stop: TIMESLOT.end.toDate()
     })
-  }).timeout(1000)
+  })
 
-  it('get time entries', async () => {
-    const entries = await toggl.getTimeEntries(workspace, entryStart, entryStop)
+  it('filters retrieved time entries', async () => {
+    const workspace = '123'
+    const anotherWorkspace = '321'
 
-    const retrievedEntry = entries.filter(it => it.id === entry.id)[0]
-    expect(retrievedEntry).to.not.equal(undefined)
-    assertEntryIn(retrievedEntry, entryStart, entryStop)
-  }).timeout(1000)
+    const expectedEntry = aBasicEntry(1, workspace)
 
-  it('get holes between entries', async () => {
-    const holes = await toggl.getTimeEntriesHoles(workspace, startOfDay, endOfDay)
+    sinon.stub(api, 'getTimeEntries').resolves([
+      expectedEntry,
+      aBasicEntry(2, anotherWorkspace)
+    ])
 
-    assertHoleIn(holes[0], startOfDay, entryStart)
-    assertHoleIn(holes[1], entryStop, endOfDay)
-  }).timeout(1000)
+    const entries = await toggl.getTimeEntries(workspace, moment(), moment())
 
-  it('get active projects', async () => {
-    const projects = await toggl.getActiveProjects(workspace)
+    expect(entries).to.deep.equal([expectedEntry])
+  })
 
-    expect(projects).to.containSubset([{
-      id: project.id,
-      name: project.name
-    }])
-  }).timeout(1000)
+  it('converts retrieved entry timestamps to moments', async () => {
+    const expectedMoment = moment('2020-01-01')
 
-  it('get active projects has fake empty project as first element', async () => {
-    const projects = await toggl.getActiveProjects(workspace)
+    simulateEntries([aBasicEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-01')])
 
-    expect(projects[0]).to.containSubset({ id: undefined, name: 'NO PROJECT' })
-  }).timeout(1000)
+    const entries = await toggl.getTimeEntries(ANY_WORKSPACE, moment(), moment())
 
-  it('get all projects has fake empty project as first element', async () => {
-    const projects = await toggl.getAllProjects(workspace)
-
-    expect(projects[0]).to.containSubset({ id: undefined, name: 'NO PROJECT' })
-  }).timeout(1000)
-
-  it('get project', async () => {
-    const projects = await toggl.getProject(project.id)
-
-    expect(projects).to.containSubset({
-      id: project.id,
-      name: project.name
+    expect(entries[0]).to.containSubset({
+      start: expectedMoment,
+      stop: expectedMoment
     })
-  }).timeout(1000)
+  })
 
-  it('get clients', async () => {
-    const clients = await toggl.getClients()
+  it('obtains last time entry', async () => {
+    const expectedEntry = aBasicEntry(1, 'any')
 
-    expect(clients).to.containSubset([{
-      id: client.id,
-      name: client.name
-    }])
-  }).timeout(1000)
+    simulateEntries([
+      aBasicEntry(1, ANY_WORKSPACE),
+      expectedEntry
+    ])
 
-  it('get empty list of tasks project id is undefined', async () => {
-    const tasks = await toggl.getTasks(undefined)
+    const entries = await toggl.getLastTimeEntry(ANY_WORKSPACE, moment(), moment())
 
-    expect(tasks).to.containSubset([{ id: null, name: '[no task]' }])
-  }).timeout(1000)
+    expect(entries).to.deep.equal(expectedEntry)
+  })
 
-  it('get empty list of tasks if not available', async () => {
-    const tasks = await toggl.getTasks(project.id)
+  it('extracts 0 holes between retrieved entries if they are consecutive', async () => {
+    const startMoment = moment('2020-01-01')
+    const endMoment = moment('2020-01-03')
 
-    expect(tasks).to.containSubset([{ id: null, name: '[no task]' }])
-  }).timeout(1000)
+    simulateEntries([
+      aBasicEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-02'),
+      aBasicEntry(1, ANY_WORKSPACE, '2020-01-02', '2020-01-03')
+    ])
 
-  function assertEntryIn (entry, start, stop) {
-    expect(entry.start.isSame(start)).to.equal(true)
-    expect(entry.stop.isSame(stop)).to.equal(true)
-  }
+    const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
 
-  function assertHoleIn (hole, start, stop) {
-    expect(hole.start.isSame(start)).to.equal(true)
-    expect(hole.end.isSame(stop)).to.equal(true)
-  }
+    expect(holes.length).to.be.equal(0)
+  })
 
-  function randomName () {
-    return Math.random().toString(36).substring(2, 15)
-  }
+  it('extracts holes between retrieved entries', async () => {
+    const startMoment = moment('2020-01-01')
+    const endMoment = moment('2020-01-04')
 
-  function emptyTask () {
-    return { id: null, name: '[no task]' }
-  }
+    simulateEntries([
+      aBasicEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-02'),
+      aBasicEntry(1, ANY_WORKSPACE, '2020-01-03', '2020-01-04')
+    ])
 
-  function slotIn (start, end) {
-    return { start, end, duration: end.diff(start) / 1000 }
-  }
+    const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
 
-  function zuluFormat (moment) {
-    return moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
-  }
-
-  async function cleanEntries () {
-    const query = querystring.stringify({
-      start_date: moment(startOfDay).utc().format(),
-      end_date: moment(endOfDay).utc().format()
+    expect(holes.length).to.be.equal(1)
+    expect(holes[0]).to.containSubset({
+      start: moment('2020-01-02'),
+      end: moment('2020-01-03')
     })
+  })
 
-    await restGet('/time_entries?' + query)
-      .then(entries => {
-        entries.forEach(element => {
-          restDelete('/time_entries/' + element.id)
-        })
-      })
-  }
+  it('extracts holes outside retrieved entries', async () => {
+    const startMoment = moment('2020-01-01')
+    const endMoment = moment('2020-01-04')
 
-  async function restGet (url) {
-    return instance.get(url)
-      .then(it => {
-        return it.data
-      })
-  }
+    simulateEntries([
+      aBasicEntry(1, ANY_WORKSPACE, '2020-01-02', '2020-01-03')
+    ])
 
-  async function restPost (url, data) {
-    return instance.post(url, data)
-      .then(it => {
-        return it.data.data
-      })
-  }
+    const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
 
-  async function restDelete (url, data) {
-    return instance.delete(url)
-  }
+    expect(holes.length).to.be.equal(2)
+    expect(holes[0]).to.containSubset({
+      start: moment('2020-01-01'),
+      end: moment('2020-01-02')
+    })
+    expect(holes[1]).to.containSubset({
+      start: moment('2020-01-03'),
+      end: moment('2020-01-04')
+    })
+  })
 
-  const instance = axios.create({
-    baseURL: 'https://www.toggl.com/api/v8/',
-    auth: {
-      username: token,
-      password: 'api_token'
+  it('obtains all active projects and an empty project as first element', async () => {
+    simulateProjects([PROJECT])
+
+    const projects = await toggl.getActiveProjects(ANY_WORKSPACE)
+
+    expect(projects).to.deep.equal([
+      { id: undefined, name: 'NO PROJECT' },
+      PROJECT
+    ])
+  })
+
+  it('obtains all projects and an empty project as first element', async () => {
+    simulateProjects([PROJECT])
+
+    const projects = await toggl.getAllProjects(ANY_WORKSPACE)
+
+    expect(projects).to.deep.equal([
+      { id: undefined, name: 'NO PROJECT' },
+      PROJECT
+    ])
+  })
+
+  it('obtains all tasks and an empty task', async () => {
+    simulateTasks([TASK])
+
+    const tasks = await toggl.getTasks(ANY_PROJECT_ID)
+
+    expect(tasks).to.containSubset([
+      TASK,
+      { id: undefined, name: '[no task]' }
+    ])
+  })
+
+  it('obtains task if api returns a valid task', async () => {
+    simulateTask(TASK)
+
+    const task = await toggl.getTask(ANY_TASK_ID)
+
+    expect(task).to.deep.equal(TASK)
+  })
+
+  it('obtains empty task if api returns undefined', async () => {
+    simulateTask(undefined)
+
+    const task = await toggl.getTask(ANY_TASK_ID)
+
+    expect(task).to.deep.equal(
+      { id: undefined, name: '[no task]' }
+    )
+  })
+
+  function aBasicEntry (id, workspace, startString, stopString) {
+    return {
+      id,
+      start: startString,
+      stop: stopString,
+      wid: workspace
     }
-  })
+  }
+
+  function simulateEntryCreation (entry) {
+    return sinon.stub(api, 'createTimeEntry').resolves(entry)
+  }
+
+  function simulateEntries (array) {
+    sinon.stub(api, 'getTimeEntries').resolves(array)
+  }
+
+  function simulateProjects (array) {
+    sinon.stub(api, 'getActiveProjects').resolves(array)
+    sinon.stub(api, 'getAllProjects').resolves(array)
+  }
+
+  function simulateTasks (array) {
+    sinon.stub(api, 'getTasks').resolves(array)
+  }
+
+  function simulateTask (task) {
+    sinon.stub(api, 'getTask').resolves(task)
+  }
+
+  const PROJECT = { id: 'projectId', billable: true, cid: 'clientId' }
+  const TASK = { id: 'taskId', name: 'task' }
+  const TIMESLOT = { start: moment(), end: moment() }
+  const ANY_WORKSPACE = 'any'
+  const ANY_PROJECT_ID = 'any'
+  const ANY_TASK_ID = 'any'
 })

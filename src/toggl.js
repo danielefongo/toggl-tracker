@@ -37,6 +37,11 @@ module.exports = function (togglApi) {
       .map(useMoment)
   }
 
+  this.getLastTimeEntry = async function (workspaceId, fromMoment, toMoment) {
+    const timeEntries = await this.getTimeEntries(workspaceId, fromMoment, toMoment)
+    return timeEntries.pop()
+  }
+
   this.getTimeEntriesHoles = async function (workspaceId, fromMoment, toMoment) {
     var entries = await this.getTimeEntries(workspaceId, fromMoment, toMoment)
 
@@ -52,11 +57,6 @@ module.exports = function (togglApi) {
         }
       })
       .filter(it => it.end.diff(it.start) > 0)
-  }
-
-  this.getLastTimeEntry = async function (workspaceId, fromMoment, toMoment) {
-    const timeEntries = await this.getTimeEntries(workspaceId, fromMoment, toMoment)
-    return timeEntries.pop()
   }
 
   this.getActiveProjects = async function (workspaceId) {
@@ -101,7 +101,7 @@ module.exports = function (togglApi) {
   }
 
   function emptyTask () {
-    return { id: null, name: '[no task]' }
+    return { id: undefined, name: '[no task]' }
   }
 
   function emptyProject () {
