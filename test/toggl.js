@@ -57,7 +57,7 @@ describe('Toggl Api Integration', (self) => {
   it('create single time entry', async () => {
     const description = randomName()
     const slot = slotIn(entryStart, entryStop)
-    const createdEntry = await toggl.createSingleTimeEntry(project, emptyTask(), description, slot)
+    const createdEntry = await toggl.createTimeEntry(project, emptyTask(), description, slot)
 
     expect(createdEntry).to.containSubset({
       pid: project.id,

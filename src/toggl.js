@@ -1,31 +1,30 @@
 const moment = require('moment')
-const axios = require('axios')
-const querystring = require('querystring')
 const printer = require('./printer')
+const TogglApi = require('./togglApi')
 
 module.exports = function (token) {
+  this.api = new TogglApi(token)
+
   this.createTimeEntries = async function (project, task, description, timeSlots) {
     const self = this
     timeSlots.forEach((timeSlot, index) => {
       setTimeout(function timer () {
-        self.createSingleTimeEntry(project, task, description, timeSlot)
+        self.createTimeEntry(project, task, description, timeSlot)
           .catch(console.log)
       }, index * 100)
     })
   }
 
-  this.createSingleTimeEntry = async function (project, task, description, timeSlot) {
-    return post('/time_entries', {
-      time_entry: {
-        description: description,
-        pid: project.id,
-        tid: task.id,
-        billable: project.billable,
-        duration: timeSlot.duration,
-        start: date(timeSlot.start),
-        stop: date(timeSlot.end),
-        created_with: 'toggl-tracker'
-      }
+  this.createTimeEntry = async function (project, task, description, timeSlot) {
+    return this.api.createTimeEntry({
+      description: description,
+      pid: project.id,
+      tid: task.id,
+      billable: project.billable,
+      duration: timeSlot.duration,
+      start: date(timeSlot.start),
+      stop: date(timeSlot.end),
+      created_with: 'toggl-tracker'
     }).then(entry => {
       printer.entry(project, timeSlot.start, timeSlot.end)
       return entry
@@ -33,10 +32,7 @@ module.exports = function (token) {
   }
 
   this.getTimeEntries = async function (workspaceId, fromMoment, toMoment) {
-    const entries = await get('/time_entries', {
-      start_date: fromMoment.format(),
-      stop_date: toMoment.format()
-    })
+    const entries = await this.api.getTimeEntries(workspaceId, fromMoment.format(), toMoment.format())
     return entries
       .filter(element => element.wid.toString() === workspaceId)
       .map(useMoment)
@@ -65,40 +61,34 @@ module.exports = function (token) {
   }
 
   this.getActiveProjects = async function (workspaceId) {
-    return getProjects(workspaceId)
+    const projects = await this.api.getActiveProjects(workspaceId)
+    projects.unshift(emptyProject())
+    return projects
   }
 
   this.getAllProjects = async function (workspaceId) {
-    return getProjects(workspaceId, { active: 'both' })
+    const projects = await this.api.getAllProjects(workspaceId)
+    projects.unshift(emptyProject())
+    return projects
   }
 
   this.getClients = async function () {
-    return get('/clients')
+    return this.api.getClients()
   }
 
   this.getProject = async function (projectId) {
-    return get('/projects/' + projectId)
+    return this.api.getProject(projectId)
   }
 
   this.getTasks = async function (projectId) {
-    if (projectId === undefined) return [emptyTask()]
-
-    var tasks = await get('/projects/' + projectId + '/tasks')
-    if (tasks === null) tasks = []
+    const tasks = await this.api.getTasks(projectId)
     tasks.push(emptyTask())
-
     return tasks
   }
 
   this.getTask = async function (taskId) {
-    if (taskId === undefined) return emptyTask()
-    return get('/tasks/' + taskId)
-  }
-
-  async function getProjects (workspaceId, queryObject) {
-    const projects = await get('/workspaces/' + workspaceId + '/projects', queryObject)
-    projects.unshift(emptyProject())
-    return projects
+    const task = await this.api.getTask(taskId)
+    return task !== undefined ? task : emptyTask()
   }
 
   function date (moment) {
@@ -118,23 +108,4 @@ module.exports = function (token) {
   function emptyProject () {
     return { id: undefined, name: 'NO PROJECT' }
   }
-
-  async function get (url, queryObject) {
-    return instance.get(url + '?' + querystring.stringify(queryObject)).then(response => { return extractDataIfNeeded(response.data) })
-  }
-
-  async function post (url, data) {
-    return instance.post(url, data).then(response => { return extractDataIfNeeded(response.data) })
-  }
-
-  function extractDataIfNeeded (payload) {
-    if (payload === null || payload === undefined) return null
-    return (payload.data !== undefined) ? payload.data : payload
-  }
-
-  const instance = axios.create({
-    baseURL: 'https://www.toggl.com/api/v8/',
-    auth: { username: token, password: 'api_token' },
-    headers: { 'Content-type': 'application/json' }
-  })
 }
