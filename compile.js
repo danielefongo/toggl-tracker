@@ -1,5 +1,6 @@
 const IntervalsParser = require('./src/intervalsParser')
 const Toggl = require('./src/toggl')
+const TogglApi = require('./src/togglApi')
 const TimeSlotter = require('./src/timeSlotter')
 const Asker = require('./src/asker')
 const DaysApi = require('./src/daysApi')
@@ -9,7 +10,7 @@ exports.compile = function (command, config) {
   var parser = new IntervalsParser()
   var intervals = parser.parse(config.workingHoursIntervals)
   var daysApi = new DaysApi(config.workingDays, config.googleToken, config.googleLocale)
-  var toggl = new Toggl(config.togglToken)
+  var toggl = new Toggl(new TogglApi(config.togglToken))
   var timeSlotter = new TimeSlotter(daysApi, intervals)
   var asker = new Asker()
 

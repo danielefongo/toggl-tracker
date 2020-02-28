@@ -1,9 +1,8 @@
 const moment = require('moment')
 const printer = require('./printer')
-const TogglApi = require('./togglApi')
 
-module.exports = function (token) {
-  this.api = new TogglApi(token)
+module.exports = function (togglApi) {
+  this.api = togglApi
 
   this.createTimeEntries = async function (project, task, description, timeSlots) {
     const self = this

@@ -10,6 +10,7 @@ const querystring = require('querystring')
 
 const printer = require('../src/printer')
 const Toggl = require('../src/toggl')
+const TogglApi = require('../src/togglApi')
 const token = process.env.TOGGL_TEST_TOKEN
 const workspace = process.env.TOGGL_TEST_WORKSPACE
 
@@ -51,7 +52,7 @@ describe('Toggl', (self) => {
   })
 
   beforeEach(async () => {
-    toggl = new Toggl(token)
+    toggl = new Toggl(new TogglApi(token))
   })
 
   it('create single time entry', async () => {
