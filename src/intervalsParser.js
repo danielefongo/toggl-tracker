@@ -17,7 +17,7 @@ module.exports = function () {
   }
 
   function isNotValid (string) {
-    return string.match(/(\s*[0-23](:[0-59])?\s*-\s*[0-23](:[0-59])?\s*)+/g, '') === null
+    return string.match(/(\s*\d+(:\d+)?\s*-\s*\d+(:\d+)?\s*)+/g, '') === null
   }
 
   function extractHoursAndMinutes (it) {

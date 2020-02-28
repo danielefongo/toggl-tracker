@@ -16,10 +16,10 @@ describe('Interval Parser', (self) => {
   it('handles multiple intervals', done => {
     var parser = new IntervalsParser()
 
-    const intervals = parser.parse('2-3,3-4')
+    const intervals = parser.parse('9-13, 14-18')
 
-    expect(intervals[0]).to.deep.equal({ start: { hours: 2, minutes: 0 }, end: { hours: 3, minutes: 0 } })
-    expect(intervals[1]).to.deep.equal({ start: { hours: 3, minutes: 0 }, end: { hours: 4, minutes: 0 } })
+    expect(intervals[0]).to.deep.equal({ start: { hours: 9, minutes: 0 }, end: { hours: 13, minutes: 0 } })
+    expect(intervals[1]).to.deep.equal({ start: { hours: 14, minutes: 0 }, end: { hours: 18, minutes: 0 } })
     done()
   }).timeout(100)
 
@@ -44,13 +44,6 @@ describe('Interval Parser', (self) => {
     var parser = new IntervalsParser()
 
     expect(parser.parse('wtf')).to.deep.equal([])
-    done()
-  }).timeout(100)
-
-  it('generates empty interval list with invalid ranges', done => {
-    var parser = new IntervalsParser()
-
-    expect(parser.parse('25-26')).to.deep.equal([])
     done()
   }).timeout(100)
 })
