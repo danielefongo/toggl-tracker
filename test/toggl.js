@@ -9,7 +9,7 @@ const moment = require('moment')
 const querystring = require('querystring')
 
 const printer = require('../src/printer')
-const TogglApi = require('../src/togglApi')
+const Toggl = require('../src/toggl')
 const token = process.env.TOGGL_TEST_TOKEN
 const workspace = process.env.TOGGL_TEST_WORKSPACE
 
@@ -24,7 +24,7 @@ describe('Toggl Api Integration', (self) => {
   const entryStart = moment(day).hours(9)
   const entryStop = moment(day).hours(10)
 
-  var api
+  var toggl
   var client
   var project
   var entry
@@ -51,13 +51,13 @@ describe('Toggl Api Integration', (self) => {
   })
 
   beforeEach(async () => {
-    api = new TogglApi(token)
+    toggl = new Toggl(token)
   })
 
   it('create single time entry', async () => {
     const description = randomName()
     const slot = slotIn(entryStart, entryStop)
-    const createdEntry = await api.createSingleTimeEntry(project, emptyTask(), description, slot)
+    const createdEntry = await toggl.createSingleTimeEntry(project, emptyTask(), description, slot)
 
     expect(createdEntry).to.containSubset({
       pid: project.id,
@@ -69,7 +69,7 @@ describe('Toggl Api Integration', (self) => {
   }).timeout(1000)
 
   it('get time entries', async () => {
-    const entries = await api.getTimeEntries(workspace, entryStart, entryStop)
+    const entries = await toggl.getTimeEntries(workspace, entryStart, entryStop)
 
     const retrievedEntry = entries.filter(it => it.id === entry.id)[0]
     expect(retrievedEntry).to.not.equal(undefined)
@@ -77,14 +77,14 @@ describe('Toggl Api Integration', (self) => {
   }).timeout(1000)
 
   it('get holes between entries', async () => {
-    const holes = await api.getTimeEntriesHoles(workspace, startOfDay, endOfDay)
+    const holes = await toggl.getTimeEntriesHoles(workspace, startOfDay, endOfDay)
 
     assertHoleIn(holes[0], startOfDay, entryStart)
     assertHoleIn(holes[1], entryStop, endOfDay)
   }).timeout(1000)
 
   it('get active projects', async () => {
-    const projects = await api.getActiveProjects(workspace)
+    const projects = await toggl.getActiveProjects(workspace)
 
     expect(projects).to.containSubset([{
       id: project.id,
@@ -93,19 +93,19 @@ describe('Toggl Api Integration', (self) => {
   }).timeout(1000)
 
   it('get active projects has fake empty project as first element', async () => {
-    const projects = await api.getActiveProjects(workspace)
+    const projects = await toggl.getActiveProjects(workspace)
 
     expect(projects[0]).to.containSubset({ id: undefined, name: 'NO PROJECT' })
   }).timeout(1000)
 
   it('get all projects has fake empty project as first element', async () => {
-    const projects = await api.getAllProjects(workspace)
+    const projects = await toggl.getAllProjects(workspace)
 
     expect(projects[0]).to.containSubset({ id: undefined, name: 'NO PROJECT' })
   }).timeout(1000)
 
   it('get project', async () => {
-    const projects = await api.getProject(project.id)
+    const projects = await toggl.getProject(project.id)
 
     expect(projects).to.containSubset({
       id: project.id,
@@ -114,7 +114,7 @@ describe('Toggl Api Integration', (self) => {
   }).timeout(1000)
 
   it('get clients', async () => {
-    const clients = await api.getClients()
+    const clients = await toggl.getClients()
 
     expect(clients).to.containSubset([{
       id: client.id,
@@ -123,13 +123,13 @@ describe('Toggl Api Integration', (self) => {
   }).timeout(1000)
 
   it('get empty list of tasks project id is undefined', async () => {
-    const tasks = await api.getTasks(undefined)
+    const tasks = await toggl.getTasks(undefined)
 
     expect(tasks).to.containSubset([{ id: null, name: '[no task]' }])
   }).timeout(1000)
 
   it('get empty list of tasks if not available', async () => {
-    const tasks = await api.getTasks(project.id)
+    const tasks = await toggl.getTasks(project.id)
 
     expect(tasks).to.containSubset([{ id: null, name: '[no task]' }])
   }).timeout(1000)

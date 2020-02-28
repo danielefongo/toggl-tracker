@@ -1,45 +1,45 @@
 const moment = require('moment')
 const printer = require('./printer')
 
-exports.compilePicky = async (togglApi, timeSlotter, asker, config) => {
+exports.compilePicky = async (toggl, timeSlotter, asker, config) => {
   const workspace = config.togglWorkspace
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
   const end = moment().startOf('day').add(config.lookForwardDays, 'day')
 
-  const holes = await togglApi.getTimeEntriesHoles(workspace, start, end)
+  const holes = await toggl.getTimeEntriesHoles(workspace, start, end)
   const slots = await timeSlotter.slotsInMany(holes)
   const selectedSlots = await asker.pickIntervals(slots)
 
-  const { project, task, description } = await chooseProjectTaskAndDescription(workspace, togglApi, asker)
+  const { project, task, description } = await chooseProjectTaskAndDescription(workspace, toggl, asker)
 
-  togglApi.createTimeEntries(project, task, description, selectedSlots)
+  toggl.createTimeEntries(project, task, description, selectedSlots)
 }
 
-exports.compileAppend = async (togglApi, timeSlotter, asker, config) => {
+exports.compileAppend = async (toggl, timeSlotter, asker, config) => {
   const workspace = config.togglWorkspace
-  const lastTimeEntry = await togglApi.getLastTimeEntry(workspace, moment().add(-config.lookBehindDays, 'day'), moment())
-  var { project, task, description } = await getProjectTaskAndDescriptionFrom(lastTimeEntry, togglApi)
+  const lastTimeEntry = await toggl.getLastTimeEntry(workspace, moment().add(-config.lookBehindDays, 'day'), moment())
+  var { project, task, description } = await getProjectTaskAndDescriptionFrom(lastTimeEntry, toggl)
 
   const continueLastActivity = await asker.shouldContinueLastActivity(project.name, description)
 
   if (continueLastActivity === false) {
-    var { project, task, description } = await chooseProjectTaskAndDescription(workspace, togglApi, asker)
+    var { project, task, description } = await chooseProjectTaskAndDescription(workspace, toggl, asker)
   }
 
   const newEntryStart = moment(lastTimeEntry.stop)
   const newEntryStop = moment().startOf('minutes')
 
   const slots = await timeSlotter.slotsIn(newEntryStart, newEntryStop)
-  togglApi.createTimeEntries(project, task, description, slots)
+  toggl.createTimeEntries(project, task, description, slots)
 }
 
-exports.check = async (togglApi, config) => {
+exports.check = async (toggl, config) => {
   const workspace = config.togglWorkspace
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
   const end = moment().startOf('day').add(config.lookForwardDays, 'day')
-  const projects = await togglApi.getAllProjects(workspace)
+  const projects = await toggl.getAllProjects(workspace)
 
-  togglApi.getTimeEntries(workspace, start, end).then(entries => {
+  toggl.getTimeEntries(workspace, start, end).then(entries => {
     entries.forEach(entry => {
       const project = projects.filter(project => project.id === entry.pid)[0]
       printer.entry(project, entry.start, entry.stop)
@@ -47,11 +47,11 @@ exports.check = async (togglApi, config) => {
   })
 }
 
-async function chooseProjectTaskAndDescription (workspace, togglApi, asker) {
-  const clients = await togglApi.getClients()
-  const projects = await togglApi.getActiveProjects(workspace)
+async function chooseProjectTaskAndDescription (workspace, toggl, asker) {
+  const clients = await toggl.getClients()
+  const projects = await toggl.getActiveProjects(workspace)
   const project = await asker.chooseProject(projects, clients)
-  const tasks = await togglApi.getTasks(project.id)
+  const tasks = await toggl.getTasks(project.id)
 
   const task = tasks.length > 1 ? await asker.chooseTask(tasks) : tasks[0]
   const description = await asker.whatHaveYouDone()
@@ -59,9 +59,9 @@ async function chooseProjectTaskAndDescription (workspace, togglApi, asker) {
   return { project, task, description }
 }
 
-async function getProjectTaskAndDescriptionFrom (timeEntry, togglApi) {
-  const project = await togglApi.getProject(timeEntry.pid)
-  const task = await togglApi.getTask(timeEntry.tid)
+async function getProjectTaskAndDescriptionFrom (timeEntry, toggl) {
+  const project = await toggl.getProject(timeEntry.pid)
+  const task = await toggl.getTask(timeEntry.tid)
   const description = timeEntry.description
 
   return { project, task, description }

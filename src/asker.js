@@ -108,7 +108,7 @@ module.exports = function () {
 
   async function search (projects, keyword) {
     if (keyword === undefined || keyword === '') return projects
-    return fuzzysort.go(keyword, projects, {key:'name'}).map(it => it.obj)
+    return fuzzysort.go(keyword, projects, { key: 'name' }).map(it => it.obj)
   }
 
   function intervalsToChoices (intervals) {
