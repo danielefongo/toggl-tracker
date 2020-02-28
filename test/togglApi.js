@@ -9,7 +9,7 @@ const moment = require('moment')
 const querystring = require('querystring')
 
 const printer = require('../src/printer')
-const Toggl = require('../src/toggl')
+const TogglApi = require('../src/togglApi')
 const token = process.env.TOGGL_TEST_TOKEN
 const workspace = process.env.TOGGL_TEST_WORKSPACE
 
@@ -17,11 +17,12 @@ if (token === undefined || workspace === undefined) {
   throw new Error('use environment properties: TOGGL_TEST_TOKEN, TOGGL_TEST_WORKSPACE')
 }
 
-describe('Toggl', (self) => {
+describe('Toggl Api Integration', (self) => {
   const day = moment(moment().format('YYYY-MM-DD'))
   const startOfDay = moment(day).startOf('day')
   const endOfDay = moment(day).endOf('day')
   const entryStart = moment(day).hours(9)
+  const entryHalfTime = moment(day).hours(9).minutes(30)
   const entryStop = moment(day).hours(10)
 
   var toggl
@@ -36,7 +37,14 @@ describe('Toggl', (self) => {
     var projectData = { project: { name: randomName(), wid: workspace, is_private: true, cid: client.id } }
     project = await restPost('/projects', projectData)
 
-    var entryData = { description: 'foo', pid: project.id, billable: project.billable, start: zuluFormat(entryStart), duration: entryStop.diff(entryStart) / 1000, created_with: 'toggl-tracker' }
+    var entryData = {
+      description: 'foo',
+      pid: project.id,
+      billable: project.billable,
+      start: zuluFormat(entryStart),
+      duration: entryStop.diff(entryStart) / 1000,
+      created_with: 'toggl-tracker'
+    }
     entry = await restPost('/time_entries', { time_entry: entryData })
 
     sinon.stub(printer, 'entry')
@@ -51,13 +59,21 @@ describe('Toggl', (self) => {
   })
 
   beforeEach(async () => {
-    toggl = new Toggl(token)
+    toggl = new TogglApi(token)
   })
 
   it('create single time entry', async () => {
     const description = randomName()
-    const slot = slotIn(entryStart, entryStop)
-    const createdEntry = await toggl.createTimeEntry(project, emptyTask(), description, slot)
+
+    const createdEntry = await toggl.createTimeEntry({
+      description: description,
+      pid: project.id,
+      billable: project.billable,
+      duration: entryStop.diff(entryStart) / 1000,
+      start: entryStart.toDate(),
+      stop: entryStop.toDate(),
+      created_with: 'toggl-tracker'
+    })
 
     expect(createdEntry).to.containSubset({
       pid: project.id,
@@ -66,21 +82,23 @@ describe('Toggl', (self) => {
       start: zuluFormat(entryStart),
       stop: zuluFormat(entryStop)
     })
+
+    restDelete('/time_entries/' + entry.id)
   }).timeout(1000)
 
   it('get time entries', async () => {
-    const entries = await toggl.getTimeEntries(workspace, entryStart, entryStop)
+    const entries = await toggl.getTimeEntries(workspace, entryStart.format(), entryStop.format())
 
-    const retrievedEntry = entries.filter(it => it.id === entry.id)[0]
-    expect(retrievedEntry).to.not.equal(undefined)
-    assertEntryIn(retrievedEntry, entryStart, entryStop)
+    expect(entries).to.containSubset([{
+      id: entry.id,
+      pid: project.id
+    }])
   }).timeout(1000)
 
-  it('get holes between entries', async () => {
-    const holes = await toggl.getTimeEntriesHoles(workspace, startOfDay, endOfDay)
+  it('get empty list of entries', async () => {
+    const entries = await toggl.getTimeEntries(workspace, entryHalfTime.format(), entryHalfTime.format())
 
-    assertHoleIn(holes[0], startOfDay, entryStart)
-    assertHoleIn(holes[1], entryStop, endOfDay)
+    expect(entries.length).to.be.equal(0)
   }).timeout(1000)
 
   it('get active projects', async () => {
@@ -88,28 +106,20 @@ describe('Toggl', (self) => {
 
     expect(projects).to.containSubset([{
       id: project.id,
-      name: project.name
+      name: project.name,
+      cid: client.id,
+      billable: false
     }])
   }).timeout(1000)
 
-  it('get active projects has fake empty project as first element', async () => {
-    const projects = await toggl.getActiveProjects(workspace)
-
-    expect(projects[0]).to.containSubset({ id: undefined, name: 'NO PROJECT' })
-  }).timeout(1000)
-
-  it('get all projects has fake empty project as first element', async () => {
-    const projects = await toggl.getAllProjects(workspace)
-
-    expect(projects[0]).to.containSubset({ id: undefined, name: 'NO PROJECT' })
-  }).timeout(1000)
-
   it('get project', async () => {
-    const projects = await toggl.getProject(project.id)
+    const retrievedProject = await toggl.getProject(project.id)
 
-    expect(projects).to.containSubset({
-      id: project.id,
-      name: project.name
+    expect(retrievedProject).to.containSubset({
+      id: retrievedProject.id,
+      name: retrievedProject.name,
+      cid: client.id,
+      billable: false
     })
   }).timeout(1000)
 
@@ -125,35 +135,17 @@ describe('Toggl', (self) => {
   it('get empty list of tasks project id is undefined', async () => {
     const tasks = await toggl.getTasks(undefined)
 
-    expect(tasks).to.containSubset([{ id: null, name: '[no task]' }])
+    expect(tasks).to.deep.equal([])
   }).timeout(1000)
 
   it('get empty list of tasks if not available', async () => {
     const tasks = await toggl.getTasks(project.id)
 
-    expect(tasks).to.containSubset([{ id: null, name: '[no task]' }])
+    expect(tasks).to.deep.equal([])
   }).timeout(1000)
-
-  function assertEntryIn (entry, start, stop) {
-    expect(entry.start.isSame(start)).to.equal(true)
-    expect(entry.stop.isSame(stop)).to.equal(true)
-  }
-
-  function assertHoleIn (hole, start, stop) {
-    expect(hole.start.isSame(start)).to.equal(true)
-    expect(hole.end.isSame(stop)).to.equal(true)
-  }
 
   function randomName () {
     return Math.random().toString(36).substring(2, 15)
-  }
-
-  function emptyTask () {
-    return { id: null, name: '[no task]' }
-  }
-
-  function slotIn (start, end) {
-    return { start, end, duration: end.diff(start) / 1000 }
   }
 
   function zuluFormat (moment) {

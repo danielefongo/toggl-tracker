@@ -21,12 +21,12 @@ module.exports = function (token) {
     return get('/workspaces/' + workspaceId + '/projects', { active: 'both' })
   }
 
-  this.getClients = async function () {
-    return get('/clients')
-  }
-
   this.getProject = async function (projectId) {
     return get('/projects/' + projectId)
+  }
+
+  this.getClients = async function () {
+    return get('/clients')
   }
 
   this.getTasks = async function (projectId) {
