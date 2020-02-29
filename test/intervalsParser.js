@@ -1,49 +1,61 @@
 const chai = require('chai')
-const expect = chai.expect
+const { deepEqual, deepInclude } = chai.assert
 
 const IntervalsParser = require('../src/intervalsParser')
 
 describe('Interval Parser', (self) => {
-  it('handles single interval', done => {
+  it('handles single interval', () => {
     var parser = new IntervalsParser()
 
     const intervals = parser.parse('2:30-3:30')
 
-    expect(intervals[0]).to.deep.equal({ start: { hours: 2, minutes: 30 }, end: { hours: 3, minutes: 30 } })
-    done()
-  }).timeout(100)
+    deepInclude(intervals[0], {
+      start: { hours: 2, minutes: 30 },
+      end: { hours: 3, minutes: 30 }
+    })
+  })
 
-  it('handles multiple intervals', done => {
+  it('handles multiple intervals', () => {
     var parser = new IntervalsParser()
 
     const intervals = parser.parse('9-13, 14-18')
 
-    expect(intervals[0]).to.deep.equal({ start: { hours: 9, minutes: 0 }, end: { hours: 13, minutes: 0 } })
-    expect(intervals[1]).to.deep.equal({ start: { hours: 14, minutes: 0 }, end: { hours: 18, minutes: 0 } })
-    done()
-  }).timeout(100)
+    deepInclude(intervals[0], {
+      start: { hours: 9, minutes: 0 },
+      end: { hours: 13, minutes: 0 }
+    })
 
-  it('handles spaces', done => {
+    deepInclude(intervals[1], {
+      start: { hours: 14, minutes: 0 },
+      end: { hours: 18, minutes: 0 }
+    })
+  })
+
+  it('handles spaces', () => {
     var parser = new IntervalsParser()
 
     const intervals = parser.parse('2 -3, 3 -4')
 
-    expect(intervals[0]).to.deep.equal({ start: { hours: 2, minutes: 0 }, end: { hours: 3, minutes: 0 } })
-    expect(intervals[1]).to.deep.equal({ start: { hours: 3, minutes: 0 }, end: { hours: 4, minutes: 0 } })
-    done()
-  }).timeout(100)
+    deepInclude(intervals[0], {
+      start: { hours: 2, minutes: 0 },
+      end: { hours: 3, minutes: 0 }
+    })
 
-  it('generates empty interval list with blank string', done => {
+    deepInclude(intervals[1], {
+      start: { hours: 3, minutes: 0 },
+      end: { hours: 4, minutes: 0 }
+    })
+  })
+
+  it('generates empty interval list with blank string', () => {
     var parser = new IntervalsParser()
 
-    expect(parser.parse(' ')).to.deep.equal([])
-    done()
-  }).timeout(100)
+    deepEqual(parser.parse(' '), [])
+  })
 
-  it('generates empty interval list with wrong string', done => {
+  it('generates empty interval list with wrong string', () => {
     var parser = new IntervalsParser()
 
-    expect(parser.parse('wtf')).to.deep.equal([])
-    done()
-  }).timeout(100)
+    deepEqual(parser.parse('wtf'), [])
+  })
 })

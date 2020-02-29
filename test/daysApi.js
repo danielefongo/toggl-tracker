@@ -1,12 +1,12 @@
 const chai = require('chai')
 const sinon = require('sinon')
-const expect = chai.expect
+const { deepEqual, lengthOf } = chai.assert
 
 const axios = require('axios')
 const moment = require('moment')
 const DaysApi = require('../src/daysApi')
 
-describe('Days Api', (self) => {
+describe('Days Api', () => {
   const apiKey = 'any'
   const locale = 'any'
 
@@ -16,63 +16,55 @@ describe('Days Api', (self) => {
   const monday = moment('2020-02-17')
   const tuesday = moment('2020-02-18')
 
-  it('returns 0 weekend days', done => {
+  it('returns 0 weekend days', async () => {
     const workingDays = ['Monday', 'Tuesday']
 
     var api = new DaysApi(workingDays, apiKey, locale)
-    api.weekendDaysIn(monday, tuesday)
-      .then(days => {
-        expect(days.length).to.equal(0)
-        done()
-      })
+    const days = await api.weekendDaysIn(monday, tuesday)
+
+    lengthOf(days, 0)
   }).timeout(100)
 
-  it('returns weekend days in range', done => {
+  it('returns weekend days in range', async () => {
     const workingDays = ['Friday', 'Monday']
 
     var api = new DaysApi(workingDays, apiKey, locale)
-    api.weekendDaysIn(friday, monday)
-      .then(days => {
-        expect(saturday.isSame(days[0])).to.equal(true)
-        expect(sunday.isSame(days[1])).to.equal(true)
-        done()
-      })
+    const days = await api.weekendDaysIn(friday, monday)
+
+    deepEqual(days[0], saturday)
+    deepEqual(days[1], sunday)
   }).timeout(100)
 
-  it('returns festive days in range', done => {
+  it('returns festive days in range', async () => {
     makeItFestive(monday)
 
     var api = new DaysApi([], apiKey, locale)
-    api.festiveDaysIn(friday, tuesday)
-      .then(days => {
-        expect(monday.isSame(days[0])).to.equal(true)
-        done()
-      })
+    const days = await api.festiveDaysIn(friday, tuesday)
+
+    deepEqual(days[0], monday)
   }).timeout(100)
 
-  it('do not return festive days outside range', done => {
+  it('do not return festive days outside range', async () => {
     makeItFestive(sunday)
 
     var api = new DaysApi([], apiKey, locale)
-    api.festiveDaysIn(monday, tuesday)
-      .then(days => {
-        expect(days.length).to.equal(0)
-        done()
-      })
+
+    const days = await api.festiveDaysIn(monday, tuesday)
+
+    lengthOf(days, 0)
   }).timeout(100)
 
-  it('returns working days in range', done => {
+  it('returns working days in range', async() => {
     const workingDays = ['Friday', 'Monday', 'Tuesday']
 
     makeItFestive(monday)
 
     var api = new DaysApi(workingDays, apiKey, locale)
-    api.workingDaysIn(friday, tuesday)
-      .then(days => {
-        expect(friday.isSame(days[0])).to.equal(true)
-        expect(tuesday.isSame(days[1])).to.equal(true)
-        done()
-      })
+
+    const days = await api.workingDaysIn(friday, tuesday)
+
+    deepEqual(days[0], friday)
+    deepEqual(days[1], tuesday)
   }).timeout(100)
 
   function makeItFestive (day) {

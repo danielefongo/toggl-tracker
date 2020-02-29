@@ -2,7 +2,7 @@ const chai = require('chai')
 var chaiSubset = require('chai-subset')
 chai.use(chaiSubset)
 
-const expect = chai.expect
+const { deepEqual, deepInclude, lengthOf } = chai.assert
 const sinon = require('sinon')
 const axios = require('axios')
 const moment = require('moment')
@@ -75,7 +75,7 @@ describe('Toggl Api Integration', (self) => {
       created_with: 'toggl-tracker'
     })
 
-    expect(createdEntry).to.containSubset({
+    deepInclude(createdEntry, {
       pid: project.id,
       description: description,
       billable: project.billable,
@@ -89,33 +89,37 @@ describe('Toggl Api Integration', (self) => {
   it('get time entries', async () => {
     const entries = await toggl.getTimeEntries(workspace, entryStart.format(), entryStop.format())
 
-    expect(entries).to.containSubset([{
+    const retrievedEntry = extractWithId(entries, entry.id)
+
+    deepInclude(retrievedEntry, {
       id: entry.id,
       pid: project.id
-    }])
+    })
   }).timeout(1000)
 
   it('get empty list of entries', async () => {
     const entries = await toggl.getTimeEntries(workspace, entryHalfTime.format(), entryHalfTime.format())
 
-    expect(entries.length).to.be.equal(0)
+    lengthOf(entries, 0)
   }).timeout(1000)
 
   it('get active projects', async () => {
     const projects = await toggl.getActiveProjects(workspace)
 
-    expect(projects).to.containSubset([{
+    const retrievedProject = extractWithId(projects, project.id)
+
+    deepInclude(retrievedProject, {
       id: project.id,
       name: project.name,
       cid: client.id,
       billable: false
-    }])
+    })
   }).timeout(1000)
 
   it('get project', async () => {
     const retrievedProject = await toggl.getProject(project.id)
 
-    expect(retrievedProject).to.containSubset({
+    deepInclude(retrievedProject, {
       id: retrievedProject.id,
       name: retrievedProject.name,
       cid: client.id,
@@ -126,22 +130,24 @@ describe('Toggl Api Integration', (self) => {
   it('get clients', async () => {
     const clients = await toggl.getClients()
 
-    expect(clients).to.containSubset([{
+    const retrievedClient = extractWithId(clients, client.id)
+
+    deepInclude(retrievedClient, {
       id: client.id,
       name: client.name
-    }])
+    })
   }).timeout(1000)
 
   it('get empty list of tasks project id is undefined', async () => {
     const tasks = await toggl.getTasks(undefined)
 
-    expect(tasks).to.deep.equal([])
+    deepEqual(tasks, [])
   }).timeout(1000)
 
   it('get empty list of tasks if not available', async () => {
     const tasks = await toggl.getTasks(project.id)
 
-    expect(tasks).to.deep.equal([])
+    deepEqual(tasks, [])
   }).timeout(1000)
 
   function randomName () {
@@ -150,6 +156,10 @@ describe('Toggl Api Integration', (self) => {
 
   function zuluFormat (moment) {
     return moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+  }
+
+  function extractWithId (array, id) {
+    return array.filter(element => element.id === id)[0]
   }
 
   async function cleanEntries () {

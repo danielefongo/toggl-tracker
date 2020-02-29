@@ -2,7 +2,7 @@ const chai = require('chai')
 var chaiSubset = require('chai-subset')
 chai.use(chaiSubset)
 
-const expect = chai.expect
+const { deepEqual, deepInclude, lengthOf } = chai.assert
 const sinon = require('sinon')
 const moment = require('moment')
 
@@ -41,7 +41,9 @@ describe('Toggl', () => {
 
     await toggl.createTimeEntry(PROJECT, TASK, 'FOO', TIMESLOT)
 
-    expect(stubbed.getCalls()[0].firstArg).to.containSubset({
+    const callArgument = stubbed.getCalls()[0].firstArg
+
+    deepInclude(callArgument, {
       start: TIMESLOT.start.toDate(),
       stop: TIMESLOT.end.toDate()
     })
@@ -60,7 +62,7 @@ describe('Toggl', () => {
 
     const entries = await toggl.getTimeEntries(workspace, moment(), moment())
 
-    expect(entries).to.deep.equal([expectedEntry])
+    deepEqual(entries, [expectedEntry])
   })
 
   it('converts retrieved entry timestamps to moments', async () => {
@@ -70,7 +72,7 @@ describe('Toggl', () => {
 
     const entries = await toggl.getTimeEntries(ANY_WORKSPACE, moment(), moment())
 
-    expect(entries[0]).to.containSubset({
+    deepInclude(entries[0], {
       start: expectedMoment,
       stop: expectedMoment
     })
@@ -84,9 +86,9 @@ describe('Toggl', () => {
       expectedEntry
     ])
 
-    const entries = await toggl.getLastTimeEntry(ANY_WORKSPACE, moment(), moment())
+    const entry = await toggl.getLastTimeEntry(ANY_WORKSPACE, moment(), moment())
 
-    expect(entries).to.deep.equal(expectedEntry)
+    deepEqual(entry, expectedEntry)
   })
 
   it('extracts 0 holes between retrieved entries if they are consecutive', async () => {
@@ -100,7 +102,7 @@ describe('Toggl', () => {
 
     const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
 
-    expect(holes.length).to.be.equal(0)
+    lengthOf(holes, 0)
   })
 
   it('extracts holes between retrieved entries', async () => {
@@ -114,8 +116,8 @@ describe('Toggl', () => {
 
     const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
 
-    expect(holes.length).to.be.equal(1)
-    expect(holes[0]).to.containSubset({
+    lengthOf(holes, 1)
+    deepInclude(holes[0], {
       start: moment('2020-01-02'),
       end: moment('2020-01-03')
     })
@@ -131,12 +133,12 @@ describe('Toggl', () => {
 
     const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
 
-    expect(holes.length).to.be.equal(2)
-    expect(holes[0]).to.containSubset({
+    lengthOf(holes, 2)
+    deepInclude(holes[0], {
       start: moment('2020-01-01'),
       end: moment('2020-01-02')
     })
-    expect(holes[1]).to.containSubset({
+    deepInclude(holes[1], {
       start: moment('2020-01-03'),
       end: moment('2020-01-04')
     })
@@ -147,7 +149,7 @@ describe('Toggl', () => {
 
     const projects = await toggl.getActiveProjects(ANY_WORKSPACE)
 
-    expect(projects).to.deep.equal([
+    deepEqual(projects, [
       { id: undefined, name: 'NO PROJECT' },
       PROJECT
     ])
@@ -158,18 +160,18 @@ describe('Toggl', () => {
 
     const projects = await toggl.getAllProjects(ANY_WORKSPACE)
 
-    expect(projects).to.deep.equal([
+    deepEqual(projects, [
       { id: undefined, name: 'NO PROJECT' },
       PROJECT
     ])
   })
 
-  it('obtains all tasks and an empty task', async () => {
+  it('obtains all tasks and an empty task as last item', async () => {
     simulateTasks([TASK])
 
     const tasks = await toggl.getTasks(ANY_PROJECT_ID)
 
-    expect(tasks).to.containSubset([
+    deepEqual(tasks, [
       TASK,
       { id: undefined, name: '[no task]' }
     ])
@@ -180,7 +182,7 @@ describe('Toggl', () => {
 
     const task = await toggl.getTask(ANY_TASK_ID)
 
-    expect(task).to.deep.equal(TASK)
+    deepEqual(task, TASK)
   })
 
   it('obtains empty task if api returns undefined', async () => {
@@ -188,9 +190,7 @@ describe('Toggl', () => {
 
     const task = await toggl.getTask(ANY_TASK_ID)
 
-    expect(task).to.deep.equal(
-      { id: undefined, name: '[no task]' }
-    )
+    deepEqual(task, { id: undefined, name: '[no task]' })
   })
 
   function aBasicEntry (id, workspace, startString, stopString) {

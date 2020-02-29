@@ -1,6 +1,7 @@
 const chai = require('chai')
 const sinon = require('sinon')
-const expect = chai.expect
+
+const { deepInclude, lengthOf } = chai.assert
 
 const moment = require('moment')
 const TimeSlotter = require('../src/timeSlotter')
@@ -13,90 +14,82 @@ describe('Time Slotter', (self) => {
   const elevenOClock = moment(day).hours(11)
   const twelveOClock = moment(day).hours(12)
 
-  it('slotsIn returns empty list if slots have start equal to end', done => {
+  it('slotsIn returns empty list if slots have start equal to end', async () => {
     const intervals = [intervalIn(9, 12)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    slotter.slotsIn(nineOClock, nineOClock).then(slots => {
-      expect(slots.length).to.equal(0)
-      done()
-    })
-  }).timeout(100)
+    const slots = await slotter.slotsIn(nineOClock, nineOClock)
 
-  it('slotsIn returns empty list if outside interval', done => {
+    lengthOf(slots, 0)
+  })
+
+  it('slotsIn returns empty list if outside interval', async () => {
     const intervals = [intervalIn(7, 8)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    slotter.slotsIn(nineOClock, tenOClock).then(slots => {
-      expect(slots.length).to.equal(0)
-      done()
-    })
-  }).timeout(100)
+    const slots = await slotter.slotsIn(nineOClock, tenOClock)
 
-  it('slotsIn does not trim range inside interval', done => {
+    lengthOf(slots, 0)
+  })
+
+  it('slotsIn does not trim range inside interval', async () => {
     const intervals = [intervalIn(9, 12)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    slotter.slotsIn(tenOClock, elevenOClock).then(slots => {
-      shouldHaveRange(slots[0], tenOClock, elevenOClock)
-      done()
-    })
-  }).timeout(100)
+    const slots = await slotter.slotsIn(tenOClock, elevenOClock)
 
-  it('slotsIn trims to interval', done => {
+    deepInclude(slots[0], { start: tenOClock, end: elevenOClock })
+  })
+
+  it('slotsIn trims to interval', async () => {
     const intervals = [intervalIn(10, 11)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    slotter.slotsIn(nineOClock, twelveOClock).then(slots => {
-      shouldHaveRange(slots[0], tenOClock, elevenOClock)
-      done()
-    })
-  }).timeout(100)
+    const slots = await slotter.slotsIn(nineOClock, twelveOClock)
 
-  it('slotsIn gives multiple slots', done => {
+    deepInclude(slots[0], { start: tenOClock, end: elevenOClock })
+  })
+
+  it('slotsIn gives multiple slots', async () => {
     const intervals = [intervalIn(10, 11), intervalIn(11, 12)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    slotter.slotsIn(tenOClock, twelveOClock)
-      .then(slots => {
-        shouldHaveRange(slots[0], tenOClock, elevenOClock)
-        shouldHaveRange(slots[1], elevenOClock, twelveOClock)
-        done()
-      })
-  }).timeout(100)
+    const slots = await slotter.slotsIn(tenOClock, twelveOClock)
 
-  it('slotsInMany returns empty list if slots have start equal to end', done => {
+    deepInclude(slots[0], { start: tenOClock, end: elevenOClock })
+    deepInclude(slots[1], { start: elevenOClock, end: twelveOClock })
+  })
+
+  it('slotsInMany returns empty list if slots have start equal to end', async () => {
     const intervals = [intervalIn(9, 12)]
     const startEnd = [{ start: nineOClock, end: nineOClock }]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    slotter.slotsInMany(startEnd).then(slots => {
-      expect(slots.length).to.equal(0)
-      done()
-    })
-  }).timeout(100)
+    const slots = await slotter.slotsInMany(startEnd)
 
-  it('slotsInMany handles multiple data', done => {
+    lengthOf(slots, 0)
+  })
+
+  it('slotsInMany handles multiple data', async () => {
     const intervals = [intervalIn(9, 12)]
     const startEnd = [{ start: nineOClock, end: tenOClock }, { start: elevenOClock, end: twelveOClock }]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    slotter.slotsInMany(startEnd).then(slots => {
-      shouldHaveRange(slots[0], nineOClock, tenOClock)
-      shouldHaveRange(slots[1], elevenOClock, twelveOClock)
-      done()
-    })
-  }).timeout(100)
+    const slots = await slotter.slotsInMany(startEnd)
 
-  function intervalIn(startHour, endHour) {
-    return { start: {hours: startHour, minutes: 0}, end: {hours: endHour, minutes: 0} } 
+    deepInclude(slots[0], { start: nineOClock, end: tenOClock })
+    deepInclude(slots[1], { start: elevenOClock, end: twelveOClock })
+  })
+
+  function intervalIn (startHour, endHour) {
+    return { start: { hours: startHour, minutes: 0 }, end: { hours: endHour, minutes: 0 } }
   }
 
   beforeEach(function () {
@@ -107,8 +100,4 @@ describe('Time Slotter', (self) => {
     sinon.restore()
   })
 
-  function shouldHaveRange (slot, start, end) {
-    expect(slot.start.isSame(start)).to.equal(true)
-    expect(slot.end.isSame(end)).to.equal(true)
-  }
 })

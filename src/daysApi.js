@@ -44,7 +44,7 @@ module.exports = function (workingDays, apiKey, locale) {
 
     const daysList = []
     while (currentDay <= endDay) {
-      daysList.push(moment(currentDay))
+      daysList.push(moment(currentDay.format('YYYY-MM-DD')))
       currentDay = currentDay.add(1, 'day')
     }
     return daysList
