@@ -1,13 +1,14 @@
-const chai = require('chai')
-const sinon = require('sinon')
+import { afterEach, beforeEach, describe, it } from 'mocha'
+import chai from 'chai'
+import sinon from 'sinon'
+import moment from 'moment'
+
+import { TimeSlotter } from '../src/timeSlotter'
+const daysApi = { workingDaysIn: function () {} }
 
 const { deepInclude, lengthOf } = chai.assert
 
-const moment = require('moment')
-const TimeSlotter = require('../src/timeSlotter')
-const daysApi = { workingDaysIn: function () {} }
-
-describe('Time Slotter', (self) => {
+describe('Time Slotter', () => {
   const day = moment('2020-01-01')
   const nineOClock = moment(day).hours(9)
   const tenOClock = moment(day).hours(10)
@@ -93,6 +94,7 @@ describe('Time Slotter', (self) => {
   }
 
   beforeEach(function () {
+    // @ts-ignore
     sinon.stub(daysApi, 'workingDaysIn').returns([day])
   })
 

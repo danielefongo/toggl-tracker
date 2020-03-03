@@ -1,15 +1,17 @@
-const chai = require('chai')
-var chaiSubset = require('chai-subset')
+import { after, beforeEach, describe, it, before } from 'mocha'
+import chai from 'chai'
+import chaiSubset from 'chai-subset'
+import sinon from 'sinon'
+import axios from 'axios'
+import moment from 'moment'
+import querystring from 'querystring'
+
+import { Printer } from '../src/printer'
+import { TogglApi } from '../src/togglApi'
+
 chai.use(chaiSubset)
 
 const { deepEqual, deepInclude, lengthOf } = chai.assert
-const sinon = require('sinon')
-const axios = require('axios')
-const moment = require('moment')
-const querystring = require('querystring')
-
-const printer = require('../src/printer')
-const TogglApi = require('../src/togglApi')
 const token = process.env.TOGGL_TEST_TOKEN
 const workspace = process.env.TOGGL_TEST_WORKSPACE
 
@@ -17,7 +19,7 @@ if (token === undefined || workspace === undefined) {
   throw new Error('use environment properties: TOGGL_TEST_TOKEN, TOGGL_TEST_WORKSPACE')
 }
 
-describe('Toggl Api Integration', (self) => {
+describe('Toggl Api Integration', () => {
   const day = moment(moment().format('YYYY-MM-DD'))
   const startOfDay = moment(day).startOf('day')
   const endOfDay = moment(day).endOf('day')
@@ -47,7 +49,7 @@ describe('Toggl Api Integration', (self) => {
     }
     entry = await restPost('/time_entries', { time_entry: entryData })
 
-    sinon.stub(printer, 'entry')
+    sinon.stub(Printer, 'entry')
   })
 
   after(async () => {
@@ -190,7 +192,7 @@ describe('Toggl Api Integration', (self) => {
       })
   }
 
-  async function restDelete (url, data) {
+  async function restDelete (url) {
     return instance.delete(url)
   }
 

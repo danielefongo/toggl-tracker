@@ -1,10 +1,10 @@
-const fuzzysort = require('fuzzysort')
+import fuzzysort from 'fuzzysort'
+import inquirer from 'inquirer'
 
-var inquirer = require('inquirer')
 inquirer.registerPrompt('autocomplete-list', require('inquirer-autocomplete-prompt'))
 
-module.exports = function () {
-  this.whatHaveYouDone = async function () {
+export class Asker {
+  async whatHaveYouDone () {
     const answer = await inquirer.prompt([{
       name: 'description',
       message: 'What have you done?'
@@ -13,7 +13,7 @@ module.exports = function () {
     return answer.description
   }
 
-  this.init = async function (config) {
+  async init (config) {
     config = await inquirer.prompt([{
       type: 'checkbox',
       name: 'workingDays',
@@ -56,32 +56,32 @@ module.exports = function () {
     return config
   }
 
-  this.chooseProject = async function (projects, clients) {
-    const choices = projectsToChoices(projects, clients)
+  async chooseProject (projects, clients) {
+    const choices = this.projectsToChoices(projects, clients)
     const answer = await inquirer.prompt([{
       type: 'autocomplete-list',
       name: 'project',
       message: 'Select project name',
-      source: (_, id) => search(choices, id)
+      source: (_, id) => this.search(choices, id)
     }])
 
     return projects.filter(it => it.id === answer.project.id)[0]
   }
 
-  this.chooseTask = async function (tasks, clients) {
-    const choices = tasksToChoices(tasks, clients)
+  async chooseTask (tasks) {
+    const choices = this.tasksToChoices(tasks)
     const answer = await inquirer.prompt([{
       type: 'autocomplete-list',
       name: 'task',
       message: 'Select task name',
-      source: (_, id) => search(choices, id)
+      source: (_, id) => this.search(choices, id)
     }])
 
     return tasks.filter(it => it.id === answer.task.id)[0]
   }
 
-  this.pickIntervals = async function (intervals) {
-    const choices = intervalsToChoices(intervals)
+  async pickIntervals (intervals) {
+    const choices = this.intervalsToChoices(intervals)
     const answer = await inquirer.prompt([{
       type: 'checkbox',
       name: 'interval',
@@ -96,7 +96,7 @@ module.exports = function () {
     return answer.interval
   }
 
-  this.shouldContinueLastActivity = async function (projectName, description) {
+  async shouldContinueLastActivity (projectName, description) {
     const answer = await inquirer.prompt([{
       type: 'list',
       name: 'usePreviousEntry',
@@ -106,12 +106,12 @@ module.exports = function () {
     return answer.usePreviousEntry === 'Yes'
   }
 
-  async function search (projects, keyword) {
+  private async search (projects, keyword) {
     if (keyword === undefined || keyword === '') return projects
     return fuzzysort.go(keyword, projects, { key: 'name' }).map(it => it.obj)
   }
 
-  function intervalsToChoices (intervals) {
+  private intervalsToChoices (intervals) {
     return intervals.map(it => {
       return {
         name: it.start.format('MMM DD') + ': ' + it.start.format('HH:mm') + ' -> ' + it.end.format('HH:mm'),
@@ -120,7 +120,7 @@ module.exports = function () {
     })
   }
 
-  function projectsToChoices (projects, clients) {
+  private projectsToChoices (projects, clients) {
     return projects.map(project => {
       const client = clients.filter(client => client.id === project.cid)[0]
       const clientTag = client ? '[' + client.name + '] ' : ''
@@ -132,7 +132,7 @@ module.exports = function () {
     })
   }
 
-  function tasksToChoices (tasks) {
+  private tasksToChoices (tasks) {
     return tasks.map(task => {
       return {
         name: task.name,

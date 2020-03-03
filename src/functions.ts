@@ -1,7 +1,7 @@
-const moment = require('moment')
-const printer = require('./printer')
+import moment from 'moment'
+import { Printer } from './printer'
 
-exports.compilePicky = async (toggl, timeSlotter, asker, config) => {
+async function compilePicky (toggl, timeSlotter, asker, config) {
   const workspace = config.togglWorkspace
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
   const end = moment().startOf('day').add(config.lookForwardDays, 'day')
@@ -15,7 +15,7 @@ exports.compilePicky = async (toggl, timeSlotter, asker, config) => {
   toggl.createTimeEntries(project, task, description, selectedSlots)
 }
 
-exports.compileAppend = async (toggl, timeSlotter, asker, config) => {
+async function compileAppend (toggl, timeSlotter, asker, config) {
   const workspace = config.togglWorkspace
   const lastTimeEntry = await toggl.getLastTimeEntry(workspace, moment().add(-config.lookBehindDays, 'day'), moment())
   var { project, task, description } = await getProjectTaskAndDescriptionFrom(lastTimeEntry, toggl)
@@ -33,7 +33,7 @@ exports.compileAppend = async (toggl, timeSlotter, asker, config) => {
   toggl.createTimeEntries(project, task, description, slots)
 }
 
-exports.check = async (toggl, config) => {
+async function check (toggl, config) {
   const workspace = config.togglWorkspace
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
   const end = moment().startOf('day').add(config.lookForwardDays, 'day')
@@ -42,7 +42,7 @@ exports.check = async (toggl, config) => {
   toggl.getTimeEntries(workspace, start, end).then(entries => {
     entries.forEach(entry => {
       const project = projects.filter(project => project.id === entry.pid)[0]
-      printer.entry(project, entry.start, entry.stop)
+      Printer.entry(project, entry.start, entry.stop)
     })
   })
 }
@@ -66,3 +66,5 @@ async function getProjectTaskAndDescriptionFrom (timeEntry, toggl) {
 
   return { project, task, description }
 }
+
+export { compileAppend, compilePicky, check }

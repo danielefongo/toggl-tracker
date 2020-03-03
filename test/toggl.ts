@@ -1,14 +1,16 @@
-const chai = require('chai')
-var chaiSubset = require('chai-subset')
+import { afterEach, beforeEach, describe, it } from 'mocha'
+import chai from 'chai'
+import chaiSubset from 'chai-subset'
+import sinon from 'sinon'
+import moment from 'moment'
+
+import { Printer } from '../src/printer'
+import { TogglApi } from '../src/togglApi'
+import { Toggl } from '../src/toggl'
+
 chai.use(chaiSubset)
 
 const { deepEqual, deepInclude, lengthOf } = chai.assert
-const sinon = require('sinon')
-const moment = require('moment')
-
-const printer = require('../src/printer')
-const Toggl = require('../src/toggl')
-const TogglApi = require('../src/togglApi')
 
 describe('Toggl', () => {
   var mockPrinter
@@ -17,7 +19,7 @@ describe('Toggl', () => {
   const api = new TogglApi('123')
 
   beforeEach(async () => {
-    mockPrinter = sinon.mock(printer)
+    mockPrinter = sinon.mock(Printer)
     toggl = new Toggl(api)
   })
 
@@ -41,7 +43,7 @@ describe('Toggl', () => {
 
     await toggl.createTimeEntry(PROJECT, TASK, 'FOO', TIMESLOT)
 
-    const callArgument = stubbed.getCalls()[0].firstArg
+    const callArgument = stubbed.getCalls()[0].args[0]
 
     deepInclude(callArgument, {
       start: TIMESLOT.start.toDate(),
@@ -193,7 +195,7 @@ describe('Toggl', () => {
     deepEqual(task, { id: undefined, name: '[no task]' })
   })
 
-  function aBasicEntry (id, workspace, startString, stopString) {
+  function aBasicEntry (id, workspace, startString = undefined, stopString = undefined) {
     return {
       id,
       start: startString,

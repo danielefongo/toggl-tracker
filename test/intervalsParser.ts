@@ -1,9 +1,11 @@
-const chai = require('chai')
+import { describe, it } from 'mocha'
+import chai from 'chai'
+
+import { IntervalsParser } from '../src/intervalsParser'
+
 const { deepEqual, deepInclude } = chai.assert
 
-const IntervalsParser = require('../src/intervalsParser')
-
-describe('Interval Parser', (self) => {
+describe('Interval Parser', () => {
   it('handles single interval', () => {
     var parser = new IntervalsParser()
 

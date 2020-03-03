@@ -1,10 +1,12 @@
-const chai = require('chai')
-const sinon = require('sinon')
-const { deepEqual, lengthOf } = chai.assert
+import { describe, it, afterEach } from 'mocha'
+import chai from 'chai'
+import sinon from 'sinon'
+import axios from 'axios'
+import moment from 'moment'
 
-const axios = require('axios')
-const moment = require('moment')
-const DaysApi = require('../src/daysApi')
+import { DaysApi } from '../src/daysApi'
+
+const { deepEqual, lengthOf } = chai.assert
 
 describe('Days Api', () => {
   const apiKey = 'any'
@@ -54,7 +56,7 @@ describe('Days Api', () => {
     lengthOf(days, 0)
   }).timeout(100)
 
-  it('returns working days in range', async() => {
+  it('returns working days in range', async () => {
     const workingDays = ['Friday', 'Monday', 'Tuesday']
 
     makeItFestive(monday)
@@ -71,7 +73,14 @@ describe('Days Api', () => {
     const nextDay = moment(day).add(1, 'day')
     sinon.stub(axios, 'get').returns(new Promise((resolve, reject) => {
       resolve(
-        { data: { items: [{ start: { date: day.format('YYYY-MM-DD') }, end: { date: nextDay.format('YYYY-MM-DD') } }] } }
+        {
+          data: {
+            items: [{
+              start: { date: day.format('YYYY-MM-DD') },
+              end: { date: nextDay.format('YYYY-MM-DD') }
+            }]
+          }
+        }
       )
     }))
   }

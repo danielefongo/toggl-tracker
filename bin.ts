@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
-const path = require('path')
-const configFile = path.join(require('os').homedir(), '.toggl-tracker.json')
-const { compile } = require('./compile')
-const { configurate } = require('./configurate')
+import fs from 'fs'
+import path from 'path'
+import { compile } from './compile'
+import { configurate } from './configurate'
+import { homedir } from 'os'
+
+const configFile = path.join(homedir(), '.toggl-tracker.json')
 
 async function main (command) {
   if (!fs.existsSync(configFile)) {

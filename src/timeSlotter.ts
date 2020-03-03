@@ -1,34 +1,39 @@
-const moment = require('moment')
+import moment from 'moment'
 
-module.exports = function (daysApi, intervals) {
-  this.daysApi = daysApi
-  this.intervals = intervals
+export class TimeSlotter {
+  private daysApi
+  private intervals
 
-  this.slotsIn = async function (startTime, endTime) {
-    const workingDays = await this.daysApi.workingDaysIn(startTime, endTime)
-
-    return slots(startTime, endTime, workingDays, this.intervals)
+  constructor (daysApi, intervals) {
+    this.daysApi = daysApi
+    this.intervals = intervals
   }
 
-  this.slotsInMany = async function (startEnd) {
+  async slotsIn (startTime, endTime) {
+    const workingDays = await this.daysApi.workingDaysIn(startTime, endTime)
+
+    return this.slots(startTime, endTime, workingDays, this.intervals)
+  }
+
+  async slotsInMany (startEnd) {
     const globalStart = moment.min(startEnd.map(it => it.start))
     const globalEnd = moment.max(startEnd.map(it => it.end))
 
     const workingDays = await this.daysApi.workingDaysIn(globalStart, globalEnd)
 
     return startEnd
-      .map(it => slots(it.start, it.end, workingDays, this.intervals))
+      .map(it => this.slots(it.start, it.end, workingDays, this.intervals))
       .flat()
   }
 
-  function slots (startTime, endTime, workingDays, intervals) {
+  private slots (startTime, endTime, workingDays, intervals) {
     return workingDays
-      .map(day => intervals.map(interval => slotWithinInterval(startTime, endTime, day, interval)))
+      .map(day => intervals.map(interval => this.slotWithinInterval(startTime, endTime, day, interval)))
       .flat()
       .filter(it => it.duration > 0)
   }
 
-  function slotWithinInterval (start, end, day, hoursInterval) {
+  private slotWithinInterval (start, end, day, hoursInterval) {
     const intervalStartMoment = moment(day).hours(hoursInterval.start.hours).minutes(hoursInterval.start.minutes)
     const intervalEndMoment = moment(day).hours(hoursInterval.end.hours).minutes(hoursInterval.end.minutes)
 
@@ -40,8 +45,4 @@ module.exports = function (daysApi, intervals) {
       duration: endMoment.diff(startMoment) / 1000
     }
   }
-}
-
-Array.prototype.flat = function () {
-  return [].concat(...this)
 }
