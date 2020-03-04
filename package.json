@@ -8,7 +8,7 @@
     "check": "node dist/bin.js check",
     "config": "node dist/bin.js config",
     "build": "tsc -p tsconfig.json",
-    "test": "mocha -r ts-node/register test/**/*.ts"
+    "test": "mocha -r ts-node/register \"test/**/*.ts\""
   },
   "bin": {
     "toggl-tracker": "dist/bin.js"
