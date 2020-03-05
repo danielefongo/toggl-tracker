@@ -9,9 +9,11 @@ import { Client } from './model/client'
 
 export class Toggl {
   private api: TogglApi
+  private workspaceId: string
 
-  constructor (api: TogglApi) {
+  constructor (api: TogglApi, workspaceId: string) {
     this.api = api
+    this.workspaceId = workspaceId
   }
 
   async createTimeEntries (project: Project, task: Task, description: string, timeSlots: TimeSlot[]) {
@@ -40,20 +42,20 @@ export class Toggl {
     })
   }
 
-  async getTimeEntries (workspaceId: string, from: Moment, to: Moment): Promise<Entry[]> {
-    const entries = await this.api.getTimeEntries(workspaceId, from.format(), to.format())
+  async getTimeEntries (from: Moment, to: Moment): Promise<Entry[]> {
+    const entries = await this.api.getTimeEntries(this.workspaceId, from.format(), to.format())
     return entries
-      .filter((it: any) => it.wid.toString() === workspaceId)
+      .filter((it: any) => it.wid.toString() === this.workspaceId)
       .map(this.convertToEntry)
   }
 
-  async getLastTimeEntry (workspaceId: string, from: Moment, to: Moment): Promise<Entry> {
-    const timeEntries = await this.getTimeEntries(workspaceId, from, to)
+  async getLastTimeEntry (from: Moment, to: Moment): Promise<Entry> {
+    const timeEntries = await this.getTimeEntries(from, to)
     return timeEntries.pop()!!
   }
 
-  async getTimeEntriesHoles (workspaceId: string, from: Moment, to: Moment): Promise<TimeSlot[]> {
-    var entries = await this.getTimeEntries(workspaceId, from, to)
+  async getTimeEntriesHoles (from: Moment, to: Moment): Promise<TimeSlot[]> {
+    var entries = await this.getTimeEntries(from, to)
 
     entries.unshift(new Entry(moment(), from))
     entries.push(new Entry(to, moment()))
@@ -64,15 +66,15 @@ export class Toggl {
       .filter(it => it.end.diff(it.start) > 0)
   }
 
-  async getActiveProjects (workspaceId: string): Promise<Project[]> {
-    const togglProjects = await this.api.getActiveProjects(workspaceId)
+  async getActiveProjects (): Promise<Project[]> {
+    const togglProjects = await this.api.getActiveProjects(this.workspaceId)
     const projects = togglProjects.map(this.convertToProject)
     projects.unshift(new Project())
     return projects
   }
 
-  async getAllProjects (workspaceId: string): Promise<Project[]> {
-    const togglProjects = await this.api.getAllProjects(workspaceId)
+  async getAllProjects (): Promise<Project[]> {
+    const togglProjects = await this.api.getAllProjects(this.workspaceId)
     const projects = togglProjects.map(this.convertToProject)
     projects.unshift(new Project())
     return projects

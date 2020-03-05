@@ -7,28 +7,26 @@ import { TimeSlot } from './model/timeSlot'
 import { Entry } from './model/entry'
 
 async function compilePicky (toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config) {
-  const workspace = config.togglWorkspace
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
   const end = moment().startOf('day').add(config.lookForwardDays, 'day')
 
-  const holes = await toggl.getTimeEntriesHoles(workspace, start, end)
+  const holes = await toggl.getTimeEntriesHoles(start, end)
   const slots = await timeSlotter.slotsInMany(holes)
   const selectedSlots = await asker.pickSlots(slots)
 
-  const { project, task, description } = await chooseProjectTaskAndDescription(workspace, toggl, asker)
+  const { project, task, description } = await chooseProjectTaskAndDescription(toggl, asker)
 
   toggl.createTimeEntries(project, task, description, selectedSlots)
 }
 
 async function compileAppend (toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config) {
-  const workspace = config.togglWorkspace
-  const lastTimeEntry = await toggl.getLastTimeEntry(workspace, moment().add(-config.lookBehindDays, 'day'), moment())
+  const lastTimeEntry = await toggl.getLastTimeEntry(moment().add(-config.lookBehindDays, 'day'), moment())
   var { project, task, description } = await getProjectTaskAndDescriptionFrom(lastTimeEntry, toggl)
 
   const continueLastActivity = await asker.shouldContinueLastActivity(project.name, description)
 
   if (!continueLastActivity) {
-    ({ project, task, description } = await chooseProjectTaskAndDescription(workspace, toggl, asker))
+    ({ project, task, description } = await chooseProjectTaskAndDescription(toggl, asker))
   }
 
   const newEntryStart = moment(lastTimeEntry.stop)
@@ -42,9 +40,9 @@ async function check (toggl: Toggl, config) {
   const workspace = config.togglWorkspace
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
   const end = moment().startOf('day').add(config.lookForwardDays, 'day')
-  const projects = await toggl.getAllProjects(workspace)
+  const projects = await toggl.getAllProjects()
 
-  toggl.getTimeEntries(workspace, start, end).then(entries => {
+  toggl.getTimeEntries(start, end).then(entries => {
     entries.forEach(entry => {
       const project = projects.filter(project => project.id === entry.pid)[0]
       Printer.entry(project, entry.start, entry.stop)
@@ -52,9 +50,9 @@ async function check (toggl: Toggl, config) {
   })
 }
 
-async function chooseProjectTaskAndDescription (workspace: string, toggl: Toggl, asker: Asker) {
+async function chooseProjectTaskAndDescription (toggl: Toggl, asker: Asker) {
   const clients = await toggl.getClients()
-  const projects = await toggl.getActiveProjects(workspace)
+  const projects = await toggl.getActiveProjects()
   const project = await asker.chooseProject(projects, clients)
   const tasks = await toggl.getTasks(project.id)
 

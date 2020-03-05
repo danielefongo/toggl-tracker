@@ -10,7 +10,7 @@ function compile (command, config) {
   var parser = new IntervalsParser()
   var intervals = parser.parse(config.workingHoursIntervals)
   var daysApi = new DaysApi(config.workingDays, config.googleToken, config.googleLocale)
-  var toggl = new Toggl(new TogglApi(config.togglToken))
+  var toggl = new Toggl(new TogglApi(config.togglToken), config.togglWorkspace)
   var timeSlotter = new TimeSlotter(daysApi, intervals)
   var asker = new Asker()
 

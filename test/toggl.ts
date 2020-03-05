@@ -24,7 +24,7 @@ describe('Toggl', () => {
 
   beforeEach(async () => {
     mockPrinter = sinon.mock(Printer)
-    toggl = new Toggl(api)
+    toggl = new Toggl(api, REFERRED_WORKSPACE)
   })
 
   afterEach(async () => {
@@ -56,17 +56,14 @@ describe('Toggl', () => {
   })
 
   it('filters retrieved time entries', async () => {
-    const workspace = '123'
-    const anotherWorkspace = '321'
-
-    const togglEntry = aTogglEntry(1, workspace)
+    const togglEntry = aTogglEntry(1, REFERRED_WORKSPACE)
 
     sinon.stub(api, 'getTimeEntries').resolves([
       togglEntry,
-      aTogglEntry(2, anotherWorkspace)
+      aTogglEntry(2, ANOTHER_WORKSPACE)
     ])
 
-    const entries = await toggl.getTimeEntries(workspace, moment(), moment())
+    const entries = await toggl.getTimeEntries(moment(), moment())
 
     lengthOf(entries, 1)
     deepInclude(entries[0], { id: 1 })
@@ -75,25 +72,25 @@ describe('Toggl', () => {
   it('converts toggl entries to proper entries', async () => {
     const startAndStopMoment = moment('2020-01-01')
 
-    const togglEntry = aTogglEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-01')
+    const togglEntry = aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-01', '2020-01-01')
     const expectedEntry = new Entry(startAndStopMoment, startAndStopMoment, "", 1, undefined, undefined)
 
     simulate('getTimeEntries', [togglEntry])
 
-    const entries = await toggl.getTimeEntries(ANY_WORKSPACE, moment(), moment())
+    const entries = await toggl.getTimeEntries(moment(), moment())
 
     deepEqual(entries[0], expectedEntry)
   })
 
   it('obtains last time entry', async () => {
-    const togglEntry = aTogglEntry(1, ANY_WORKSPACE)
+    const togglEntry = aTogglEntry(1, REFERRED_WORKSPACE)
 
     simulate('getTimeEntries', [
-      aTogglEntry(2, ANY_WORKSPACE),
+      aTogglEntry(2, REFERRED_WORKSPACE),
       togglEntry
     ])
 
-    const entry = await toggl.getLastTimeEntry(ANY_WORKSPACE, moment(), moment())
+    const entry = await toggl.getLastTimeEntry(moment(), moment())
 
     deepInclude(entry, { id: 1 })
   })
@@ -103,11 +100,11 @@ describe('Toggl', () => {
     const endMoment = moment('2020-01-03')
 
     simulate('getTimeEntries', [
-      aTogglEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-02'),
-      aTogglEntry(1, ANY_WORKSPACE, '2020-01-02', '2020-01-03')
+      aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-01', '2020-01-02'),
+      aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-02', '2020-01-03')
     ])
 
-    const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
+    const holes = await toggl.getTimeEntriesHoles(startMoment, endMoment)
 
     lengthOf(holes, 0)
   })
@@ -117,11 +114,11 @@ describe('Toggl', () => {
     const endMoment = moment('2020-01-04')
 
     simulate('getTimeEntries', [
-      aTogglEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-02'),
-      aTogglEntry(1, ANY_WORKSPACE, '2020-01-03', '2020-01-04')
+      aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-01', '2020-01-02'),
+      aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-03', '2020-01-04')
     ])
 
-    const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
+    const holes = await toggl.getTimeEntriesHoles(startMoment, endMoment)
 
     lengthOf(holes, 1)
     deepInclude(holes[0], {
@@ -135,10 +132,10 @@ describe('Toggl', () => {
     const endMoment = moment('2020-01-04')
 
     simulate('getTimeEntries', [
-      aTogglEntry(1, ANY_WORKSPACE, '2020-01-02', '2020-01-03')
+      aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-02', '2020-01-03')
     ])
 
-    const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
+    const holes = await toggl.getTimeEntriesHoles(startMoment, endMoment)
 
     lengthOf(holes, 2)
     deepInclude(holes[0], {
@@ -154,7 +151,7 @@ describe('Toggl', () => {
   it('obtains all active projects and an empty project as first element', async () => {
     simulate('getActiveProjects', [TOGGL_PROJECT])
 
-    const projects = await toggl.getActiveProjects(ANY_WORKSPACE)
+    const projects = await toggl.getActiveProjects()
 
     deepEqual(projects, [EMPTY_PROJECT, PROJECT])
   })
@@ -162,7 +159,7 @@ describe('Toggl', () => {
   it('obtains all projects and an empty project as first element', async () => {
     simulate('getAllProjects', [TOGGL_PROJECT])
 
-    const projects = await toggl.getAllProjects(ANY_WORKSPACE)
+    const projects = await toggl.getAllProjects()
 
     deepEqual(projects, [EMPTY_PROJECT, PROJECT])
   })
@@ -234,7 +231,9 @@ describe('Toggl', () => {
 
   const TIMESLOT = new TimeSlot(moment(), moment())
 
-  const ANY_WORKSPACE = 'any'
+  const REFERRED_WORKSPACE = 'workspace'
+  const ANOTHER_WORKSPACE = 'another workspace'
+
   const ANY_PROJECT_ID = 123
   const ANY_TASK_ID = 123
 })
