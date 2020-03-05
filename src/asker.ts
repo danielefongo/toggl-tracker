@@ -1,5 +1,10 @@
 import fuzzysort from 'fuzzysort'
 import inquirer from 'inquirer'
+import { Project } from './model/project'
+import { Task } from './model/task'
+import { Interval } from './model/interval'
+import { TimeSlot } from './model/timeSlot'
+import { Client } from './model/client'
 
 inquirer.registerPrompt('autocomplete-list', require('inquirer-autocomplete-prompt'))
 
@@ -56,38 +61,38 @@ export class Asker {
     return config
   }
 
-  async chooseProject (projects, clients) {
+  async chooseProject (projects: Project[], clients: Client[]): Promise<Project> {
     const choices = this.projectsToChoices(projects, clients)
     const answer = await inquirer.prompt([{
       type: 'autocomplete-list',
       name: 'project',
       message: 'Select project name',
-      source: (_, id) => this.search(choices, id)
+      source: (_: any, id: string) => this.search(choices, id)
     }])
 
     return projects.filter(it => it.id === answer.project.id)[0]
   }
 
-  async chooseTask (tasks) {
+  async chooseTask (tasks: Task[]) {
     const choices = this.tasksToChoices(tasks)
     const answer = await inquirer.prompt([{
       type: 'autocomplete-list',
       name: 'task',
       message: 'Select task name',
-      source: (_, id) => this.search(choices, id)
+      source: (_: any, id: any) => this.search(choices, id)
     }])
 
     return tasks.filter(it => it.id === answer.task.id)[0]
   }
 
-  async pickIntervals (intervals) {
-    const choices = this.intervalsToChoices(intervals)
+  async pickSlots (intervals: TimeSlot[]) {
+    const choices = this.slotsToChoices(intervals)
     const answer = await inquirer.prompt([{
       type: 'checkbox',
       name: 'interval',
       message: 'Pick interval(s)',
       choices: choices,
-      validate: (answer) => {
+      validate: (answer: any) => {
         if (answer.length === 0) return 'Pick at least 1 interval'
         return true
       }
@@ -96,7 +101,7 @@ export class Asker {
     return answer.interval
   }
 
-  async shouldContinueLastActivity (projectName, description) {
+  async shouldContinueLastActivity (projectName: string, description: string) {
     const answer = await inquirer.prompt([{
       type: 'list',
       name: 'usePreviousEntry',
@@ -106,13 +111,13 @@ export class Asker {
     return answer.usePreviousEntry === 'Yes'
   }
 
-  private async search (projects, keyword) {
+  private async search (projects: any, keyword: string) {
     if (keyword === undefined || keyword === '') return projects
     return fuzzysort.go(keyword, projects, { key: 'name' }).map(it => it.obj)
   }
 
-  private intervalsToChoices (intervals) {
-    return intervals.map(it => {
+  private slotsToChoices (slots: TimeSlot[]) {
+    return slots.map(it => {
       return {
         name: it.start.format('MMM DD') + ': ' + it.start.format('HH:mm') + ' -> ' + it.end.format('HH:mm'),
         value: it
@@ -120,7 +125,7 @@ export class Asker {
     })
   }
 
-  private projectsToChoices (projects, clients) {
+  private projectsToChoices (projects: Project[], clients: Client[]) {
     return projects.map(project => {
       const client = clients.filter(client => client.id === project.cid)[0]
       const clientTag = client ? '[' + client.name + '] ' : ''
@@ -132,7 +137,7 @@ export class Asker {
     })
   }
 
-  private tasksToChoices (tasks) {
+  private tasksToChoices (tasks: Task[]) {
     return tasks.map(task => {
       return {
         name: task.name,

@@ -27,7 +27,7 @@ describe('Toggl Api Integration', () => {
   const entryHalfTime = moment(day).hours(9).minutes(30)
   const entryStop = moment(day).hours(10)
 
-  var toggl
+  var togglApi: TogglApi
   var client
   var project
   var entry
@@ -61,20 +61,20 @@ describe('Toggl Api Integration', () => {
   })
 
   beforeEach(async () => {
-    toggl = new TogglApi(token)
+    togglApi = new TogglApi(token)
   })
 
   it('create single time entry', async () => {
     const description = randomName()
 
-    const createdEntry = await toggl.createTimeEntry({
+    const createdEntry = await togglApi.createTimeEntry({
       description: description,
       pid: project.id,
       billable: project.billable,
       duration: entryStop.diff(entryStart) / 1000,
       start: entryStart.toDate(),
       stop: entryStop.toDate(),
-      created_with: 'toggl-tracker'
+      created_with: 'togglApi-tracker'
     })
 
     deepInclude(createdEntry, {
@@ -89,7 +89,7 @@ describe('Toggl Api Integration', () => {
   }).timeout(1000)
 
   it('get time entries', async () => {
-    const entries = await toggl.getTimeEntries(workspace, entryStart.format(), entryStop.format())
+    const entries = await togglApi.getTimeEntries(workspace, entryStart.format(), entryStop.format())
 
     const retrievedEntry = extractWithId(entries, entry.id)
 
@@ -100,13 +100,13 @@ describe('Toggl Api Integration', () => {
   }).timeout(1000)
 
   it('get empty list of entries', async () => {
-    const entries = await toggl.getTimeEntries(workspace, entryHalfTime.format(), entryHalfTime.format())
+    const entries = await togglApi.getTimeEntries(workspace, entryHalfTime.format(), entryHalfTime.format())
 
     lengthOf(entries, 0)
   }).timeout(1000)
 
   it('get active projects', async () => {
-    const projects = await toggl.getActiveProjects(workspace)
+    const projects = await togglApi.getActiveProjects(workspace)
 
     const retrievedProject = extractWithId(projects, project.id)
 
@@ -119,7 +119,7 @@ describe('Toggl Api Integration', () => {
   }).timeout(1000)
 
   it('get project', async () => {
-    const retrievedProject = await toggl.getProject(project.id)
+    const retrievedProject = await togglApi.getProject(project.id)
 
     deepInclude(retrievedProject, {
       id: retrievedProject.id,
@@ -130,7 +130,7 @@ describe('Toggl Api Integration', () => {
   }).timeout(1000)
 
   it('get clients', async () => {
-    const clients = await toggl.getClients()
+    const clients = await togglApi.getClients()
 
     const retrievedClient = extractWithId(clients, client.id)
 
@@ -141,13 +141,13 @@ describe('Toggl Api Integration', () => {
   }).timeout(1000)
 
   it('get empty list of tasks project id is undefined', async () => {
-    const tasks = await toggl.getTasks(undefined)
+    const tasks = await togglApi.getTasks(undefined)
 
     deepEqual(tasks, [])
   }).timeout(1000)
 
   it('get empty list of tasks if not available', async () => {
-    const tasks = await toggl.getTasks(project.id)
+    const tasks = await togglApi.getTasks(project.id)
 
     deepEqual(tasks, [])
   }).timeout(1000)

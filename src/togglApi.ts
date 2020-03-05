@@ -1,10 +1,10 @@
-import axios from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import querystring from 'querystring'
 
 export class TogglApi {
-  private instance
+  private instance: AxiosInstance
 
-  constructor (token) {
+  constructor (token: string) {
     this.instance = axios.create({
       baseURL: 'https://www.toggl.com/api/v8/',
       auth: { username: token, password: 'api_token' },
@@ -12,26 +12,26 @@ export class TogglApi {
     })
   }
 
-  async createTimeEntry (timeEntry) {
+  async createTimeEntry (timeEntry: any) {
     return this.post('/time_entries', { time_entry: timeEntry })
   }
 
-  async getTimeEntries (workspaceId, startDate, stopDate) {
+  async getTimeEntries (workspaceId: string, startDateString: string, stopDateString: string) {
     return this.get('/time_entries', {
-      start_date: startDate,
-      stop_date: stopDate
+      start_date: startDateString,
+      stop_date: stopDateString
     })
   }
 
-  async getActiveProjects (workspaceId) {
+  async getActiveProjects (workspaceId: string) {
     return this.get('/workspaces/' + workspaceId + '/projects')
   }
 
-  async getAllProjects (workspaceId) {
+  async getAllProjects (workspaceId: string) {
     return this.get('/workspaces/' + workspaceId + '/projects', { active: 'both' })
   }
 
-  async getProject (projectId) {
+  async getProject (projectId: number) {
     return this.get('/projects/' + projectId)
   }
 
@@ -39,7 +39,7 @@ export class TogglApi {
     return this.get('/clients')
   }
 
-  async getTasks (projectId) {
+  async getTasks (projectId?: number) {
     if (projectId === undefined) return []
 
     var tasks = await this.get('/projects/' + projectId + '/tasks')
@@ -48,20 +48,20 @@ export class TogglApi {
     return tasks
   }
 
-  async getTask (taskId) {
+  async getTask (taskId?: number) {
     if (taskId === undefined) return undefined
     return this.get('/tasks/' + taskId)
   }
 
-  private async get (url, queryObject = undefined) {
+  private async get (url: string, queryObject?: any) {
     return this.instance.get(url + '?' + querystring.stringify(queryObject)).then(response => { return this.extractDataIfNeeded(response.data) })
   }
 
-  private async post (url, data) {
+  private async post (url: string, data: any) {
     return this.instance.post(url, data).then(response => { return this.extractDataIfNeeded(response.data) })
   }
 
-  private extractDataIfNeeded (payload) {
+  private extractDataIfNeeded (payload: any) {
     if (payload === null || payload === undefined) return null
     return (payload.data !== undefined) ? payload.data : payload
   }

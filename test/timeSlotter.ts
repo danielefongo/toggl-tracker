@@ -4,7 +4,12 @@ import sinon from 'sinon'
 import moment from 'moment'
 
 import { TimeSlotter } from '../src/timeSlotter'
-const daysApi = { workingDaysIn: function () {} }
+import { Time } from '../src/model/time'
+import { Interval } from '../src/model/interval'
+import { DaysApi } from '../src/daysApi'
+import { TimeSlot } from '../src/model/timeSlot'
+
+const daysApi = new DaysApi([], 'any', 'any')
 
 const { deepInclude, lengthOf } = chai.assert
 
@@ -20,7 +25,7 @@ describe('Time Slotter', () => {
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    const slots = await slotter.slotsIn(nineOClock, nineOClock)
+    const slots = await slotter.slotsIn(new TimeSlot(nineOClock, nineOClock))
 
     lengthOf(slots, 0)
   })
@@ -30,7 +35,7 @@ describe('Time Slotter', () => {
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    const slots = await slotter.slotsIn(nineOClock, tenOClock)
+    const slots = await slotter.slotsIn(new TimeSlot(nineOClock, tenOClock))
 
     lengthOf(slots, 0)
   })
@@ -40,7 +45,7 @@ describe('Time Slotter', () => {
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    const slots = await slotter.slotsIn(tenOClock, elevenOClock)
+    const slots = await slotter.slotsIn(new TimeSlot(tenOClock, elevenOClock))
 
     deepInclude(slots[0], { start: tenOClock, end: elevenOClock })
   })
@@ -50,7 +55,7 @@ describe('Time Slotter', () => {
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    const slots = await slotter.slotsIn(nineOClock, twelveOClock)
+    const slots = await slotter.slotsIn(new TimeSlot(nineOClock, twelveOClock))
 
     deepInclude(slots[0], { start: tenOClock, end: elevenOClock })
   })
@@ -60,7 +65,7 @@ describe('Time Slotter', () => {
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    const slots = await slotter.slotsIn(tenOClock, twelveOClock)
+    const slots = await slotter.slotsIn(new TimeSlot(tenOClock, twelveOClock))
 
     deepInclude(slots[0], { start: tenOClock, end: elevenOClock })
     deepInclude(slots[1], { start: elevenOClock, end: twelveOClock })
@@ -68,29 +73,29 @@ describe('Time Slotter', () => {
 
   it('slotsInMany returns empty list if slots have start equal to end', async () => {
     const intervals = [intervalIn(9, 12)]
-    const startEnd = [{ start: nineOClock, end: nineOClock }]
+    const baseSlots = [new TimeSlot(nineOClock, nineOClock)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    const slots = await slotter.slotsInMany(startEnd)
+    const slots = await slotter.slotsInMany(baseSlots)
 
     lengthOf(slots, 0)
   })
 
   it('slotsInMany handles multiple data', async () => {
     const intervals = [intervalIn(9, 12)]
-    const startEnd = [{ start: nineOClock, end: tenOClock }, { start: elevenOClock, end: twelveOClock }]
+    const baseSlots = [new TimeSlot(nineOClock, tenOClock), new TimeSlot(elevenOClock, twelveOClock)]
 
     const slotter = new TimeSlotter(daysApi, intervals)
 
-    const slots = await slotter.slotsInMany(startEnd)
+    const slots = await slotter.slotsInMany(baseSlots)
 
     deepInclude(slots[0], { start: nineOClock, end: tenOClock })
     deepInclude(slots[1], { start: elevenOClock, end: twelveOClock })
   })
 
   function intervalIn (startHour, endHour) {
-    return { start: { hours: startHour, minutes: 0 }, end: { hours: endHour, minutes: 0 } }
+    return new Interval(new Time(startHour), new Time(endHour))
   }
 
   beforeEach(function () {

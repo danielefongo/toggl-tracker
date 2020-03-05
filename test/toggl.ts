@@ -1,21 +1,25 @@
 import { afterEach, beforeEach, describe, it } from 'mocha'
 import chai from 'chai'
 import chaiSubset from 'chai-subset'
-import sinon from 'sinon'
+import sinon, { SinonMock } from 'sinon'
 import moment from 'moment'
 
 import { Printer } from '../src/printer'
 import { TogglApi } from '../src/togglApi'
 import { Toggl } from '../src/toggl'
+import { TimeSlot } from '../src/model/timeSlot'
+import { Project } from '../src/model/project'
+import { Task } from '../src/model/task'
+import { Entry } from '../src/model/entry'
 
 chai.use(chaiSubset)
 
 const { deepEqual, deepInclude, lengthOf } = chai.assert
 
 describe('Toggl', () => {
-  var mockPrinter
+  var mockPrinter: SinonMock
 
-  var toggl
+  var toggl: Toggl
   const api = new TogglApi('123')
 
   beforeEach(async () => {
@@ -29,7 +33,7 @@ describe('Toggl', () => {
   })
 
   it('prints entry on successful entry creation', async () => {
-    simulateEntryCreation({})
+    simulate('createTimeEntry', {})
     mockPrinter.expects('entry').once()
 
     await toggl.createTimeEntry(PROJECT, TASK, 'FOO', TIMESLOT)
@@ -38,7 +42,7 @@ describe('Toggl', () => {
   })
 
   it('converts moments to dates when creating entry', async () => {
-    const stubbed = simulateEntryCreation({})
+    const stubbed = simulate('createTimeEntry', {})
     mockPrinter.expects('entry') // TODO remove this when passing printer as dependency
 
     await toggl.createTimeEntry(PROJECT, TASK, 'FOO', TIMESLOT)
@@ -55,51 +59,52 @@ describe('Toggl', () => {
     const workspace = '123'
     const anotherWorkspace = '321'
 
-    const expectedEntry = aBasicEntry(1, workspace)
+    const togglEntry = aTogglEntry(1, workspace)
 
     sinon.stub(api, 'getTimeEntries').resolves([
-      expectedEntry,
-      aBasicEntry(2, anotherWorkspace)
+      togglEntry,
+      aTogglEntry(2, anotherWorkspace)
     ])
 
     const entries = await toggl.getTimeEntries(workspace, moment(), moment())
 
-    deepEqual(entries, [expectedEntry])
+    lengthOf(entries, 1)
+    deepInclude(entries[0], { id: 1 })
   })
 
-  it('converts retrieved entry timestamps to moments', async () => {
-    const expectedMoment = moment('2020-01-01')
+  it('converts toggl entries to proper entries', async () => {
+    const startAndStopMoment = moment('2020-01-01')
 
-    simulateEntries([aBasicEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-01')])
+    const togglEntry = aTogglEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-01')
+    const expectedEntry = new Entry(startAndStopMoment, startAndStopMoment, "", 1, undefined, undefined)
+
+    simulate('getTimeEntries', [togglEntry])
 
     const entries = await toggl.getTimeEntries(ANY_WORKSPACE, moment(), moment())
 
-    deepInclude(entries[0], {
-      start: expectedMoment,
-      stop: expectedMoment
-    })
+    deepEqual(entries[0], expectedEntry)
   })
 
   it('obtains last time entry', async () => {
-    const expectedEntry = aBasicEntry(1, 'any')
+    const togglEntry = aTogglEntry(1, ANY_WORKSPACE)
 
-    simulateEntries([
-      aBasicEntry(1, ANY_WORKSPACE),
-      expectedEntry
+    simulate('getTimeEntries', [
+      aTogglEntry(2, ANY_WORKSPACE),
+      togglEntry
     ])
 
     const entry = await toggl.getLastTimeEntry(ANY_WORKSPACE, moment(), moment())
 
-    deepEqual(entry, expectedEntry)
+    deepInclude(entry, { id: 1 })
   })
 
   it('extracts 0 holes between retrieved entries if they are consecutive', async () => {
     const startMoment = moment('2020-01-01')
     const endMoment = moment('2020-01-03')
 
-    simulateEntries([
-      aBasicEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-02'),
-      aBasicEntry(1, ANY_WORKSPACE, '2020-01-02', '2020-01-03')
+    simulate('getTimeEntries', [
+      aTogglEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-02'),
+      aTogglEntry(1, ANY_WORKSPACE, '2020-01-02', '2020-01-03')
     ])
 
     const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
@@ -111,9 +116,9 @@ describe('Toggl', () => {
     const startMoment = moment('2020-01-01')
     const endMoment = moment('2020-01-04')
 
-    simulateEntries([
-      aBasicEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-02'),
-      aBasicEntry(1, ANY_WORKSPACE, '2020-01-03', '2020-01-04')
+    simulate('getTimeEntries', [
+      aTogglEntry(1, ANY_WORKSPACE, '2020-01-01', '2020-01-02'),
+      aTogglEntry(1, ANY_WORKSPACE, '2020-01-03', '2020-01-04')
     ])
 
     const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
@@ -129,8 +134,8 @@ describe('Toggl', () => {
     const startMoment = moment('2020-01-01')
     const endMoment = moment('2020-01-04')
 
-    simulateEntries([
-      aBasicEntry(1, ANY_WORKSPACE, '2020-01-02', '2020-01-03')
+    simulate('getTimeEntries', [
+      aTogglEntry(1, ANY_WORKSPACE, '2020-01-02', '2020-01-03')
     ])
 
     const holes = await toggl.getTimeEntriesHoles(ANY_WORKSPACE, startMoment, endMoment)
@@ -147,40 +152,45 @@ describe('Toggl', () => {
   })
 
   it('obtains all active projects and an empty project as first element', async () => {
-    simulateProjects([PROJECT])
+    simulate('getActiveProjects', [TOGGL_PROJECT])
 
     const projects = await toggl.getActiveProjects(ANY_WORKSPACE)
 
-    deepEqual(projects, [
-      { id: undefined, name: 'NO PROJECT' },
-      PROJECT
-    ])
+    deepEqual(projects, [EMPTY_PROJECT, PROJECT])
   })
 
   it('obtains all projects and an empty project as first element', async () => {
-    simulateProjects([PROJECT])
+    simulate('getAllProjects', [TOGGL_PROJECT])
 
     const projects = await toggl.getAllProjects(ANY_WORKSPACE)
 
-    deepEqual(projects, [
-      { id: undefined, name: 'NO PROJECT' },
-      PROJECT
-    ])
+    deepEqual(projects, [EMPTY_PROJECT, PROJECT])
+  })
+
+  it('obtains project', async () => {
+    simulate('getProject', TOGGL_PROJECT)
+
+    const project = await toggl.getProject(123)
+
+    deepEqual(project, PROJECT)
+  })
+
+  it('obtains empty project if id is undefined', async () => {
+    const project = await toggl.getProject(undefined)
+
+    deepEqual(project, EMPTY_PROJECT)
   })
 
   it('obtains all tasks and an empty task as last item', async () => {
-    simulateTasks([TASK])
+    simulate('getTasks', [TOGGL_TASK])
 
     const tasks = await toggl.getTasks(ANY_PROJECT_ID)
 
-    deepEqual(tasks, [
-      TASK,
-      { id: undefined, name: '[no task]' }
-    ])
+    deepEqual(tasks, [TASK, EMPTY_TASK])
   })
 
   it('obtains task if api returns a valid task', async () => {
-    simulateTask(TASK)
+    simulate('getTask', TASK)
 
     const task = await toggl.getTask(ANY_TASK_ID)
 
@@ -188,14 +198,20 @@ describe('Toggl', () => {
   })
 
   it('obtains empty task if api returns undefined', async () => {
-    simulateTask(undefined)
+    simulate('getTask', undefined)
 
     const task = await toggl.getTask(ANY_TASK_ID)
 
-    deepEqual(task, { id: undefined, name: '[no task]' })
+    deepEqual(task, EMPTY_TASK)
   })
 
-  function aBasicEntry (id, workspace, startString = undefined, stopString = undefined) {
+  it('obtains empty task if id is undefined', async () => {
+    const task = await toggl.getTask(undefined)
+
+    deepEqual(task, EMPTY_TASK)
+  })
+
+  function aTogglEntry (id: number, workspace: string, startString?: string, stopString?: string) {
     return {
       id,
       start: startString,
@@ -204,31 +220,21 @@ describe('Toggl', () => {
     }
   }
 
-  function simulateEntryCreation (entry) {
-    return sinon.stub(api, 'createTimeEntry').resolves(entry)
+  function simulate (method, resolved) {
+    return sinon.stub(api, method).resolves(resolved)
   }
 
-  function simulateEntries (array) {
-    sinon.stub(api, 'getTimeEntries').resolves(array)
-  }
+  const TOGGL_PROJECT = { name: 'projectName', id: 123, billable: true, cid: 123 }
+  const PROJECT = new Project('projectName', 123, true, 123)
+  const EMPTY_PROJECT = new Project()
 
-  function simulateProjects (array) {
-    sinon.stub(api, 'getActiveProjects').resolves(array)
-    sinon.stub(api, 'getAllProjects').resolves(array)
-  }
+  const TOGGL_TASK = { name: 'task', id: 123 }
+  const TASK = new Task('task', 123)
+  const EMPTY_TASK = new Task()
 
-  function simulateTasks (array) {
-    sinon.stub(api, 'getTasks').resolves(array)
-  }
+  const TIMESLOT = new TimeSlot(moment(), moment())
 
-  function simulateTask (task) {
-    sinon.stub(api, 'getTask').resolves(task)
-  }
-
-  const PROJECT = { id: 'projectId', billable: true, cid: 'clientId' }
-  const TASK = { id: 'taskId', name: 'task' }
-  const TIMESLOT = { start: moment(), end: moment() }
   const ANY_WORKSPACE = 'any'
-  const ANY_PROJECT_ID = 'any'
-  const ANY_TASK_ID = 'any'
+  const ANY_PROJECT_ID = 123
+  const ANY_TASK_ID = 123
 })

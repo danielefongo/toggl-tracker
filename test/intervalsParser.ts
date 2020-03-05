@@ -2,8 +2,9 @@ import { describe, it } from 'mocha'
 import chai from 'chai'
 
 import { IntervalsParser } from '../src/intervalsParser'
+import { Time } from '../src/model/time'
 
-const { deepEqual, deepInclude } = chai.assert
+const { deepEqual } = chai.assert
 
 describe('Interval Parser', () => {
   it('handles single interval', () => {
@@ -11,10 +12,8 @@ describe('Interval Parser', () => {
 
     const intervals = parser.parse('2:30-3:30')
 
-    deepInclude(intervals[0], {
-      start: { hours: 2, minutes: 30 },
-      end: { hours: 3, minutes: 30 }
-    })
+    deepEqual(intervals[0].start, new Time(2, 30))
+    deepEqual(intervals[0].end, new Time(3, 30))
   })
 
   it('handles multiple intervals', () => {
@@ -22,15 +21,11 @@ describe('Interval Parser', () => {
 
     const intervals = parser.parse('9-13, 14-18')
 
-    deepInclude(intervals[0], {
-      start: { hours: 9, minutes: 0 },
-      end: { hours: 13, minutes: 0 }
-    })
+    deepEqual(intervals[0].start, new Time(9))
+    deepEqual(intervals[0].end, new Time(13))
 
-    deepInclude(intervals[1], {
-      start: { hours: 14, minutes: 0 },
-      end: { hours: 18, minutes: 0 }
-    })
+    deepEqual(intervals[1].start, new Time(14))
+    deepEqual(intervals[1].end, new Time(18))
   })
 
   it('handles spaces', () => {
@@ -38,15 +33,11 @@ describe('Interval Parser', () => {
 
     const intervals = parser.parse('2 -3, 3 -4')
 
-    deepInclude(intervals[0], {
-      start: { hours: 2, minutes: 0 },
-      end: { hours: 3, minutes: 0 }
-    })
+    deepEqual(intervals[0].start, new Time(2))
+    deepEqual(intervals[0].end, new Time(3))
 
-    deepInclude(intervals[1], {
-      start: { hours: 3, minutes: 0 },
-      end: { hours: 4, minutes: 0 }
-    })
+    deepEqual(intervals[1].start, new Time(3))
+    deepEqual(intervals[1].end, new Time(4))
   })
 
   it('generates empty interval list with blank string', () => {

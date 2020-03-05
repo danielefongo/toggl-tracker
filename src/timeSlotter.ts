@@ -1,48 +1,51 @@
-import moment from 'moment'
+import moment, { Moment } from 'moment'
+import { TimeSlot } from './model/timeSlot'
+import { Interval } from './model/interval'
+import { DaysApi } from './daysApi'
 
 export class TimeSlotter {
-  private daysApi
-  private intervals
+  private daysApi: DaysApi
+  private intervals: Interval[]
 
-  constructor (daysApi, intervals) {
+  constructor (daysApi: DaysApi, intervals: Interval[]) {
     this.daysApi = daysApi
     this.intervals = intervals
   }
 
-  async slotsIn (startTime, endTime) {
-    const workingDays = await this.daysApi.workingDaysIn(startTime, endTime)
+  async slotsIn (slot: TimeSlot): Promise<TimeSlot[]> {
+    const workingDays = await this.daysApi.workingDaysIn(slot.start, slot.end)
 
-    return this.slots(startTime, endTime, workingDays, this.intervals)
+    return this.slots(slot, workingDays, this.intervals)
   }
 
-  async slotsInMany (startEnd) {
-    const globalStart = moment.min(startEnd.map(it => it.start))
-    const globalEnd = moment.max(startEnd.map(it => it.end))
+  async slotsInMany (slots: TimeSlot[]): Promise<TimeSlot[]> {
+    const globalStart = moment.min(slots.map(it => it.start))
+    const globalEnd = moment.max(slots.map(it => it.end))
 
     const workingDays = await this.daysApi.workingDaysIn(globalStart, globalEnd)
 
-    return startEnd
-      .map(it => this.slots(it.start, it.end, workingDays, this.intervals))
-      .flat()
+    return slots
+      .map(it => this.slots(it, workingDays, this.intervals))
+      .reduce(this.flatten)
   }
 
-  private slots (startTime, endTime, workingDays, intervals) {
+  private slots (slot: TimeSlot, workingDays: Moment[], intervals: Interval[]): TimeSlot[] {
     return workingDays
-      .map(day => intervals.map(interval => this.slotWithinInterval(startTime, endTime, day, interval)))
-      .flat()
+      .map(day => intervals.map((interval: Interval) => this.slotWithinInterval(slot, day, interval)))
+      .reduce((acc, slots) => acc.concat(slots))
       .filter(it => it.duration > 0)
   }
 
-  private slotWithinInterval (start, end, day, hoursInterval) {
-    const intervalStartMoment = moment(day).hours(hoursInterval.start.hours).minutes(hoursInterval.start.minutes)
-    const intervalEndMoment = moment(day).hours(hoursInterval.end.hours).minutes(hoursInterval.end.minutes)
+  private slotWithinInterval (slot: TimeSlot, day: Moment, interval: Interval): TimeSlot {
+    const intervalStartMoment = interval.applyStartTo(day)
+    const intervalEndMoment = interval.applyEndTo(day)
 
-    const startMoment = moment.max(start, intervalStartMoment)
-    const endMoment = moment.min(end, intervalEndMoment)
-    return {
-      start: startMoment,
-      end: endMoment,
-      duration: endMoment.diff(startMoment) / 1000
-    }
+    const startMoment = moment.max(slot.start, intervalStartMoment)
+    const endMoment = moment.min(slot.end, intervalEndMoment)
+    return new TimeSlot(startMoment, endMoment)
+  }
+
+  private flatten (accumulator, array) {
+    return [...accumulator, ...array]
   }
 }
