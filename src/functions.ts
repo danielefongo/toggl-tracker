@@ -13,10 +13,11 @@ async function compilePicky (toggl: Toggl, timeSlotter: TimeSlotter, asker: Aske
   const holes = await toggl.getTimeEntriesHoles(start, end)
   const slots = await timeSlotter.slotsInMany(holes)
   const selectedSlots = await asker.pickSlots(slots)
+  const squashedSlots = await timeSlotter.squash(selectedSlots)
 
   const { project, task, description } = await chooseProjectTaskAndDescription(toggl, asker)
 
-  toggl.createTimeEntries(project, task, description, selectedSlots)
+  toggl.createTimeEntries(project, task, description, squashedSlots)
 }
 
 async function compileAppend (toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config) {

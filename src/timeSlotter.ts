@@ -29,6 +29,19 @@ export class TimeSlotter {
       .reduce(this.flatten)
   }
 
+  async squash (slots: TimeSlot[]) {
+    if (slots.length === 0) return []
+    const finalSlots = [slots[0]]
+
+    slots.slice(1).forEach(slot => {
+      let previousSlot = finalSlots.slice(-1)[0]
+      if (slot.start.diff(previousSlot.end) === 0)
+        previousSlot.end = moment(slot.end)
+      else finalSlots.push(slot)
+    })
+    return finalSlots
+  }
+
   private slots (slot: TimeSlot, workingDays: Moment[], intervals: Interval[]): TimeSlot[] {
     return workingDays
       .map(day => intervals.map((interval: Interval) => this.slotWithinInterval(slot, day, interval)))

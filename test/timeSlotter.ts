@@ -94,6 +94,46 @@ describe('Time Slotter', () => {
     deepInclude(slots[1], { start: elevenOClock, end: twelveOClock })
   })
 
+  it('squash empty list of slots', async () => {
+    const baseSlots = []
+
+    const slotter = new TimeSlotter(daysApi, [])
+
+    const slots = await slotter.squash(baseSlots)
+
+    lengthOf(slots, 0)
+  })
+
+  it('squash consecutive slots', async () => {
+    const baseSlots = [
+      new TimeSlot(nineOClock, tenOClock),
+      new TimeSlot(tenOClock, elevenOClock),
+      new TimeSlot(elevenOClock, twelveOClock)
+    ]
+
+    const slotter = new TimeSlotter(daysApi, [])
+
+    const slots = await slotter.squash(baseSlots)
+
+    lengthOf(slots, 1)
+    deepInclude(slots[0], { start: nineOClock, end: twelveOClock })
+  })
+
+  it('do not squash non-consecutive slots', async () => {
+    const baseSlots = [
+      new TimeSlot(nineOClock, tenOClock),
+      new TimeSlot(elevenOClock, twelveOClock)
+    ]
+
+    const slotter = new TimeSlotter(daysApi, [])
+
+    const slots = await slotter.squash(baseSlots)
+
+    lengthOf(slots, 2)
+    deepInclude(slots[0], { start: nineOClock, end: tenOClock })
+    deepInclude(slots[1], { start: elevenOClock, end: twelveOClock })
+  })
+
   function intervalIn (startHour, endHour) {
     return new Interval(new Time(startHour), new Time(endHour))
   }
