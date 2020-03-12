@@ -38,7 +38,6 @@ async function compileAppend (toggl: Toggl, timeSlotter: TimeSlotter, asker: Ask
 }
 
 async function check (toggl: Toggl, config) {
-  const workspace = config.togglWorkspace
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
   const end = moment().startOf('day').add(config.lookForwardDays, 'day')
   const projects = await toggl.getAllProjects()
