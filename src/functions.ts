@@ -30,7 +30,7 @@ export async function compileAppend (toggl: Toggl, timeSlotter: TimeSlotter, ask
     ({ project, task, description } = await chooseProjectTaskAndDescription(toggl, asker))
   }
 
-  const newEntryStart = moment(lastTimeEntry.stop)
+  const newEntryStart = moment(lastTimeEntry.slot.end)
   const newEntryStop = moment().startOf('minutes')
 
   const slots = await timeSlotter.slotsIn(new TimeSlot(newEntryStart, newEntryStop))
@@ -45,7 +45,7 @@ export async function check (toggl: Toggl, config) {
   toggl.getTimeEntries(start, end).then(entries => {
     entries.forEach(entry => {
       const project = projects.filter(project => project.id === entry.pid)[0]
-      Printer.entry(project, entry.start, entry.stop)
+      Printer.entry(project, entry.slot)
     })
   })
 }

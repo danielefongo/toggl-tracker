@@ -1,18 +1,17 @@
 import { Moment } from 'moment'
+import { TimeSlot } from './timeSlot'
 
 export class Entry {
-  start: Moment
-  stop: Moment
+  slot: TimeSlot
   description: string
   id?: number
   pid?: number
   tid?: number
 
-  constructor (start: Moment, stop: Moment, description?: string, id?: number, pid?: number, tid?: number) {
+  constructor (start: Moment, end: Moment, description?: string, id?: number, pid?: number, tid?: number) {
     this.description = description !== undefined ? description : ""
     this.id = id
-    this.start = start
-    this.stop = stop
+    this.slot = new TimeSlot(start, end)
     this.pid = pid
     this.tid = tid
   }

@@ -1,8 +1,8 @@
-import { Moment } from 'moment'
 import { Project } from './model/project'
+import { TimeSlot } from './model/timeSlot'
 
 export class Printer {
-  static entry (project: Project, start: Moment, end: Moment) {
-    console.log(start.format('MMM DD') + ', ' + start.format('HH:mm') + ' -> ' + end.format('HH:mm') + ' on "' + project.description + '"')
+  static entry (project: Project, slot: TimeSlot) {
+    console.log(slot.description + ' on "' + project.description + '"')
   }
 }

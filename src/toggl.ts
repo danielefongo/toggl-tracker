@@ -41,7 +41,7 @@ export class Toggl {
       stop: timeSlot.end.toDate(),
       created_with: 'toggl-tracker'
     }).then(entry => {
-      Printer.entry(project, timeSlot.start, timeSlot.end)
+      Printer.entry(project, timeSlot)
       return entry
     })
   }
@@ -66,7 +66,7 @@ export class Toggl {
 
     return entries
       .slice(1)
-      .map((_, idx) => new TimeSlot(entries[idx].stop, entries[idx + 1].start))
+      .map((_, idx) => new TimeSlot(entries[idx].slot.end, entries[idx + 1].slot.start))
       .filter(it => it.end.diff(it.start) > 0)
   }
 
