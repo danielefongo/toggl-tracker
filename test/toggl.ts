@@ -220,15 +220,15 @@ describe('Toggl', () => {
     deepEqual(task, EMPTY_TASK)
   })
 
-  it('obtains reports', async () => {
+  it('obtains summaries sorted by client', async () => {
     simulateReports('getSummary', [
-      {
-        title: { project: 'project1', client: 'client1' },
-        time: 1000
-      },
       {
         title: { project: 'project2', client: 'client2' },
         time: 2000
+      },
+      {
+        title: { project: 'project1', client: 'client1' },
+        time: 1000
       }
     ])
 

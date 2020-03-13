@@ -112,7 +112,7 @@ export class Toggl {
 
   async getSummary (start: Moment, end: Moment): Promise<Summary[]> {
     const togglSummary = await this.reportsApi.getSummary(this.workspaceId, start.format(), end.format())
-    return togglSummary.map(this.convertToSummary)
+    return togglSummary.map(this.convertToSummary).sort(this.sortSummary)
   }
 
   private convertToProject (project: any): Project {
@@ -135,5 +135,9 @@ export class Toggl {
     const client = new Client(summary.title.client)
     const project = new Project(summary.title.project)
     return new Summary(client, project, summary.time / 1000)
+  }
+
+  private sortSummary(firstSummary: Summary, secondSummary: Summary) {
+    return (firstSummary.client.name > secondSummary.client.name) ? 1 : -1
   }
 }
