@@ -1,6 +1,7 @@
 import { IntervalsParser } from './src/intervalsParser'
 import { Toggl } from './src/toggl'
 import { TogglApi } from './src/togglApi'
+import { ReportsApi } from './src/reportsApi'
 import { TimeSlotter } from './src/timeSlotter'
 import { Asker } from './src/asker'
 import { DaysApi } from './src/daysApi'
@@ -10,7 +11,7 @@ function compile (command, config) {
   var parser = new IntervalsParser()
   var intervals = parser.parse(config.workingHoursIntervals)
   var daysApi = new DaysApi(config.workingDays, config.googleToken, config.googleLocale)
-  var toggl = new Toggl(new TogglApi(config.togglToken), config.togglWorkspace)
+  var toggl = new Toggl(new TogglApi(config.togglToken), new ReportsApi(config.togglToken), config.togglWorkspace)
   var timeSlotter = new TimeSlotter(daysApi, intervals)
   var asker = new Asker()
 

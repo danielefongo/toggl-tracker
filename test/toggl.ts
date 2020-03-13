@@ -11,6 +11,9 @@ import { TimeSlot } from '../src/model/timeSlot'
 import { Project } from '../src/model/project'
 import { Task } from '../src/model/task'
 import { Entry } from '../src/model/entry'
+import { ReportsApi } from '../src/reportsApi'
+import { Summary } from '../src/model/summary'
+import { Client } from '../src/model/client'
 
 chai.use(chaiSubset)
 
@@ -20,11 +23,12 @@ describe('Toggl', () => {
   var mockPrinter: SinonMock
 
   var toggl: Toggl
-  const api = new TogglApi('123')
+  const togglApi = new TogglApi('123')
+  const reportsApi = new ReportsApi('123')
 
   beforeEach(async () => {
     mockPrinter = sinon.mock(Printer)
-    toggl = new Toggl(api, REFERRED_WORKSPACE)
+    toggl = new Toggl(togglApi, reportsApi, REFERRED_WORKSPACE)
   })
 
   afterEach(async () => {
@@ -33,7 +37,7 @@ describe('Toggl', () => {
   })
 
   it('prints entry on successful entry creation', async () => {
-    simulate('createTimeEntry', {})
+    simulateToggl('createTimeEntry', {})
     mockPrinter.expects('entry').once()
 
     await toggl.createTimeEntry(PROJECT, TASK, 'FOO', TIMESLOT)
@@ -42,7 +46,7 @@ describe('Toggl', () => {
   })
 
   it('converts moments to dates when creating entry', async () => {
-    const stubbed = simulate('createTimeEntry', {})
+    const stubbed = simulateToggl('createTimeEntry', {})
     mockPrinter.expects('entry') // TODO remove this when passing printer as dependency
 
     await toggl.createTimeEntry(PROJECT, TASK, 'FOO', TIMESLOT)
@@ -58,7 +62,7 @@ describe('Toggl', () => {
   it('filters retrieved time entries', async () => {
     const togglEntry = aTogglEntry(1, REFERRED_WORKSPACE)
 
-    sinon.stub(api, 'getTimeEntries').resolves([
+    sinon.stub(togglApi, 'getTimeEntries').resolves([
       togglEntry,
       aTogglEntry(2, ANOTHER_WORKSPACE)
     ])
@@ -73,9 +77,9 @@ describe('Toggl', () => {
     const startAndStopMoment = moment('2020-01-01')
 
     const togglEntry = aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-01', '2020-01-01')
-    const expectedEntry = new Entry(startAndStopMoment, startAndStopMoment, "", 1, undefined, undefined)
+    const expectedEntry = new Entry(startAndStopMoment, startAndStopMoment, '', 1, undefined, undefined)
 
-    simulate('getTimeEntries', [togglEntry])
+    simulateToggl('getTimeEntries', [togglEntry])
 
     const entries = await toggl.getTimeEntries(moment(), moment())
 
@@ -85,7 +89,7 @@ describe('Toggl', () => {
   it('obtains last time entry', async () => {
     const togglEntry = aTogglEntry(1, REFERRED_WORKSPACE)
 
-    simulate('getTimeEntries', [
+    simulateToggl('getTimeEntries', [
       aTogglEntry(2, REFERRED_WORKSPACE),
       togglEntry
     ])
@@ -99,7 +103,7 @@ describe('Toggl', () => {
     const startMoment = moment('2020-01-01')
     const endMoment = moment('2020-01-03')
 
-    simulate('getTimeEntries', [
+    simulateToggl('getTimeEntries', [
       aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-01', '2020-01-02'),
       aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-02', '2020-01-03')
     ])
@@ -113,7 +117,7 @@ describe('Toggl', () => {
     const startMoment = moment('2020-01-01')
     const endMoment = moment('2020-01-04')
 
-    simulate('getTimeEntries', [
+    simulateToggl('getTimeEntries', [
       aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-01', '2020-01-02'),
       aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-03', '2020-01-04')
     ])
@@ -131,7 +135,7 @@ describe('Toggl', () => {
     const startMoment = moment('2020-01-01')
     const endMoment = moment('2020-01-04')
 
-    simulate('getTimeEntries', [
+    simulateToggl('getTimeEntries', [
       aTogglEntry(1, REFERRED_WORKSPACE, '2020-01-02', '2020-01-03')
     ])
 
@@ -149,7 +153,7 @@ describe('Toggl', () => {
   })
 
   it('obtains all active projects and an empty project as first element', async () => {
-    simulate('getActiveProjects', [TOGGL_PROJECT])
+    simulateToggl('getActiveProjects', [TOGGL_PROJECT])
 
     const projects = await toggl.getActiveProjects()
 
@@ -157,7 +161,7 @@ describe('Toggl', () => {
   })
 
   it('obtains all projects and an empty project as first element', async () => {
-    simulate('getAllProjects', [TOGGL_PROJECT])
+    simulateToggl('getAllProjects', [TOGGL_PROJECT])
 
     const projects = await toggl.getAllProjects()
 
@@ -165,7 +169,7 @@ describe('Toggl', () => {
   })
 
   it('obtains project', async () => {
-    simulate('getProject', TOGGL_PROJECT)
+    simulateToggl('getProject', TOGGL_PROJECT)
 
     const project = await toggl.getProject(123)
 
@@ -179,23 +183,23 @@ describe('Toggl', () => {
   })
 
   it('obtains all tasks and an empty task as last item', async () => {
-    simulate('getTasks', [TOGGL_TASK])
+    simulateToggl('getTasks', [TOGGL_TASK])
 
     const tasks = await toggl.getTasks(ANY_PROJECT_ID)
 
     deepEqual(tasks, [TASK, EMPTY_TASK])
   })
 
-  it('obtains task if api returns a valid task', async () => {
-    simulate('getTask', TASK)
+  it('obtains task if togglApi returns a valid task', async () => {
+    simulateToggl('getTask', TASK)
 
     const task = await toggl.getTask(ANY_TASK_ID)
 
     deepEqual(task, TASK)
   })
 
-  it('obtains empty task if api returns undefined', async () => {
-    simulate('getTask', undefined)
+  it('obtains empty task if togglApi returns undefined', async () => {
+    simulateToggl('getTask', undefined)
 
     const task = await toggl.getTask(ANY_TASK_ID)
 
@@ -208,6 +212,26 @@ describe('Toggl', () => {
     deepEqual(task, EMPTY_TASK)
   })
 
+  it('obtains reports', async () => {
+    simulateReports('getSummary', [
+      {
+        title: { project: 'project1', client: 'client1' },
+        time: 1000
+      },
+      {
+        title: { project: 'project2', client: 'client2' },
+        time: 2000
+      }
+    ])
+
+    const reports = await toggl.getSummary(moment(), moment())
+
+    deepEqual(reports, [
+      new Summary(new Client('client1'), new Project('project1'), 1),
+      new Summary(new Client('client2'), new Project('project2'), 2)
+    ])
+  })
+
   function aTogglEntry (id: number, workspace: string, startString?: string, stopString?: string) {
     return {
       id,
@@ -217,8 +241,12 @@ describe('Toggl', () => {
     }
   }
 
-  function simulate (method, resolved) {
-    return sinon.stub(api, method).resolves(resolved)
+  function simulateReports (method, resolved) {
+    return sinon.stub(reportsApi, method).resolves(resolved)
+  }
+
+  function simulateToggl (method, resolved) {
+    return sinon.stub(togglApi, method).resolves(resolved)
   }
 
   const TOGGL_PROJECT = { name: 'projectName', id: 123, billable: true, cid: 123 }

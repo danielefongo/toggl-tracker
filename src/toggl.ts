@@ -6,13 +6,17 @@ import { Project } from './model/project'
 import { Task } from './model/task'
 import { Entry } from './model/entry'
 import { Client } from './model/client'
+import { Summary } from './model/summary'
+import { ReportsApi } from './reportsApi'
 
 export class Toggl {
-  private api: TogglApi
+  private togglApi: TogglApi
+  private reportsApi: ReportsApi
   private workspaceId: string
 
-  constructor (api: TogglApi, workspaceId: string) {
-    this.api = api
+  constructor (api: TogglApi, reportsApi: ReportsApi, workspaceId: string) {
+    this.togglApi = api
+    this.reportsApi = reportsApi
     this.workspaceId = workspaceId
   }
 
@@ -27,7 +31,7 @@ export class Toggl {
   }
 
   async createTimeEntry (project: Project, task: Task, description: string, timeSlot: TimeSlot) {
-    return this.api.createTimeEntry({
+    return this.togglApi.createTimeEntry({
       description: description,
       pid: project.id,
       tid: task.id,
@@ -43,7 +47,7 @@ export class Toggl {
   }
 
   async getTimeEntries (from: Moment, to: Moment): Promise<Entry[]> {
-    const entries = await this.api.getTimeEntries(this.workspaceId, from.format(), to.format())
+    const entries = await this.togglApi.getTimeEntries(this.workspaceId, from.format(), to.format())
     return entries
       .filter((it: any) => it.wid.toString() === this.workspaceId)
       .map(this.convertToEntry)
@@ -67,32 +71,32 @@ export class Toggl {
   }
 
   async getActiveProjects (): Promise<Project[]> {
-    const togglProjects = await this.api.getActiveProjects(this.workspaceId)
+    const togglProjects = await this.togglApi.getActiveProjects(this.workspaceId)
     const projects = togglProjects.map(this.convertToProject)
     projects.unshift(new Project())
     return projects
   }
 
   async getAllProjects (): Promise<Project[]> {
-    const togglProjects = await this.api.getAllProjects(this.workspaceId)
+    const togglProjects = await this.togglApi.getAllProjects(this.workspaceId)
     const projects = togglProjects.map(this.convertToProject)
     projects.unshift(new Project())
     return projects
   }
 
   async getClients (): Promise<Client[]> {
-    const togglClients = await this.api.getClients()
+    const togglClients = await this.togglApi.getClients()
     return togglClients.map(this.convertToClient)
   }
 
   async getProject (projectId?: number): Promise<Project> {
     if (projectId === undefined) return new Project()
-    const project = await this.api.getProject(projectId)
+    const project = await this.togglApi.getProject(projectId)
     return this.convertToProject(project)
   }
 
   async getTasks (projectId?: number): Promise<Task[]> {
-    const togglTasks = await this.api.getTasks(projectId)
+    const togglTasks = await this.togglApi.getTasks(projectId)
     const tasks = togglTasks.map(this.convertToTask)
     tasks.push(new Task())
     return tasks
@@ -100,8 +104,13 @@ export class Toggl {
 
   async getTask (taskId?: number): Promise<Task> {
     if (taskId === undefined) return new Task()
-    const task = await this.api.getTask(taskId)
+    const task = await this.togglApi.getTask(taskId)
     return task !== undefined ? task : new Task()
+  }
+
+  async getSummary (start: Moment, end: Moment): Promise<Summary[]> {
+    const togglSummary = await this.reportsApi.getSummary(this.workspaceId, start.format(), end.format())
+    return togglSummary.map(this.convertToSummary)
   }
 
   private convertToProject (project: any): Project {
@@ -118,5 +127,11 @@ export class Toggl {
 
   private convertToEntry (entry: any): Entry {
     return new Entry(moment(entry.start), moment(entry.stop), entry.description, entry.id, entry.pid)
+  }
+
+  private convertToSummary (summary: any): Summary {
+    const client = new Client(summary.title.client)
+    const project = new Project(summary.title.project)
+    return new Summary(client, project, summary.time / 1000)
   }
 }
