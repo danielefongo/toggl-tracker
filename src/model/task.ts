@@ -4,6 +4,6 @@ export class Task {
 
   constructor (name?: string, id?: number) {
     this.id = id
-    this.name = id !== undefined ? name : "[no task]"
+    this.name = name ? name : "[NO TASK]"
   }
 }

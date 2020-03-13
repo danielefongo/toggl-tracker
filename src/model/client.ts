@@ -3,7 +3,7 @@ export class Client {
   id?: number
 
   constructor (name?: string, id?: number) {
-    this.name = name
+    this.name = name ? '[' + name + ']' : '[NO CLIENT]'
     this.id = id
   }
 }
