@@ -11,4 +11,12 @@ export class Summary {
     this.project = project
     this.seconds = seconds
   }
+
+  get description () {
+    return this.client.description + ' ' + this.project.description + ' => ' + this.hoursAsString()
+  }
+
+  private hoursAsString () {
+    return this.seconds / 3600 + 'h'
+  }
 }

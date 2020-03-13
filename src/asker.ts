@@ -130,7 +130,7 @@ export class Asker {
       const client = clients.filter(client => client.id === project.cid)[0]
 
       return {
-        name: client.name + ' ' + project.name,
+        name: client.description + ' ' + project.description,
         value: project
       }
     })
@@ -139,7 +139,7 @@ export class Asker {
   private tasksToChoices (tasks: Task[]) {
     return tasks.map(task => {
       return {
-        name: task.name,
+        name: task.description,
         value: task
       }
     })

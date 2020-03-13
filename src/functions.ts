@@ -24,7 +24,7 @@ export async function compileAppend (toggl: Toggl, timeSlotter: TimeSlotter, ask
   const lastTimeEntry = await toggl.getLastTimeEntry(moment().add(-config.lookBehindDays, 'day'), moment())
   var { project, task, description } = await getProjectTaskAndDescriptionFrom(lastTimeEntry, toggl)
 
-  const continueLastActivity = await asker.shouldContinueLastActivity(project.name, description)
+  const continueLastActivity = await asker.shouldContinueLastActivity(project.description, description)
 
   if (!continueLastActivity) {
     ({ project, task, description } = await chooseProjectTaskAndDescription(toggl, asker))

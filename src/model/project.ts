@@ -1,5 +1,5 @@
 export class Project {
-  name: string
+  name?: string
   id?: number
   cid?: number
   billable?: boolean
@@ -8,6 +8,10 @@ export class Project {
     this.id = id
     this.cid = cid
     this.billable = billable
-    this.name = name !== undefined ? name : "NO PROJECT"
+    this.name = name
+  }
+
+  get description() {
+    return this.name ? this.name : "NO PROJECT"
   }
 }

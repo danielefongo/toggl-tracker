@@ -4,6 +4,10 @@ export class Task {
 
   constructor (name?: string, id?: number) {
     this.id = id
-    this.name = name ? name : "[NO TASK]"
+    this.name = name
+  }
+
+  get description() {
+    return this.name ? this.name : "[NO TASK]"
   }
 }
