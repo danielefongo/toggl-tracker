@@ -37,9 +37,10 @@ export async function compileAppend (toggl: Toggl, timeSlotter: TimeSlotter, ask
   toggl.createTimeEntries(project, task, description, slots)
 }
 
-export async function check (toggl: Toggl, config) {
-  const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
-  const end = moment().startOf('day').add(config.lookForwardDays, 'day')
+export async function check (toggl: Toggl, asker: Asker) {
+  const granularity = await asker.chooseGranularity()
+  const start = moment().startOf(granularity)
+  const end = moment().endOf(granularity)
   const projects = await toggl.getAllProjects()
 
   toggl.getTimeEntries(start, end).then(entries => {

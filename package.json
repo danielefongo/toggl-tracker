@@ -1,6 +1,6 @@
 {
   "name": "toggl-tracker",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "simple tool to automatically generate time entries on Toggl.",
   "scripts": {
     "append": "node dist/bin.js append",

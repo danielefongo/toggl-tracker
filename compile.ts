@@ -23,7 +23,7 @@ function compile (command, config) {
       compileAppend(toggl, timeSlotter, asker, config)
       break
     case 'check':
-      check(toggl, config)
+      check(toggl, asker)
       break
     case 'summary':
       summary(toggl, asker)
@@ -37,7 +37,7 @@ function showHelp () {
   console.log('Use one of the following commands:')
   console.log('- append: use it to record from the last recorded activity.')
   console.log('- picky: use it to compile not-filled selected past (and future) holes.')
-  console.log('- check: use it to show last inserted entries.')
+  console.log('- check: use it to show inserted entries.')
   console.log('- summary: use it to show a summary of tracked hours for all projects in the workspace.')
   console.log('- config: use it to change configuration.')
 }
