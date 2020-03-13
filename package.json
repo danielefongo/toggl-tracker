@@ -1,11 +1,12 @@
 {
   "name": "toggl-tracker",
-  "version": "0.4.5",
+  "version": "0.5.0",
   "description": "simple tool to automatically generate time entries on Toggl.",
   "scripts": {
     "append": "node dist/bin.js append",
     "picky": "node dist/bin.js picky",
     "check": "node dist/bin.js check",
+    "summary": "node dist/bin.js summary",
     "config": "node dist/bin.js config",
     "build": "tsc -p tsconfig.json",
     "test": "mocha -r ts-node/register \"test/**/*.ts\""

@@ -6,6 +6,7 @@
 - **append** mode: compiles from the last recorded activity.
 - **picky** mode: compiles not-filled selected past (and future) holes.
 - **check** mode: show last inserted entries.
+- **summary**: show a summary of tracked hours for all projects in the workspace.
 
 ## Getting started
 

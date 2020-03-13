@@ -5,7 +5,7 @@ import { ReportsApi } from './src/reportsApi'
 import { TimeSlotter } from './src/timeSlotter'
 import { Asker } from './src/asker'
 import { DaysApi } from './src/daysApi'
-import { check, compileAppend, compilePicky } from './src/functions'
+import { check, compileAppend, compilePicky, summary } from './src/functions'
 
 function compile (command, config) {
   var parser = new IntervalsParser()
@@ -25,6 +25,9 @@ function compile (command, config) {
     case 'check':
       check(toggl, config)
       break
+    case 'summary':
+      summary(toggl, asker)
+      break
     default:
       showHelp()
   }
@@ -34,7 +37,8 @@ function showHelp () {
   console.log('Use one of the following commands:')
   console.log('- append: use it to record from the last recorded activity.')
   console.log('- picky: use it to compile not-filled selected past (and future) holes.')
-  console.log('- check: use it show last inserted entries.')
+  console.log('- check: use it to show last inserted entries.')
+  console.log('- summary: use it to show a summary of tracked hours for all projects in the workspace.')
   console.log('- config: use it to change configuration.')
 }
 

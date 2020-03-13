@@ -50,6 +50,15 @@ export async function check (toggl: Toggl, config) {
   })
 }
 
+export async function summary (toggl: Toggl, asker: Asker) {
+  const granularity = await asker.chooseGranularity()
+  const start = moment().startOf(granularity)
+  const end = moment().endOf(granularity)
+  const summary = await toggl.getSummary(start, end)
+
+  summary.forEach(it => console.log(it.description))
+}
+
 async function chooseProjectTaskAndDescription (toggl: Toggl, asker: Asker) {
   const clients = await toggl.getClients()
   const projects = await toggl.getActiveProjects()

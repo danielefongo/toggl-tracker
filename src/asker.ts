@@ -85,6 +85,17 @@ export class Asker {
     return tasks.filter(it => it.id === answer.task.id)[0]
   }
 
+  async chooseGranularity () {
+    const answer = await inquirer.prompt([{
+      type: 'list',
+      name: 'granularity',
+      message: 'Select granularity',
+      choices: ['day', 'week', 'month', 'year']
+    }])
+
+    return answer.granularity
+  }
+
   async pickSlots (intervals: TimeSlot[]) {
     const choices = this.slotsToChoices(intervals)
     const answer = await inquirer.prompt([{
