@@ -130,7 +130,7 @@ export class Asker {
   private slotsToChoices (slots: TimeSlot[]) {
     return slots.map(it => {
       return {
-        name: it.start.format('MMM DD') + ': ' + it.start.format('HH:mm') + ' -> ' + it.end.format('HH:mm'),
+        name: it.description,
         value: it
       }
     })
