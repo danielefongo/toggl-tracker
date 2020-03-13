@@ -128,7 +128,7 @@ export class Asker {
   private projectsToChoices (projects: Project[], clients: Client[]) {
     return projects.map(project => {
       const client = clients.filter(client => client.id === project.cid)[0]
-      const clientTag = client ? '[' + client.name + '] ' : ''
+      const clientTag = client.id ? '[' + client.name + '] ' : ''
 
       return {
         name: clientTag + project.name,

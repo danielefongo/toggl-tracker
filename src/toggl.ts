@@ -86,7 +86,9 @@ export class Toggl {
 
   async getClients (): Promise<Client[]> {
     const togglClients = await this.togglApi.getClients()
-    return togglClients.map(this.convertToClient)
+    const clients = togglClients.map(this.convertToClient)
+    clients.push(new Client())
+    return clients
   }
 
   async getProject (projectId?: number): Promise<Project> {

@@ -182,6 +182,14 @@ describe('Toggl', () => {
     deepEqual(project, EMPTY_PROJECT)
   })
 
+  it('obtains all clients and an empty client as last item', async () => {
+    simulateToggl('getClients', [TOGGL_CLIENT])
+
+    const clients = await toggl.getClients()
+
+    deepEqual(clients, [CLIENT, EMPTY_CLIENT])
+  })
+
   it('obtains all tasks and an empty task as last item', async () => {
     simulateToggl('getTasks', [TOGGL_TASK])
 
@@ -256,6 +264,10 @@ describe('Toggl', () => {
   const TOGGL_TASK = { name: 'task', id: 123 }
   const TASK = new Task('task', 123)
   const EMPTY_TASK = new Task()
+
+  const TOGGL_CLIENT = { name: 'client', id: 123 }
+  const CLIENT = new Client('client', 123)
+  const EMPTY_CLIENT = new Client()
 
   const TIMESLOT = new TimeSlot(moment(), moment())
 
