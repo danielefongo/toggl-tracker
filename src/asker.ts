@@ -2,9 +2,9 @@ import fuzzysort from 'fuzzysort'
 import inquirer from 'inquirer'
 import { Project } from './model/project'
 import { Task } from './model/task'
-import { Interval } from './model/interval'
 import { TimeSlot } from './model/timeSlot'
 import { Client } from './model/client'
+import { Config } from './model/config'
 
 inquirer.registerPrompt('autocomplete-list', require('inquirer-autocomplete-prompt'))
 
@@ -18,7 +18,7 @@ export class Asker {
     return answer.description
   }
 
-  async init (config) {
+  async init (config: Config) {
     config = await inquirer.prompt([{
       type: 'checkbox',
       name: 'workingDays',
@@ -29,25 +29,30 @@ export class Asker {
       type: 'input',
       name: 'workingHoursIntervals',
       message: 'Select working hours intervals',
-      default: config.workingHoursIntervals
+      default: config.workingHoursIntervals,
+      validate: this.validate(Config.validateWorkingHoursIntervals)
     }, {
-      type: 'number',
+      type: 'input',
       name: 'lookForwardDays',
       message: 'Select number of forward days',
-      default: config.lookForwardDays
+      default: config.lookForwardDays,
+      validate: this.validate(Config.validateDaysNumber)
     }, {
       type: 'input',
       name: 'lookBehindDays',
       message: 'Select number of behind days',
-      default: config.lookBehindDays
+      default: config.lookBehindDays,
+      validate: this.validate(Config.validateDaysNumber)
     }, {
       name: 'togglToken',
       message: 'Insert toggl token',
-      default: config.togglToken
+      default: config.togglToken,
+      validate: this.validate(Config.validateTogglToken)
     }, {
       name: 'togglWorkspace',
       message: 'Insert toggl workspace',
-      default: config.togglWorkspace
+      default: config.togglWorkspace,
+      validate: this.validate(Config.validateTogglWorkspace)
     }, {
       name: 'googleToken',
       message: 'Insert google token (optional)',
@@ -154,5 +159,12 @@ export class Asker {
         value: task
       }
     })
+  }
+
+  private validate (validator: (data) => boolean) {
+    return function(data) {
+      if (!validator(data)) return "Invalid input"
+      return true
+    }
   }
 }

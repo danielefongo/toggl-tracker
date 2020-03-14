@@ -5,8 +5,9 @@ import { TimeSlotter } from './timeSlotter'
 import { Asker } from './asker'
 import { TimeSlot } from './model/timeSlot'
 import { Entry } from './model/entry'
+import { Config } from './model/config'
 
-export async function compilePicky (toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config) {
+export async function compilePicky (toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config: Config) {
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
   const end = moment().startOf('day').add(config.lookForwardDays, 'day')
 
@@ -20,7 +21,7 @@ export async function compilePicky (toggl: Toggl, timeSlotter: TimeSlotter, aske
   toggl.createTimeEntries(project, task, description, squashedSlots)
 }
 
-export async function compileAppend (toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config) {
+export async function compileAppend (toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config: Config) {
   const lastTimeEntry = await toggl.getLastTimeEntry(moment().add(-config.lookBehindDays, 'day'), moment())
   var { project, task, description } = await getProjectTaskAndDescriptionFrom(lastTimeEntry, toggl)
 

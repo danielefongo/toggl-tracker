@@ -6,8 +6,9 @@ import { TimeSlotter } from './src/timeSlotter'
 import { Asker } from './src/asker'
 import { DaysApi } from './src/daysApi'
 import { check, compileAppend, compilePicky, summary } from './src/functions'
+import { Config } from './src/model/config'
 
-function compile (command, config) {
+function compile (command, config: Config) {
   var parser = new IntervalsParser()
   var intervals = parser.parse(config.workingHoursIntervals)
   var daysApi = new DaysApi(config.workingDays, config.googleToken, config.googleLocale)
