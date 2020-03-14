@@ -24,12 +24,14 @@ describe('Config', () => {
 
     equal(Config.validateWorkingDays(['Wtf']), false)
     equal(Config.validateWorkingDays(['Monday', 'Wtf']), false)
+    equal(Config.validateWorkingDays(undefined), false)
   })
 
   it('checks working hours intervals', () => {
     equal(Config.validateWorkingHoursIntervals('9-10'), true)
 
     equal(Config.validateWorkingHoursIntervals('z'), false)
+    equal(Config.validateWorkingHoursIntervals(undefined), false)
   })
 
   it('checks days', () => {
@@ -40,6 +42,7 @@ describe('Config', () => {
     equal(Config.validateDaysNumber(-1), false)
     equal(Config.validateDaysNumber(0.1), false)
     equal(Config.validateDaysNumber('a'), false)
+    equal(Config.validateDaysNumber(undefined), false)
   })
 
   it('checks toggl token', () => {
@@ -47,6 +50,7 @@ describe('Config', () => {
 
     equal(Config.validateTogglToken(''), false)
     equal(Config.validateTogglToken(' '), false)
+    equal(Config.validateTogglToken(undefined), false)
   })
 
   it('checks toggl workspace', () => {
@@ -54,5 +58,6 @@ describe('Config', () => {
 
     equal(Config.validateTogglWorkspace(''), false)
     equal(Config.validateTogglWorkspace(' '), false)
+    equal(Config.validateTogglWorkspace(undefined), false)
   })
 })

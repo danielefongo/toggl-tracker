@@ -31,11 +31,13 @@ export class Config {
   }
 
   static validateWorkingDays (workingDays: string[]) {
+    if (workingDays === undefined) return false
     const validDays = workingDays.filter(it => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].includes(it))
     return validDays.length == workingDays.length
   }
 
   static validateWorkingHoursIntervals (intervalString: string) {
+    if (intervalString === undefined) return false
     const intervals = (new IntervalsParser()).parse(intervalString)
     return intervals.length > 0
   }
@@ -47,10 +49,12 @@ export class Config {
   }
 
   static validateTogglToken (token: string) {
+    if (token === undefined) return false
     return token && token.replace(/ /g, '').length > 0
   }
 
   static validateTogglWorkspace (workspace) {
+    if (workspace === undefined) return false
     return workspace && workspace.replace(/ /g, '').length > 0
   }
 }
