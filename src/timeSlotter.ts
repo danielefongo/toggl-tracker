@@ -30,16 +30,14 @@ export class TimeSlotter {
   }
 
   async squash (slots: TimeSlot[]) {
-    if (slots.length === 0) return []
-    const finalSlots = [slots[0]]
-
-    slots.slice(1).forEach(slot => {
-      let previousSlot = finalSlots.slice(-1)[0]
-      if (slot.start.diff(previousSlot.end) === 0)
-        previousSlot.end = moment(slot.end)
-      else finalSlots.push(slot)
-    })
-    return finalSlots
+    return slots
+      .sort((a, b) => a.start.diff(b.start))
+      .reduce((acc, slot) => {
+        !acc.length || acc[acc.length - 1].end < slot.start
+          ? acc.push(slot)
+          : acc[acc.length - 1].end = moment.max(acc[acc.length - 1].end, slot.end)
+        return acc
+      }, [])
   }
 
   private slots (slot: TimeSlot, workingDays: Moment[], intervals: Interval[]): TimeSlot[] {

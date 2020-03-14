@@ -119,6 +119,34 @@ describe('Time Slotter', () => {
     deepInclude(slots[0], { start: nineOClock, end: twelveOClock })
   })
 
+  it('squash overlapped slots', async () => {
+    const baseSlots = [
+      new TimeSlot(nineOClock, elevenOClock),
+      new TimeSlot(tenOClock, twelveOClock)
+    ]
+
+    const slotter = new TimeSlotter(daysApi, [])
+
+    const slots = await slotter.squash(baseSlots)
+
+    lengthOf(slots, 1)
+    deepInclude(slots[0], { start: nineOClock, end: twelveOClock })
+  })
+
+  it('squash sorts slots before merging', async () => {
+    const baseSlots = [
+      new TimeSlot(tenOClock, twelveOClock),
+      new TimeSlot(nineOClock, elevenOClock)
+    ]
+
+    const slotter = new TimeSlotter(daysApi, [])
+
+    const slots = await slotter.squash(baseSlots)
+
+    lengthOf(slots, 1)
+    deepInclude(slots[0], { start: nineOClock, end: twelveOClock })
+  })
+
   it('do not squash non-consecutive slots', async () => {
     const baseSlots = [
       new TimeSlot(nineOClock, tenOClock),
