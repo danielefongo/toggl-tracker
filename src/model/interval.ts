@@ -17,4 +17,10 @@ export class Interval {
   applyEndTo (initialMoment: Moment): Moment {
     return moment(initialMoment).hours(this.end.hours).minutes(this.end.minutes)
   }
+
+  isValid () {
+    return this.start.isValid() &&
+      this.end.isValid() &&
+      this.start.diff(this.end) < 0
+  }
 }
