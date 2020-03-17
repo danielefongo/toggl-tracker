@@ -21,13 +21,19 @@ export class Config {
     this.googleLocale = json.googleLocale
   }
 
-  isValid() {
-    return Config.validateWorkingDays(this.workingDays) &&
-      Config.validateWorkingHoursIntervals(this.workingHoursIntervals) &&
-      Config.validateDaysNumber(this.lookForwardDays) &&
-      Config.validateDaysNumber(this.lookBehindDays) &&
-      Config.validateTogglToken(this.togglToken) &&
-      Config.validateTogglWorkspace(this.togglWorkspace)
+  isValid () {
+    return this.whatsWrong().length === 0
+  }
+
+  whatsWrong () {
+    const wrong = []
+    if (!Config.validateWorkingDays(this.workingDays)) wrong.push('workingDays')
+    if (!Config.validateWorkingHoursIntervals(this.workingHoursIntervals)) wrong.push('workingHoursIntervals')
+    if (!Config.validateDaysNumber(this.lookForwardDays)) wrong.push('lookForwardDays')
+    if (!Config.validateDaysNumber(this.lookBehindDays)) wrong.push('lookBehindDays')
+    if (!Config.validateTogglToken(this.togglToken)) wrong.push('togglToken')
+    if (!Config.validateTogglWorkspace(this.togglWorkspace)) wrong.push('togglWorkspace')
+    return wrong
   }
 
   static validateWorkingDays (workingDays: string[]) {

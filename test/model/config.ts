@@ -1,5 +1,5 @@
 import { describe, it } from 'mocha'
-import { equal } from 'assert'
+import { deepEqual, equal } from 'assert'
 import { Config } from '../../src/model/config'
 
 describe('Config', () => {
@@ -17,6 +17,24 @@ describe('Config', () => {
 
     const config = new Config(validJson)
     equal(config.isValid(), true)
+  })
+
+  it('loads invalid json', () => {
+    const invalidJson = {
+      'workingDays': ['wtf'],
+      'workingHoursIntervals': '10-9',
+      'lookForwardDays': 1,
+      'lookBehindDays': 30,
+      'togglToken': '943667258da78ccff0423e0eb9ec56c4',
+      'togglWorkspace': '',
+      'googleToken': '',
+      'googleLocale': ''
+    }
+
+    const config = new Config(invalidJson)
+    deepEqual(config.whatsWrong(), [
+      'workingDays', 'workingHoursIntervals', 'togglWorkspace'
+    ])
   })
 
   it('checks working days', () => {
