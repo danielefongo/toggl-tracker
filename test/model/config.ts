@@ -54,6 +54,7 @@ describe('Config', () => {
 
   it('checks days', () => {
     equal(Config.validateDaysNumber(1), true)
+    equal(Config.validateDaysNumber(0), true)
     equal(Config.validateDaysNumber('1'), true)
 
     equal(Config.validateDaysNumber({}), false)

@@ -51,7 +51,7 @@ export class Config {
   static validateDaysNumber (days: any) {
     if (typeof days === 'string')
       days = Number(days)
-    return Math.round(days) === days && days > 0
+    return Math.round(days) === days && days >= 0
   }
 
   static validateTogglToken (token: string) {

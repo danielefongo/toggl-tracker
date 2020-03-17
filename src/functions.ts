@@ -18,7 +18,7 @@ export async function configurate (config: Config, configFile) {
 
 export async function compilePicky (toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config: Config) {
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')
-  const end = moment().startOf('day').add(config.lookForwardDays, 'day')
+  const end = moment().endOf('day').add(config.lookForwardDays, 'day')
 
   const holes = await toggl.getTimeEntriesHoles(start, end)
   const slots = await timeSlotter.slotsInMany(holes)
