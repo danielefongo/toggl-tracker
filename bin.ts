@@ -2,29 +2,68 @@
 
 import fs from 'fs'
 import path from 'path'
-import { compile } from './compile'
-import { configurate } from './configurate'
 import { homedir } from 'os'
 import { Config } from './src/model/config'
+import { program } from 'commander'
+import { configurate } from './src/functions'
+import { compile } from './compile'
 
 const configFile = path.join(homedir(), '.toggl-tracker.json')
 
-async function main (command) {
+main()
+
+async function main () {
   if (!fs.existsSync(configFile)) {
     console.log('### No configuration found. Force setup ###\n')
     await configurate(new Config(require('./config.json')), configFile)
   }
 
-  let config = new Config(require(configFile))
-  if(!config.isValid()) {
-    console.log("### Invalid configuration. Force setup ###\n")
-    config = await configurate(config, configFile)
-  }
+  const loadedConfig = new Config(require(configFile))
+  addOptions(program, loadedConfig)
+  addCommand(program, 'append', 'compile from the last recorded activity')
+  addCommand(program, 'picky', 'compile not-filled selected past (and future) holes')
+  addCommand(program, 'check', 'show inserted entries')
+  addCommand(program, 'summary', 'show a summary of tracked hours for all projects in the workspace')
+  addCommand(program, 'config', 'change configuration')
 
-  switch (command) {
-    case 'config': configurate(config, configFile); break
-    default: compile(command, config)
-  }
+  program.parse(process.argv)
 }
 
-main(process.argv.slice(2)[0])
+function addOptions (program, config) {
+  let defaultWorkingDaysOverrided = false
+
+  function collectWorkingDays (day, days) {
+    if (!defaultWorkingDaysOverrided) {
+      days = []
+      defaultWorkingDaysOverrided = true
+    }
+    return days.concat([day])
+  }
+
+  program
+    .option('-wd, --workingDays <days>', 'working day', collectWorkingDays, config.workingDays)
+    .option('-wi, --workingHoursIntervals <intervals>', 'working hours intervals', config.workingHoursIntervals)
+    .option('-fd, --lookForwardDays <days>', 'forward days', config.lookForwardDays)
+    .option('-bd, --lookBehindDays <days>', 'behind days', config.lookBehindDays)
+    .option('-tt, --togglToken <token>', 'toggl token', config.togglToken)
+    .option('-tw, --togglWorkspace <workspace>', 'toggl workspace id', config.togglWorkspace)
+    .option('-gt, --googleToken <token>', 'google token', config.googleToken)
+    .option('-gl, --googleLocale <locale>', 'google locale', config.googleLocale)
+
+  return program
+}
+
+function addCommand (program, command, description) {
+  program
+    .command(command)
+    .description(description)
+    .action(function (args) {
+      const command = args.name()
+      const config = new Config(args.parent.opts())
+      if(!config.isValid()) {
+        console.log("Invalid options: " + config.whatsWrong().join(", "))
+        return
+      }
+      compile(command, config)
+    })
+}

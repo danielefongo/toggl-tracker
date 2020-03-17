@@ -6,6 +6,15 @@ import { Asker } from './asker'
 import { TimeSlot } from './model/timeSlot'
 import { Entry } from './model/entry'
 import { Config } from './model/config'
+import fs from "fs"
+
+export async function configurate (config: Config, configFile) {
+  const asker = new Asker()
+  const newConfig = await asker.init(config)
+  fs.writeFileSync(configFile, JSON.stringify(newConfig, null, 2))
+  console.log('\n### New configuration stored on ' + configFile + ' ###\n')
+  return newConfig
+}
 
 export async function compilePicky (toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config: Config) {
   const start = moment().startOf('day').add(-config.lookBehindDays, 'day')

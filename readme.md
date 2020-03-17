@@ -51,6 +51,16 @@ To change configuration just execute the following command:
 toggl-tracker config
 ```
 
+You can alternatively pass command-line options to override loaded configuration:
+```
+toggl-tracker command <configuration-args>
+```
+
+You can find all possible commands and configuration-args by running:
+```
+toggl-tracker -h
+```
+
 ## Authors
 
 * **[Daniele Fongo](https://github.com/danielefongo)**

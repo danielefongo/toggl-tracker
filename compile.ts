@@ -5,8 +5,12 @@ import { ReportsApi } from './src/reportsApi'
 import { TimeSlotter } from './src/timeSlotter'
 import { Asker } from './src/asker'
 import { DaysApi } from './src/daysApi'
-import { check, compileAppend, compilePicky, summary } from './src/functions'
+import { check, compileAppend, compilePicky, configurate, summary } from './src/functions'
 import { Config } from './src/model/config'
+import path from 'path'
+import { homedir } from 'os'
+
+const configFile = path.join(homedir(), '.toggl-tracker.json')
 
 function compile (command, config: Config) {
   var parser = new IntervalsParser()
@@ -29,18 +33,12 @@ function compile (command, config: Config) {
     case 'summary':
       summary(toggl, asker)
       break
+    case 'config':
+      configurate(config, configFile)
+      break
     default:
-      showHelp()
+      return
   }
-}
-
-function showHelp () {
-  console.log('Use one of the following commands:')
-  console.log('- append: use it to record from the last recorded activity.')
-  console.log('- picky: use it to compile not-filled selected past (and future) holes.')
-  console.log('- check: use it to show inserted entries.')
-  console.log('- summary: use it to show a summary of tracked hours for all projects in the workspace.')
-  console.log('- config: use it to change configuration.')
 }
 
 export { compile }
