@@ -12,7 +12,7 @@ import { homedir } from 'os'
 
 const configFile = path.join(homedir(), '.toggl-tracker.json')
 
-function compile (command, config: Config) {
+function run (command, config: Config) {
   var parser = new IntervalsParser()
   var intervals = parser.parse(config.workingHoursIntervals)
   var daysApi = new DaysApi(config.workingDays, config.googleToken, config.googleLocale)
@@ -41,4 +41,4 @@ function compile (command, config: Config) {
   }
 }
 
-export { compile }
+export { run }

@@ -6,7 +6,7 @@ import { homedir } from 'os'
 import { Config } from './src/model/config'
 import { program } from 'commander'
 import { configurate } from './src/functions'
-import { compile } from './compile'
+import { run } from './run'
 
 const configFile = path.join(homedir(), '.toggl-tracker.json')
 
@@ -64,6 +64,6 @@ function addCommand (program, command, description) {
         console.log("Invalid options: " + config.whatsWrong().join(", "))
         return
       }
-      compile(command, config)
+      run(command, config)
     })
 }
