@@ -5,7 +5,7 @@ import { ReportsApi } from './src/reportsApi'
 import { TimeSlotter } from './src/timeSlotter'
 import { Asker } from './src/asker'
 import { DaysApi } from './src/daysApi'
-import { check, compileAppend, compilePicky, configurate, summary } from './src/functions'
+import { check, compileAppend, compilePicky, configurate, summary, custom } from './src/functions'
 import { Config } from './src/model/config'
 import path from 'path'
 import { homedir } from 'os'
@@ -37,7 +37,8 @@ function run (command, config: Config) {
       configurate(config, configFile)
       break
     default:
-      return
+      custom(command, toggl, timeSlotter, asker, config)
+      break
   }
 }
 

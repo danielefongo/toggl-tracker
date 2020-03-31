@@ -137,7 +137,7 @@ export class Toggl {
     return new Summary(client, project, summary.time / 1000)
   }
 
-  private sortSummary(firstSummary: Summary, secondSummary: Summary) {
+  private sortSummary (firstSummary: Summary, secondSummary: Summary) {
     return (firstSummary.client.name > secondSummary.client.name) ? 1 : -1
   }
 }

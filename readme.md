@@ -70,6 +70,32 @@ You can find all possible commands and configuration-args by running:
 toggl-tracker -h
 ```
 
+### Plugins
+
+You can build your own plugin by creating a js file on `$HOME/.toggl-tracker` folder (you have to manually create it).
+The script should be like this:
+
+```javascript
+module.exports = async function (loader, toggl, timeSlotter, asker, config) {
+  //logic
+}
+```
+
+Then you can use the plugin by running:
+```
+toggl-tracker <PLUGIN>
+```
+
+where `PLUGIN` is the name of the file without the extension.
+
+If you need to use domain stuff like moment or Interval, you can use `loader` to retrieve the class or the module.
+Useful domain objects are:
+* Config: `const { Config } = loader.load("config")`
+* Interval: `const { Interval } = loader.load("interval")`
+* moment: `const moment = loader.load("moment")`
+* Time: `const { Time } = loader.load("time")`
+* TimeSlot: `const { TimeSlot } = loader.load("timeSlot")`
+
 ## Authors
 
 * **[Daniele Fongo](https://github.com/danielefongo)**
