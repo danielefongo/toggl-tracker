@@ -25,7 +25,7 @@ async function main () {
   addCommand(program, 'check', 'show inserted entries')
   addCommand(program, 'summary', 'show a summary of tracked hours for all projects in the workspace')
   addCommand(program, 'config', 'change configuration')
-  addCommand(program, '*', 'custom')
+  addCommand(program, 'plugin', 'custom plugin')
 
   program.parse(process.argv)
 }
@@ -58,13 +58,13 @@ function addCommand (program, command, description) {
   program
     .command(command)
     .description(description)
-    .action(function (args) {
-      const command = args.args[0]
-      const config = new Config(args.parent.opts())
+    .action(function (context) {
+      const subcommand = context.args[0]
+      const config = new Config(context.parent.opts())
       if (!config.isValid()) {
         console.log('Invalid options: ' + config.whatsWrong().join(', '))
         return
       }
-      run(command, config)
+      run(command, subcommand, config)
     })
 }

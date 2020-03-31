@@ -7,6 +7,7 @@
 - **picky** mode: compiles not-filled selected past (and future) holes.
 - **check** mode: show last inserted entries.
 - **summary**: show a summary of tracked hours for all projects in the workspace.
+- **plugin**: run a custom plugin.
 
 ## Getting started
 
@@ -83,7 +84,7 @@ module.exports = async function (loader, toggl, timeSlotter, asker, config) {
 
 Then you can use the plugin by running:
 ```
-toggl-tracker <PLUGIN>
+toggl-tracker plugin <PLUGIN>
 ```
 
 where `PLUGIN` is the name of the file without the extension.
