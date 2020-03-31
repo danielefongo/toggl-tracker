@@ -19,11 +19,20 @@ toggl-tracker <mode>
 
 If you run the tool for the first time, it will ask you some useful informations like working days, working hours intervals and so on (they will be stored in user home). It will also ask you to provide:
 * **Toggl token**
-* **Toggl workspace** 
-* **Google token** (optional) 
+* **Toggl workspace**
+* **Google token** (optional)
 * **Google locale** (optional)
 
 "Google token" and "Google locale" are used to retrieve national holidays from Google Calendar API and are optionals. If not set, holidays wont be skipped.
+
+#### Cutting edge
+If you want the master version of the tool, you can run these commands:
+```
+npm install -g typescript # if you don't have typescript
+git clone https://github.com/danielefongo/toggl-tracker
+cd toggl-tracker
+npm run local-install
+```
 
 #### Obtain toggl token
 

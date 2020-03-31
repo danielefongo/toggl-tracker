@@ -9,7 +9,8 @@
     "summary": "node dist/bin.js summary",
     "config": "node dist/bin.js config",
     "build": "tsc -p tsconfig.json",
-    "test": "mocha -r ts-node/register \"test/**/*.ts\""
+    "test": "mocha -r ts-node/register \"test/**/*.ts\"",
+    "local-install": "npm install && npm run build && npm install -g ."
   },
   "bin": {
     "toggl-tracker": "dist/bin.js"
