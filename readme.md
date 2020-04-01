@@ -29,7 +29,6 @@ If you run the tool for the first time, it will ask you some useful informations
 #### Cutting edge
 If you want the master version of the tool, you can run these commands:
 ```
-npm install -g typescript # if you don't have typescript
 git clone https://github.com/danielefongo/toggl-tracker
 cd toggl-tracker
 npm run local-install
