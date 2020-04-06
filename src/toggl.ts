@@ -20,6 +20,18 @@ export class Toggl {
     this.workspaceId = workspaceId
   }
 
+  async rawTogglPost(url, object?) {
+    return this.togglApi.post(url, object)
+  }
+
+  async rawTogglGet(url, queryParams?) {
+    return this.togglApi.get(url, queryParams)
+  }
+
+  async rawReportsGet(url, queryParams?) {
+    return this.reportsApi.get(url, queryParams)
+  }
+
   async createTimeEntries (project: Project, task: Task, description: string, timeSlots: TimeSlot[]) {
     const self = this
     timeSlots.forEach((timeSlot, index) => {

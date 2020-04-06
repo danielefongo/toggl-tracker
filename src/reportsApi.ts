@@ -21,7 +21,7 @@ export class ReportsApi {
     })
   }
 
-  private async get (url: string, queryObject?: any) {
+  async get (url: string, queryObject?: any) {
     return this.instance.get(url + '?' + querystring.stringify(queryObject)).then(response => { return this.extractDataIfNeeded(response.data) })
   }
 

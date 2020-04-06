@@ -70,7 +70,7 @@ You can find all possible commands and configuration-args by running:
 toggl-tracker -h
 ```
 
-### Plugins
+## Plugins
 
 You can build your own plugin by creating a js file on `$HOME/.toggl-tracker` folder (you have to manually create it).
 The script should be like this:
@@ -89,12 +89,79 @@ toggl-tracker plugin <PLUGIN>
 where `PLUGIN` is the name of the file without the extension.
 
 If you need to use domain stuff like moment or Interval, you can use `loader` to retrieve the class or the module.
-Useful domain objects are:
-* Config: `const { Config } = loader.load("config")`
-* Interval: `const { Interval } = loader.load("interval")`
-* moment: `const moment = loader.load("moment")`
-* Time: `const { Time } = loader.load("time")`
-* TimeSlot: `const { TimeSlot } = loader.load("timeSlot")`
+Useful domain objects are described below.
+
+**Config**
+```
+const { Config } = loader.load("config")
+```
+
+**moment**
+
+It is the momentjs module.
+```
+const moment = loader.load("moment")
+const now = moment()
+```
+
+**Time**
+```
+const { Time } = loader.load("time")
+const time = new Time(hours, minutes)
+```
+
+**Interval**
+```
+const { Interval } = loader.load("interval")
+const interval = new Interval(time1, time2)
+```
+
+**TimeSlot**
+```
+const { TimeSlot } = loader.load("timeSlot")
+const timeSlot = new TimeSlot(moment1, moment2)
+```
+
+**Client, Entry, Project, Task**
+
+You should don't create these. You can retrieve them using toggl dependency.
+
+### Toggl
+
+Toggl is using [toggl-api v8](https://github.com/toggl/toggl_api_docs/blob/master/toggl_api.md) and [reports-api v2](https://github.com/toggl/toggl_api_docs/blob/master/reports.md).
+
+Methods (all async):
+* `rawTogglPost(url, object)`: raw post on toggl api. You must skip _"https://www.toggl.com/api/v8"_ on the url.
+* `rawTogglGet(url, queryObject)`: raw get on toggl api. You must skip _"https://www.toggl.com/api/v8"_ on the url. Query object will be converted to query string.
+* `rawReportsGet(url, queryObject)`: raw get on reports api. You must skip _"https://toggl.com/reports/api/v2"_ on the url. Query object will be converted to query string.
+* `createTimeEntries(project, task, description, timeSlots)`: create a time entry for each timeslot. You should use project, task and timeslot domain objects.
+* `createTimeEntry(project, task, description, timeSlot)`: create a time entry for single timeslot. You should use project, task and timeslot domain objects.
+* `getTimeEntries(from, to)`: obtain time entries in range. You should pass moments.
+* `getLastTimeEntry(from, to)`: obtain last time entry in range. You should pass moments.
+* `getTimeEntriesHoles(from, to)`: obtain time entry holes (as timeslots) in range. You should pass moments.
+* `getActiveProjects()`: obtain active projects.
+* `getAllProjects()`: obtain all projects.
+* `getClients()`: obtain clients.
+* `getProject(id)`: obtain project by id.
+* `getTasks(id)`: obtain tasks for specific project.
+* `getTask(id)`: obtain task by id.
+* `getSummary(from, to)`: obtain summary in range. You should pass moments.
+
+### TimeSlotter
+
+TimeSlotter creates or squash working timeslots using provided intervals (by configuration). Timeslots are generated excluding festive days (if google api is set).
+
+Methods (all async):
+* `slotsIn(timeslot)`: generate working slots in a generic slot.
+* `slotsInMany(timeslots)`: generate working slots in list of generic slots.
+* `squash(timeslots)`: merge overlapping slots.
+
+### Asker
+
+Asker expose utility functions to ask user for informations. It is a wrapper of inquirerjs module.
+
+Methods (all async):
+* `inquire(inquireData)`: accept everything is accepted by `prompt` method of inquirerjs module.
 
 ## Authors
 

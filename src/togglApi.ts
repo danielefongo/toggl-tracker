@@ -53,11 +53,11 @@ export class TogglApi {
     return this.get('/tasks/' + taskId)
   }
 
-  private async get (url: string, queryObject?: any) {
+  async get (url: string, queryObject?: any) {
     return this.instance.get(url + '?' + querystring.stringify(queryObject)).then(response => { return this.extractDataIfNeeded(response.data) })
   }
 
-  private async post (url: string, data: any) {
+  async post (url: string, data: any) {
     return this.instance.post(url, data).then(response => { return this.extractDataIfNeeded(response.data) })
   }
 

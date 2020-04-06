@@ -9,6 +9,11 @@ import { Config } from './model/config'
 inquirer.registerPrompt('autocomplete-list', require('inquirer-autocomplete-prompt'))
 
 export class Asker {
+  async inquire(inquireData) {
+    const answer = await inquirer.prompt(inquireData)
+    return answer
+  }
+
   async whatHaveYouDone () {
     const answer = await inquirer.prompt([{
       name: 'description',
