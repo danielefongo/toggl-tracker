@@ -1,4 +1,4 @@
-import axios, {AxiosInstance} from 'axios'
+import axios, { AxiosInstance, ResponseType } from 'axios'
 import querystring from 'querystring'
 
 export class ReportsApi {
@@ -21,8 +21,10 @@ export class ReportsApi {
     })
   }
 
-  async get (url: string, queryObject?: any) {
-    return this.instance.get(url + '?' + querystring.stringify(queryObject)).then(response => { return this.extractDataIfNeeded(response.data) })
+  async get (url: string, queryObject: any = {}, type: ResponseType = 'json') {
+    return this.instance.get(url + '?' + querystring.stringify(queryObject), {
+      responseType: type
+    }).then(response => { return this.extractDataIfNeeded(response.data) })
   }
 
   private extractDataIfNeeded (payload: any) {

@@ -28,8 +28,8 @@ export class Toggl {
     return this.togglApi.get(url, queryParams)
   }
 
-  async rawReportsGet(url, queryParams?) {
-    return this.reportsApi.get(url, queryParams)
+  async rawReportsGet(url, queryParams?, responseType?) {
+    return this.reportsApi.get(url, queryParams, responseType)
   }
 
   async createTimeEntries (project: Project, task: Task, description: string, timeSlots: TimeSlot[]) {
