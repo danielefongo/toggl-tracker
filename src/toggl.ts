@@ -32,6 +32,10 @@ export class Toggl {
     return this.reportsApi.get(url, queryParams, responseType)
   }
 
+  async rawReportsPost(url, object?, responseType?) {
+    return this.reportsApi.post(url, object, responseType)
+  }
+
   async createTimeEntries (project: Project, task: Task, description: string, timeSlots: TimeSlot[]) {
     const self = this
     timeSlots.forEach((timeSlot, index) => {

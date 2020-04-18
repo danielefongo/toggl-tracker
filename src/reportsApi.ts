@@ -27,6 +27,12 @@ export class ReportsApi {
     }).then(response => { return this.extractDataIfNeeded(response.data) })
   }
 
+  async post (url: string, data: any, type: ResponseType = 'json') {
+    return this.instance.post(url, data, {
+      responseType: type
+    }).then(response => { return this.extractDataIfNeeded(response.data) })
+  }
+
   private extractDataIfNeeded (payload: any) {
     if (payload === null || payload === undefined) return null
     return (payload.data !== undefined) ? payload.data : payload
