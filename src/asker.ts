@@ -103,7 +103,7 @@ export class Asker {
 
     return tasks.filter(it => it.id === answer.task.id)[0]
   }
-  
+
   async pickSlots (intervals: TimeSlot[]) {
     const choices = this.slotsToChoices(intervals)
     const answer = await inquirer.prompt([{

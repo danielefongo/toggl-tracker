@@ -1,4 +1,6 @@
 import { IntervalsParser } from '../intervalsParser'
+import { Asker } from '../asker'
+import fs from "fs"
 
 export class Config {
   workingDays: string[]
@@ -19,6 +21,14 @@ export class Config {
     this.togglWorkspace = json.togglWorkspace
     this.googleToken = json.googleToken
     this.googleLocale = json.googleLocale
+  }
+
+  async configure (configFile) {
+    const asker = new Asker()
+    const newConfig = await asker.init(this)
+    fs.writeFileSync(configFile, JSON.stringify(newConfig, null, 2))
+    console.log('\n### New configuration stored on ' + configFile + ' ###\n')
+    return newConfig
   }
 
   isValid () {

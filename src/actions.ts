@@ -52,7 +52,7 @@ export class Actions {
     await script.run()
   }
 
-  async help () {
+  async show () {
     this.actions('.*')
       .forEach(it => {
         try {

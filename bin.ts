@@ -5,7 +5,6 @@ import path from 'path'
 import { homedir } from 'os'
 import { Config } from './src/model/config'
 import { program } from 'commander'
-import { configurate } from './src/functions'
 import { run } from './run'
 
 const configFile = path.join(homedir(), '.toggl-tracker.json')
@@ -15,16 +14,15 @@ main()
 async function main () {
   if (!fs.existsSync(configFile)) {
     console.log('### No configuration found. Force setup ###\n')
-    await configurate(new Config(require('./config.json')), configFile)
+    await (new Config(require('./config.json'))).configure(configFile)
   }
 
   const loadedConfig = new Config(require(configFile))
   addOptions(program, loadedConfig)
   addCommand(program, 'config', 'change configuration')
   addCommand(program, 'install', 'install action from github (experimental)')
+  addCommand(program, 'list', 'show actions (experimental)')
   addCommand(program, 'run', 'run action installed from github (experimental)')
-  addCommand(program, 'help', 'help for actions (experimental)')
-  addCommand(program, 'plugin', 'custom plugin')
 
   program.parse(process.argv)
 }

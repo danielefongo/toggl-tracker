@@ -5,7 +5,6 @@ import { ReportsApi } from './src/reportsApi'
 import { TimeSlotter } from './src/timeSlotter'
 import { Asker } from './src/asker'
 import { DaysApi } from './src/daysApi'
-import { configurate, custom } from './src/functions'
 import { Config } from './src/model/config'
 import path from 'path'
 import { homedir } from 'os'
@@ -30,7 +29,7 @@ function run (command, subcommand, config: Config) {
 
   switch (command) {
     case 'config':
-      configurate(config, configFile)
+      config.configure(configFile)
       break
     case 'install':
       actions.install(subcommand)
@@ -38,11 +37,8 @@ function run (command, subcommand, config: Config) {
     case 'run':
       actions.run(subcommand)
       break
-    case 'help':
-      actions.help()
-      break
-    default:
-      custom(subcommand, toggl, timeSlotter, asker, config)
+    case 'list':
+      actions.show()
       break
   }
 }
