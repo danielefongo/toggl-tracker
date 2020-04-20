@@ -25,6 +25,9 @@ async function main () {
   addCommand(program, 'check', 'show inserted entries')
   addCommand(program, 'summary', 'show a summary of tracked hours for all projects in the workspace')
   addCommand(program, 'config', 'change configuration')
+  addCommand(program, 'install', 'install action from github (experimental)')
+  addCommand(program, 'run', 'run action installed from github (experimental)')
+  addCommand(program, 'help', 'help for actions (experimental)')
   addCommand(program, 'plugin', 'custom plugin')
 
   program.parse(process.argv)
