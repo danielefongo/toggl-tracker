@@ -20,7 +20,6 @@ async function main () {
 
   const loadedConfig = new Config(require(configFile))
   addOptions(program, loadedConfig)
-  addCommand(program, 'picky', 'compile not-filled selected past (and future) holes')
   addCommand(program, 'check', 'show inserted entries')
   addCommand(program, 'summary', 'show a summary of tracked hours for all projects in the workspace')
   addCommand(program, 'config', 'change configuration')

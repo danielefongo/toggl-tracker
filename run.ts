@@ -5,7 +5,7 @@ import { ReportsApi } from './src/reportsApi'
 import { TimeSlotter } from './src/timeSlotter'
 import { Asker } from './src/asker'
 import { DaysApi } from './src/daysApi'
-import { check, compilePicky, configurate, custom, summary } from './src/functions'
+import { check, configurate, custom, summary } from './src/functions'
 import { Config } from './src/model/config'
 import path from 'path'
 import { homedir } from 'os'
@@ -29,9 +29,6 @@ function run (command, subcommand, config: Config) {
   var actions = new Actions(files, git, actionFolder, new Loader(), toggl, timeSlotter, asker, config)
 
   switch (command) {
-    case 'picky':
-      compilePicky(toggl, timeSlotter, asker, config)
-      break
     case 'check':
       check(toggl, asker)
       break
