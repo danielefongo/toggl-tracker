@@ -20,9 +20,9 @@ async function main () {
   const loadedConfig = new Config(require(configFile))
   addOptions(program, loadedConfig)
   addCommand(program, 'config', 'change configuration')
-  addCommand(program, 'install', 'install action from github (experimental)')
-  addCommand(program, 'list', 'show actions (experimental)')
-  addCommand(program, 'run', 'run action installed from github (experimental)')
+  addCommand(program, 'install', 'install action from github')
+  addCommand(program, 'list', 'show installed actions')
+  addCommand(program, 'run', 'run installed action')
 
   program.parse(process.argv)
 }
