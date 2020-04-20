@@ -104,25 +104,25 @@ export class Asker {
     return tasks.filter(it => it.id === answer.task.id)[0]
   }
 
-  async pickSlots (intervals: TimeSlot[]) {
-    const choices = this.slotsToChoices(intervals)
+  async pickSlots (slots: TimeSlot[]) {
+    const choices = this.slotsToChoices(slots)
     const answer = await inquirer.prompt([{
       type: 'checkbox',
-      name: 'interval',
-      message: 'Pick interval(s)',
+      name: 'slot',
+      message: 'Pick slot(s)',
       choices: choices,
       validate: (answer: any) => {
-        if (answer.length === 0) return 'Pick at least 1 interval'
+        if (answer.length === 0) return 'Pick at least 1 slot'
         return true
       }
     }])
 
-    return answer.interval
+    return answer.slot
   }
 
-  private async search (projects: any, keyword: string) {
-    if (keyword === undefined || keyword === '') return projects
-    return fuzzysort.go(keyword, projects, { key: 'name' }).map(it => it.obj)
+  private async search (objects: any, keyword: string) {
+    if (keyword === undefined || keyword === '') return objects
+    return fuzzysort.go(keyword, objects, { key: 'name' }).map(it => it.obj)
   }
 
   private slotsToChoices (slots: TimeSlot[]) {

@@ -2,12 +2,11 @@
 
 ![Continuous Integration](https://github.com/danielefongo/toggl-tracker/workflows/Continuous%20Integration/badge.svg)
 
-**toggl-tracker** is a simple Node.js tool to automatically generate time entries on Toggl. It can be used in different ways:
-- **append** mode: compiles from the last recorded activity.
-- **picky** mode: compiles not-filled selected past (and future) holes.
-- **check** mode: show last inserted entries.
-- **summary**: show a summary of tracked hours for all projects in the workspace.
-- **plugin**: run a custom plugin.
+**toggl-tracker** is a simple Node.js tool to automatically run actions on Toggl. Available commands are:
+- **config**: change the configuration.
+- **install**: install action from github using `user/repository` format.
+- **list**: show installed actions.
+- **run**, run installed action. You can use just the repo name if unique. 
 
 ## Getting started
 
@@ -15,10 +14,14 @@
 To use toggl-tracker just install it from npm and run it:
 ```
 npm install -g toggl-tracker
-toggl-tracker <mode>
+toggl-tracker install danielefongo/picky # optional
+toggl-tracker install danielefongo/append # optional
+toggl-tracker install danielefongo/check # optional
+toggl-tracker install danielefongo/summary # optional
+toggl-tracker run <action>
 ```
 
-If you run the tool for the first time, it will ask you some useful informations like working days, working hours intervals and so on (they will be stored in user home). It will also ask you to provide:
+If you run the tool for the first time, it will ask you some useful information like working days, working hours intervals and so on (they will be stored in user home). It will also ask you to provide:
 * **Toggl token**
 * **Toggl workspace**
 * **Google token** (optional)
@@ -62,31 +65,37 @@ toggl-tracker config
 
 You can alternatively pass command-line options to override loaded configuration:
 ```
-toggl-tracker command <configuration-args>
+toggl-tracker run action <configuration-args>
 ```
 
-You can find all possible commands and configuration-args by running:
+You can find all possible configuration-args by running:
 ```
 toggl-tracker -h
 ```
 
-## Plugins
+## Actions
 
-You can build your own plugin by creating a js file on `$HOME/.toggl-tracker` folder (you have to manually create it).
+You can build your own action by creating a github repository with a main file named `action.js`.
 The script should be like this:
 
 ```javascript
-module.exports = async function (loader, toggl, timeSlotter, asker, config) {
-  //logic
+module.exports = function(loader, toggl, timeSlotter, asker, config) {
+  this.run = async () => {
+    //logic
+  }
+
+  this.help = () => {
+    return "description..." // showed on toggl-tracker list
+  }
 }
 ```
 
 Then you can use the plugin by running:
 ```
-toggl-tracker plugin <PLUGIN>
+toggl-tracker run <ACTION>
 ```
 
-where `PLUGIN` is the name of the file without the extension.
+where `ACTION` is the name of the repo (if unique) or the combination of username and repo, like `danielefongo/picky`.
 
 If you need to use domain stuff like moment or Interval, you can use `loader` to retrieve the class or the module.
 Useful domain objects are described below.
@@ -162,7 +171,11 @@ Methods (all async):
 Asker expose utility functions to ask user for informations. It is a wrapper of inquirerjs module.
 
 Methods (all async):
-* `inquire(inquireData)`: accept everything is accepted by `prompt` method of inquirerjs module.
+* `inquire(question, type?, choices?)`: wrapper for `prompt` method of inquirerjs module.
+* `autocompleteInquire(question, choices)`: wrapper for `prompt` method of inquirerjs module with autocomplete. Choices must have `name` property.
+* `chooseProject(projects, clients)`: function to choose a project. You should use project and client domain objects.
+* `chooseTask(tasks)`: function to choose a task. You should use task domain object. 
+* `pickSlots(slots)`: function to pick one or many slots. You should use TimeSlot domain object. 
 
 ## Authors
 
