@@ -20,8 +20,6 @@ async function main () {
 
   const loadedConfig = new Config(require(configFile))
   addOptions(program, loadedConfig)
-  addCommand(program, 'check', 'show inserted entries')
-  addCommand(program, 'summary', 'show a summary of tracked hours for all projects in the workspace')
   addCommand(program, 'config', 'change configuration')
   addCommand(program, 'install', 'install action from github (experimental)')
   addCommand(program, 'run', 'run action installed from github (experimental)')

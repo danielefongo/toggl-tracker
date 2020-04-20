@@ -20,29 +20,6 @@ export async function configurate (config: Config, configFile) {
   return newConfig
 }
 
-export async function check (toggl: Toggl, asker: Asker) {
-  const granularity = await asker.chooseGranularity()
-  const start = moment().startOf(granularity)
-  const end = moment().endOf(granularity)
-  const projects = await toggl.getAllProjects()
-
-  toggl.getTimeEntries(start, end).then(entries => {
-    entries.forEach(entry => {
-      const project = projects.filter(project => project.id === entry.pid)[0]
-      Printer.entry(project, entry.slot)
-    })
-  })
-}
-
-export async function summary (toggl: Toggl, asker: Asker) {
-  const granularity = await asker.chooseGranularity()
-  const start = moment().startOf(granularity)
-  const end = moment().endOf(granularity)
-  const summary = await toggl.getSummary(start, end)
-
-  summary.forEach(it => console.log(it.description))
-}
-
 export async function custom (command: string, toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config: Config) {
   if (!fs.existsSync(path.join(pluginFolder, command + '.js'))) {
     console.log('Plugin named "' + command + '" does not exist.')
