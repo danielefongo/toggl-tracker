@@ -5,7 +5,7 @@ import { ReportsApi } from './src/reportsApi'
 import { TimeSlotter } from './src/timeSlotter'
 import { Asker } from './src/asker'
 import { DaysApi } from './src/daysApi'
-import { check, compileAppend, compilePicky, configurate, custom, summary } from './src/functions'
+import { check, compilePicky, configurate, custom, summary } from './src/functions'
 import { Config } from './src/model/config'
 import path from 'path'
 import { homedir } from 'os'
@@ -31,9 +31,6 @@ function run (command, subcommand, config: Config) {
   switch (command) {
     case 'picky':
       compilePicky(toggl, timeSlotter, asker, config)
-      break
-    case 'append':
-      compileAppend(toggl, timeSlotter, asker, config)
       break
     case 'check':
       check(toggl, asker)

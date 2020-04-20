@@ -9,18 +9,27 @@ import { Config } from './model/config'
 inquirer.registerPrompt('autocomplete-list', require('inquirer-autocomplete-prompt'))
 
 export class Asker {
-  async inquire(inquireData) {
-    const answer = await inquirer.prompt(inquireData)
-    return answer
-  }
-
-  async whatHaveYouDone () {
+  async inquire (question, type?, choices?) {
     const answer = await inquirer.prompt([{
-      name: 'description',
-      message: 'What have you done?'
+      type: type,
+      name: 'data',
+      message: question,
+      choices: choices
     }])
 
-    return answer.description
+    return answer.data
+  }
+
+  async autocompleteInquire (question, choices) {
+    const answer = await inquirer.prompt([{
+      type: 'autocomplete-list',
+      name: 'data',
+      message: question,
+      choices: choices,
+      source: (_: any, id: string) => this.search(choices, id)
+    }])
+
+    return answer.data
   }
 
   async init (config: Config) {
@@ -122,16 +131,6 @@ export class Asker {
     return answer.interval
   }
 
-  async shouldContinueLastActivity (projectName: string, description: string) {
-    const answer = await inquirer.prompt([{
-      type: 'list',
-      name: 'usePreviousEntry',
-      message: 'Continue with the previous activity? ("' + description + '" on project "' + projectName + '")',
-      choices: ['Yes', 'No']
-    }])
-    return answer.usePreviousEntry === 'Yes'
-  }
-
   private async search (projects: any, keyword: string) {
     if (keyword === undefined || keyword === '') return projects
     return fuzzysort.go(keyword, projects, { key: 'name' }).map(it => it.obj)
@@ -167,8 +166,8 @@ export class Asker {
   }
 
   private validate (validator: (data) => boolean) {
-    return function(data) {
-      if (!validator(data)) return "Invalid input"
+    return function (data) {
+      if (!validator(data)) return 'Invalid input'
       return true
     }
   }
