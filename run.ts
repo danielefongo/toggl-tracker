@@ -20,12 +20,13 @@ function run (command, subcommand, config: Config) {
   var git = new Git()
   var files = new Files()
   var asker = new Asker()
+  var loader = new Loader()
   var parser = new IntervalsParser()
   var intervals = parser.parse(config.workingHoursIntervals)
   var daysApi = new DaysApi(config.workingDays, config.googleToken, config.googleLocale)
   var toggl = new Toggl(new TogglApi(config.togglToken), new ReportsApi(config.togglToken), config.togglWorkspace)
   var timeSlotter = new TimeSlotter(daysApi, intervals)
-  var actions = new Actions(files, git, actionFolder, new Loader(), toggl, timeSlotter, asker, config)
+  var actions = new Actions(files, git, loader, actionFolder, toggl, timeSlotter, asker, config)
 
   switch (command) {
     case 'config':

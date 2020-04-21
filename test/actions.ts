@@ -32,7 +32,7 @@ describe('Actions', () => {
     loaderStub = sandbox.stub(loader, 'require')
     gitStub = sandbox.stub(git, 'clone')
 
-    actions = new Actions(files, git, actionFolder, loader, undefined, undefined, undefined, undefined)
+    actions = new Actions(files, git, loader, actionFolder, undefined, undefined, undefined, undefined)
   })
 
   afterEach(() => {

@@ -19,7 +19,7 @@ export class Actions {
   private git: Git
   private files: Files
 
-  constructor (files: Files, git: Git, actionFolder: string, loader: Loader, toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config: Config) {
+  constructor (files: Files, git: Git, loader: Loader, actionFolder: string, toggl: Toggl, timeSlotter: TimeSlotter, asker: Asker, config: Config) {
     this.files = files
     this.git = git
     this.actionFolder = actionFolder
