@@ -69,7 +69,7 @@ export class Actions {
     const destinationFolder = path.dirname(actionFile)
 
     if (this.files.exists(actionFile)) {
-      console.log("Already installed.")
+      console.log('Already installed.')
       return
     }
 
