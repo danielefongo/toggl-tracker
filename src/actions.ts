@@ -44,10 +44,10 @@ export class Actions {
 
     let script
     try {
-      const Script = this.loadAction(actions[0])
-      script = new Script(this.loader, this.toggl, this.timeSlotter, this.asker, this.config)
+      script = this.loadAction(actions[0])
     } catch {
       console.log(`Failed to load ${command}.`)
+      return
     }
     await script.run()
   }
@@ -56,8 +56,7 @@ export class Actions {
     this.actions('.*')
       .forEach(it => {
         try {
-          let Script = this.loadAction(it)
-          let script = new Script(this.loader, this.toggl, this.timeSlotter, this.asker, this.config)
+          let script = this.loadAction(it)
           console.log(`- ${it}: ${script.help()}`)
         } catch {}
       })
@@ -76,7 +75,7 @@ export class Actions {
     this.git.clone(githubRepo, destinationFolder)
       .then(() => {
         try {
-          new (this.loadAction(action))
+          this.loadAction(action)
           console.log('Installed.')
         } catch {
           console.log('Not a valid action.')
@@ -110,6 +109,7 @@ export class Actions {
 
   private loadAction (action: string) {
     const actionFile = this.fileForAction(action)
-    return this.loader.require(actionFile)
+    const Script = this.loader.require(actionFile)
+    return new Script(this.loader, this.toggl, this.timeSlotter, this.asker, this.config)
   }
 }
