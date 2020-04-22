@@ -31,22 +31,12 @@ export class Actions {
   }
 
   async run (command) {
-    const actions = this.actions(command)
-
-    if (actions.length == 0) {
-      console.log('Action "' + command + '" does not exist.')
-      return
-    }
-    if (actions.length > 1) {
-      console.log('Ambiguous action: ', actions)
-      return
-    }
-
     let script
     try {
-      script = this.loadAction(actions[0])
-    } catch {
-      console.log(`Failed to load ${command}.`)
+      const action = this.uniqueAction(command)
+      script = this.loadAction(action)
+    } catch(err) {
+      console.log(err.message)
       return
     }
     await script.run()
@@ -86,20 +76,27 @@ export class Actions {
   }
 
   uninstall (command) {
+    try {
+      const action = this.uniqueAction(command)
+      const installationFolder = this.folderForAction(action)
+      this.files.delete(installationFolder)
+      console.log(`Uninstalled ${action}.`)
+    } catch(err) {
+      console.log(err.message)
+    }
+  }
+
+  private uniqueAction (command: string) {
     const actions = this.actions(command)
 
     if (actions.length == 0) {
-      console.log('Action "' + command + '" is not installed.')
-      return
+      throw new Error(`Action ${command} does not exist.`)
     }
     if (actions.length > 1) {
-      console.log('Ambiguous action: ', actions)
-      return
+      throw new Error(`Ambiguous action: ${actions.join(', ')}`)
     }
 
-    const installationFolder = this.folderForAction(actions[0])
-    this.files.delete(installationFolder)
-    console.log(`Uninstalled ${actions[0]}.`)
+    return actions[0]
   }
 
   actions (command: string) {
@@ -130,8 +127,12 @@ export class Actions {
   }
 
   private loadAction (action: string) {
-    const actionFile = this.fileForAction(action)
-    const Script = this.loader.require(actionFile)
-    return new Script(this.loader, this.toggl, this.timeSlotter, this.asker, this.config)
+    try {
+      const actionFile = this.fileForAction(action)
+      const Script = this.loader.require(actionFile)
+      return new Script(this.loader, this.toggl, this.timeSlotter, this.asker, this.config)
+    } catch {
+      throw new Error(`Failed to load ${action}.`)
+    }
   }
 }
