@@ -21,6 +21,7 @@ async function main () {
   addOptions(program, loadedConfig)
   addCommand(program, 'config', 'change configuration')
   addCommand(program, 'install', 'install action from github')
+  addCommand(program, 'uninstall', 'uninstall installed action')
   addCommand(program, 'list', 'show installed actions')
   addCommand(program, 'run', 'run installed action')
 

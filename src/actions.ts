@@ -65,7 +65,7 @@ export class Actions {
   async install (action) {
     const githubRepo = `https://github.com/${action}`
     const actionFile = this.fileForAction(action)
-    const destinationFolder = path.dirname(actionFile)
+    const destinationFolder = this.folderForAction(action)
 
     if (this.files.exists(actionFile)) {
       console.log('Already installed.')
@@ -76,13 +76,30 @@ export class Actions {
       .then(() => {
         try {
           this.loadAction(action)
-          console.log('Installed.')
+          console.log(`Installed ${action}.`)
         } catch {
           console.log('Not a valid action.')
           this.files.delete(destinationFolder)
         }
       })
       .catch(() => console.log(`Cannot install action ${action}.`))
+  }
+
+  uninstall (command) {
+    const actions = this.actions(command)
+
+    if (actions.length == 0) {
+      console.log('Action "' + command + '" is not installed.')
+      return
+    }
+    if (actions.length > 1) {
+      console.log('Ambiguous action: ', actions)
+      return
+    }
+
+    const installationFolder = this.folderForAction(actions[0])
+    this.files.delete(installationFolder)
+    console.log(`Uninstalled ${actions[0]}.`)
   }
 
   actions (command: string) {
@@ -98,6 +115,11 @@ export class Actions {
     const userFolder = path.basename(path.dirname(path.dirname(filename)))
     const repoFolder = path.basename(path.dirname(filename))
     return path.join(userFolder, repoFolder)
+  }
+
+  private folderForAction (action: string) {
+    const actionFile = this.fileForAction(action)
+    return path.dirname(actionFile)
   }
 
   private fileForAction (action: string) {

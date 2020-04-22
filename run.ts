@@ -35,6 +35,9 @@ function run (command, subcommand, config: Config) {
     case 'install':
       actions.install(subcommand)
       break
+    case 'uninstall':
+      actions.uninstall(subcommand)
+      break
     case 'run':
       actions.run(subcommand)
       break

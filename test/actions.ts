@@ -147,6 +147,38 @@ describe('Actions', () => {
       done()
     }, 50)
   })
+
+  it('uninstall a installed action using repo name', () => {
+    findStub.returns(['/user/repo/action.js'])
+
+    actions.uninstall('repo')
+
+    deepEqual(deleteStub.firstCall.args[0], actionFolder + 'user/repo')
+  })
+
+  it('uninstall a installed action using user and repo name', () => {
+    findStub.returns(['/user/repo/action.js'])
+
+    actions.uninstall('user/repo')
+
+    deepEqual(deleteStub.firstCall.args[0], actionFolder + 'user/repo')
+  })
+
+  it('do not uninstall not installed action', () => {
+    findStub.returns([])
+
+    actions.uninstall('user/repo')
+
+    lengthOf(deleteStub.getCalls(), 0)
+  })
+
+  it('do not uninstall ambiguous installed action', () => {
+    findStub.returns(['/user1/repo/action.js', '/user2/repo/action.js'])
+
+    actions.uninstall('repo')
+
+    lengthOf(deleteStub.getCalls(), 0)
+  })
 })
 
 function fakeScript(callback = () => {}) {
