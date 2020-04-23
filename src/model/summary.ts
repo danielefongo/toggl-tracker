@@ -13,7 +13,7 @@ export class Summary {
   }
 
   get description () {
-    return this.client.description + ' ' + this.project.description + ' => ' + this.hoursAsString()
+    return '[' + this.client.description + '] ' + this.project.description + ' => ' + this.hoursAsString()
   }
 
   private hoursAsString () {

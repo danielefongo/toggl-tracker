@@ -139,7 +139,7 @@ export class Asker {
       const client = clients.filter(client => client.id === project.cid)[0]
 
       return {
-        name: client.description + ' ' + project.description,
+        name: '[' + client.description + '] ' + project.description,
         value: project
       }
     })

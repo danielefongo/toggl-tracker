@@ -8,6 +8,6 @@ export class Client {
   }
 
   get description() {
-    return this.name ? '[' + this.name + ']' : '[NO CLIENT]'
+    return this.name ? this.name : 'NO CLIENT'
   }
 }
