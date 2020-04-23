@@ -5,6 +5,8 @@
 **toggl-tracker** is a simple Node.js tool to automatically run actions on Toggl. Available commands are:
 - **config**: change the configuration.
 - **install**: install action from github using `user/repository` format.
+- **uninstall**: uninstall action. You can use just the repo name if unique.
+- **update**: update actions.
 - **list**: show installed actions.
 - **run**, run installed action. You can use just the repo name if unique. 
 
