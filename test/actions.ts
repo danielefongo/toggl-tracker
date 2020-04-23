@@ -19,7 +19,10 @@ describe('Actions', () => {
   let existsStub
   let deleteStub
   let loaderStub
-  let gitStub
+  let gitCloneStub
+  let gitPullRebaseStub
+  let gitCurrentHashStub
+  let gitResetMasterHardStub
   let actions
 
   beforeEach(() => {
@@ -30,7 +33,10 @@ describe('Actions', () => {
     existsStub = sandbox.stub(files, 'exists')
     deleteStub = sandbox.stub(files, 'delete')
     loaderStub = sandbox.stub(loader, 'require')
-    gitStub = sandbox.stub(git, 'clone')
+    gitCloneStub = sandbox.stub(git, 'clone')
+    gitPullRebaseStub = sandbox.stub(git, 'pullRebase')
+    gitResetMasterHardStub = sandbox.stub(git, 'resetMasterHard')
+    gitCurrentHashStub = sandbox.stub(git, 'currentHash')
 
     actions = new Actions(files, git, loader, actionFolder, undefined, undefined, undefined, undefined)
   })
@@ -84,16 +90,16 @@ describe('Actions', () => {
 
   it('clone new action', () => {
     existsStub.returns(false)
-    gitStub.returns(new Promise(() => {}))
+    gitCloneStub.returns(new Promise(() => {}))
 
     actions.install('user/repo')
 
     deepEqual(existsStub.firstCall.args, [
-      actionFolder + "user/repo/action.js"
+      actionFolder + 'user/repo/action.js'
     ])
-    deepEqual(gitStub.firstCall.args, [
-      "https://github.com/user/repo",
-      actionFolder + "user/repo"
+    deepEqual(gitCloneStub.firstCall.args, [
+      'https://github.com/user/repo',
+      actionFolder + 'user/repo'
     ])
   })
 
@@ -102,18 +108,18 @@ describe('Actions', () => {
 
     actions.install('user/repo')
 
-    lengthOf(gitStub.getCalls(), 0)
+    lengthOf(gitCloneStub.getCalls(), 0)
   })
 
   it('do not install invalid action', (done) => {
     existsStub.returns(false)
-    gitStub.returns(new Promise((resolve) => {resolve()}))
+    gitCloneStub.returns(new Promise((resolve) => {resolve()}))
 
     actions.install('user/repo')
 
     setTimeout(() => {
       deepEqual(deleteStub.firstCall.args, [
-        actionFolder + "user/repo"
+        actionFolder + 'user/repo'
       ])
       done()
     }, 50)
@@ -121,14 +127,14 @@ describe('Actions', () => {
 
   it('do not install malformed action', (done) => {
     existsStub.returns(false)
-    gitStub.returns(new Promise((resolve) => {resolve()}))
+    gitCloneStub.returns(new Promise((resolve) => {resolve()}))
     loaderStub.throws()
 
     actions.install('user/repo')
 
     setTimeout(() => {
       deepEqual(deleteStub.firstCall.args, [
-        actionFolder + "user/repo"
+        actionFolder + 'user/repo'
       ])
       done()
     }, 50)
@@ -137,7 +143,7 @@ describe('Actions', () => {
   it('install valid action', (done) => {
     existsStub.onCall(0).returns(false)
     existsStub.onCall(1).returns(true)
-    gitStub.returns(new Promise((resolve) => {resolve()}))
+    gitCloneStub.returns(new Promise((resolve) => {resolve()}))
     loaderStub.returns(fakeScript())
 
     actions.install('user/repo')
@@ -148,7 +154,7 @@ describe('Actions', () => {
     }, 50)
   })
 
-  it('uninstall a installed action using repo name', () => {
+  it('uninstall an installed action using repo name', () => {
     findStub.returns(['/user/repo/action.js'])
 
     actions.uninstall('repo')
@@ -156,7 +162,7 @@ describe('Actions', () => {
     deepEqual(deleteStub.firstCall.args[0], actionFolder + 'user/repo')
   })
 
-  it('uninstall a installed action using user and repo name', () => {
+  it('uninstall an installed action using user and repo name', () => {
     findStub.returns(['/user/repo/action.js'])
 
     actions.uninstall('user/repo')
@@ -179,11 +185,58 @@ describe('Actions', () => {
 
     lengthOf(deleteStub.getCalls(), 0)
   })
+
+  it('update installed actions by pulling valid new actions', (done) => {
+    findStub.returns(['/user/repo/action.js'])
+    gitPullRebaseStub.returns(new Promise((resolve) => {resolve()}))
+    loaderStub.returns(fakeScript())
+
+    actions.update()
+
+    setTimeout(() => {
+      deepEqual(gitPullRebaseStub.firstCall.args[0], actionFolder + 'user/repo')
+      lengthOf(gitResetMasterHardStub.getCalls(), 0)
+      done()
+    }, 50)
+  })
+
+  it('revert an update if pulled version is invalid', (done) => {
+    findStub.returns(['/user/repo/action.js'])
+    gitPullRebaseStub.returns(new Promise((resolve) => {resolve()}))
+    loaderStub.throws(new Error())
+    gitCurrentHashStub.onCall(0).returns('oldHash')
+    gitCurrentHashStub.onCall(1).returns('newHash')
+
+    actions.update()
+
+    setTimeout(() => {
+      deepEqual(gitPullRebaseStub.firstCall.args[0], actionFolder + 'user/repo')
+      lengthOf(gitResetMasterHardStub.getCalls(), 1)
+      deepEqual(gitResetMasterHardStub.firstCall.args, [
+        actionFolder + 'user/repo',
+        'oldHash'
+      ])
+      done()
+    }, 50)
+  })
+
+
+  it('do not check action if fails to pull', (done) => {
+    findStub.returns(['/user/repo/action.js'])
+    gitPullRebaseStub.returns(new Promise((_, reject) => {reject()}))
+
+    actions.update()
+
+    setTimeout(() => {
+      lengthOf(loaderStub.getCalls(), 0)
+      done()
+    }, 50)
+  })
 })
 
-function fakeScript(callback = () => {}) {
-  return function() {
-    this.run = async() => { callback() }
+function fakeScript (callback = () => {}) {
+  return function () {
+    this.run = async () => { callback() }
     this.help = () => {}
   }
 }

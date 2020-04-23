@@ -86,6 +86,33 @@ export class Actions {
     }
   }
 
+  async update() {
+    this.actions('.*').forEach(this.updateOne.bind(this))
+  }
+
+  private async updateOne (action) {
+    const installationFolder = this.folderForAction(action)
+
+    let oldHash
+    let hash
+    try {
+      oldHash = await this.git.currentHash(installationFolder)
+      await this.git.pullRebase(installationFolder)
+      hash = await this.git.currentHash(installationFolder)
+    } catch(err) {
+      console.log(`Cannot update ${action}.`)
+      return
+    }
+
+    try {
+      this.loadAction(action)
+      if(hash !== oldHash) console.log(`Updated ${action}.`)
+    } catch {
+      console.log(`Invalid update for ${action}. Reverting.`)
+      await this.git.resetMasterHard(installationFolder, oldHash)
+    }
+  }
+
   private uniqueAction (command: string) {
     const actions = this.actions(command)
 
