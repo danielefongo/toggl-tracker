@@ -174,8 +174,9 @@ Asker expose utility functions to ask user for informations. It is a wrapper of 
 
 Methods (all async):
 * `inquire(question, type?, choices?)`: wrapper for `prompt` method of inquirerjs module.
-* `autocompleteInquire(question, choices)`: wrapper for `prompt` method of inquirerjs module with autocomplete. Choices must have `name` property.
+* `autocompleteInquire(question, choices)`: wrapper for `prompt` method of inquirerjs module with autocomplete. Complex choices must have `description` property.
 * `chooseProject(projects, clients)`: function to choose a project. You should use project and client domain objects.
+* `chooseClient(clients)`: function to choose a client. You should use client domain object. 
 * `chooseTask(tasks)`: function to choose a task. You should use task domain object. 
 * `pickSlots(slots)`: function to pick one or many slots. You should use TimeSlot domain object. 
 

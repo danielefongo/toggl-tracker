@@ -9,27 +9,27 @@ import { Config } from './model/config'
 inquirer.registerPrompt('autocomplete-list', require('inquirer-autocomplete-prompt'))
 
 export class Asker {
-  async inquire (question, type?, choices?) {
+  async inquire (question, type?, options?) {
     const answer = await inquirer.prompt([{
       type: type,
       name: 'data',
       message: question,
-      choices: choices
+      choices: options
     }])
 
     return answer.data
   }
 
-  async autocompleteInquire (question, choices) {
+  async autocompleteInquire (question, options) {
+    const choices = this.convertGenericToChoices(options)
     const answer = await inquirer.prompt([{
       type: 'autocomplete-list',
       name: 'data',
       message: question,
-      choices: choices,
       source: (_: any, id: string) => this.search(choices, id)
     }])
 
-    return answer.data
+    return options.filter(it => it === answer.data)[0]
   }
 
   async init (config: Config) {
@@ -93,19 +93,15 @@ export class Asker {
   }
 
   async chooseTask (tasks: Task[]) {
-    const choices = this.tasksToChoices(tasks)
-    const answer = await inquirer.prompt([{
-      type: 'autocomplete-list',
-      name: 'task',
-      message: 'Select task name',
-      source: (_: any, id: any) => this.search(choices, id)
-    }])
+    return this.autocompleteInquire('Select task name', tasks)
+  }
 
-    return tasks.filter(it => it.id === answer.task.id)[0]
+  async chooseClient (clients: Client[]) {
+    return this.autocompleteInquire('Select client', clients)
   }
 
   async pickSlots (slots: TimeSlot[]) {
-    const choices = this.slotsToChoices(slots)
+    const choices = this.convertGenericToChoices(slots)
     const answer = await inquirer.prompt([{
       type: 'checkbox',
       name: 'slot',
@@ -125,15 +121,6 @@ export class Asker {
     return fuzzysort.go(keyword, objects, { key: 'name' }).map(it => it.obj)
   }
 
-  private slotsToChoices (slots: TimeSlot[]) {
-    return slots.map(it => {
-      return {
-        name: it.description,
-        value: it
-      }
-    })
-  }
-
   private projectsToChoices (projects: Project[], clients: Client[]) {
     return projects.map(project => {
       const client = clients.filter(client => client.id === project.cid)[0]
@@ -145,11 +132,11 @@ export class Asker {
     })
   }
 
-  private tasksToChoices (tasks: Task[]) {
-    return tasks.map(task => {
+  private convertGenericToChoices (options) {
+    return options.map(it => {
       return {
-        name: task.description,
-        value: task
+        name: it.description ? it.description : it,
+        value: it
       }
     })
   }
