@@ -14,12 +14,12 @@ export class Asker {
   }
 
   async list (question, options, defaultValue?) {
-    const answer = await inquirer.prompt([{ type: 'list', name: 'data', message: question, default: defaultValue }])
+    const answer = await inquirer.prompt([{ type: 'list', name: 'data', message: question, choices: options, default: defaultValue }])
     return answer.data
   }
 
   async checkbox (question, options, defaultValue?) {
-    const answer = await inquirer.prompt([{ type: 'checkbox', name: 'data', message: question, default: defaultValue }])
+    const answer = await inquirer.prompt([{ type: 'checkbox', name: 'data', message: question, choices: options,default: defaultValue }])
     return answer.data
   }
 

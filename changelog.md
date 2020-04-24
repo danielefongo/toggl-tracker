@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.4] - 2020-04-24
+
+### Fixed
+
+- Method list on Asker
+- Method checkbox on Asker
+
 ## [0.7.3] - 2020-04-24
 
 ### Added
@@ -213,7 +220,9 @@ All notable changes to this project will be documented in this file.
 - Search for projects using fuzzy search.
 - Show helper if a not valid command is inserted.
 
-[unreleased]: https://github.com/danielefongo/toggl-tracker/compare/0.7.2...HEAD
+[unreleased]: https://github.com/danielefongo/toggl-tracker/compare/0.7.4...HEAD
+[0.7.4]: https://github.com/danielefongo/toggl-tracker/compare/0.7.3...0.7.4
+[0.7.3]: https://github.com/danielefongo/toggl-tracker/compare/0.7.2...0.7.3
 [0.7.2]: https://github.com/danielefongo/toggl-tracker/compare/0.7.1...0.7.2
 [0.7.1]: https://github.com/danielefongo/toggl-tracker/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/danielefongo/toggl-tracker/compare/0.6.3...0.7.0
