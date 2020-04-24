@@ -8,7 +8,9 @@
 - **uninstall**: uninstall action. You can use just the repo name if unique.
 - **update**: update actions.
 - **list**: show installed actions.
-- **run**, run installed action. You can use just the repo name if unique. 
+- **run**, run installed action. You can use just the repo name if unique.
+
+You can find the changelog [here](https://github.com/danielefongo/toggl-tracker/blob/master/changelog.md).
 
 ## Getting started
 
@@ -176,9 +178,9 @@ Methods (all async):
 * `inquire(question, type?, choices?)`: wrapper for `prompt` method of inquirerjs module.
 * `autocompleteInquire(question, choices)`: wrapper for `prompt` method of inquirerjs module with autocomplete. Complex choices must have `description` property.
 * `chooseProject(projects, clients)`: function to choose a project. You should use project and client domain objects.
-* `chooseClient(clients)`: function to choose a client. You should use client domain object. 
-* `chooseTask(tasks)`: function to choose a task. You should use task domain object. 
-* `pickSlots(slots)`: function to pick one or many slots. You should use TimeSlot domain object. 
+* `chooseClient(clients)`: function to choose a client. You should use client domain object.
+* `chooseTask(tasks)`: function to choose a task. You should use task domain object.
+* `pickSlots(slots)`: function to pick one or many slots. You should use TimeSlot domain object.
 
 ## Authors
 
