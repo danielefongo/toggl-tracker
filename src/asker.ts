@@ -9,18 +9,26 @@ import { Config } from './model/config'
 inquirer.registerPrompt('autocomplete-list', require('inquirer-autocomplete-prompt'))
 
 export class Asker {
-  async inquire (question, type?, options?) {
-    const answer = await inquirer.prompt([{
-      type: type,
-      name: 'data',
-      message: question,
-      choices: options
-    }])
+  async raw (prompts) {
+    return inquirer.prompt(prompts)
+  }
 
+  async list (question, options, defaultValue?) {
+    const answer = await inquirer.prompt([{ type: 'list', name: 'data', message: question, default: defaultValue }])
     return answer.data
   }
 
-  async autocompleteInquire (question, options) {
+  async checkbox (question, options, defaultValue?) {
+    const answer = await inquirer.prompt([{ type: 'checkbox', name: 'data', message: question, default: defaultValue }])
+    return answer.data
+  }
+
+  async input (question, defaultValue?) {
+    const answer = await inquirer.prompt([{ type: 'input', name: 'data', message: question, default: defaultValue }])
+    return answer.data
+  }
+
+  async autocomplete (question, options) {
     const choices = this.convertGenericToChoices(options)
     const answer = await inquirer.prompt([{
       type: 'autocomplete-list',
@@ -93,11 +101,11 @@ export class Asker {
   }
 
   async chooseTask (tasks: Task[]) {
-    return this.autocompleteInquire('Select task name', tasks)
+    return this.autocomplete('Select task name', tasks)
   }
 
   async chooseClient (clients: Client[]) {
-    return this.autocompleteInquire('Select client', clients)
+    return this.autocomplete('Select client', clients)
   }
 
   async pickSlots (slots: TimeSlot[]) {

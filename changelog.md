@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.3] - 2020-04-24
+
+### Added
+
+- Method raw on Asker
+- Method input on Asker
+- Method list on Asker
+- Method checkbox on Asker
+
+### Changed
+
+- Method autocompleteInquire on Asker is renamed to autocomplete
+
+### Removed
+
+- Method inquire on Asker
+
 ## [0.7.2] - 2020-04-23
 
 ### Changed
