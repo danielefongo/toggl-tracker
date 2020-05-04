@@ -19,7 +19,7 @@ export class TogglApi {
   async getTimeEntries (workspaceId: string, startDateString: string, stopDateString: string) {
     return this.get('/time_entries', {
       start_date: startDateString,
-      stop_date: stopDateString
+      end_date: stopDateString
     })
   }
 
