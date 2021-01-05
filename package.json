@@ -30,7 +30,7 @@
     "url": "git+https://github.com/danielefongo/toggl-tracker.git"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "commander": "^5.0.0",
     "fs-extra": "^9.0.0",
     "fuzzysort": "^1.1.4",
