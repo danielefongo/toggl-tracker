@@ -25,5 +25,5 @@ describe('Reports Api Integration', () => {
     const report = await reportsApi.getSummary(workspace, aMoment.format(), aMoment.format())
 
     lengthOf(report, 0)
-  }).timeout(1000)
+  }).timeout(2000)
 })

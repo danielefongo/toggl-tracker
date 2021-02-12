@@ -85,12 +85,11 @@ describe('Toggl Api Integration', () => {
       stop: zuluFormat(entryStop)
     })
 
-    restDelete('/time_entries/' + entry.id)
+    await restDelete('/time_entries/' + createdEntry.id)
   }).timeout(1000)
 
   it('get time entries', async () => {
     const entries = await togglApi.getTimeEntries(workspace, entryStart.format(), entryStop.format())
-
     const retrievedEntry = extractWithId(entries, entry.id)
 
     deepInclude(retrievedEntry, {

@@ -30,6 +30,9 @@ jobs:
       run: |
         echo ::set-env name=PACKAGE_VERSION::$(jq .version -r package.json)
         echo ::set-env name=RELEASED_VERSION::$(npm --silent view $PWD version)
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
     - name: publish
       if: env.PACKAGE_VERSION != env.RELEASED_VERSION && github.ref == 'refs/heads/master'
       run: |
