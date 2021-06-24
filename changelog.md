@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.0] - 2021-06-24
+
+### Changed
+
+- Rest service url from www.toggl.com to api.track.toggl.com
+
 ## [0.7.7] - 2021-01-22
 
 ### Fixed
@@ -238,7 +244,8 @@ All notable changes to this project will be documented in this file.
 - Search for projects using fuzzy search.
 - Show helper if a not valid command is inserted.
 
-[unreleased]: https://github.com/danielefongo/toggl-tracker/compare/0.7.7...HEAD
+[unreleased]: https://github.com/danielefongo/toggl-tracker/compare/0.8.0...HEAD
+[0.8.0]: https://github.com/danielefongo/toggl-tracker/compare/0.7.7...0.8.0
 [0.7.7]: https://github.com/danielefongo/toggl-tracker/compare/0.7.6...0.7.7
 [0.7.6]: https://github.com/danielefongo/toggl-tracker/compare/0.7.5...0.7.6
 [0.7.5]: https://github.com/danielefongo/toggl-tracker/compare/0.7.4...0.7.5
