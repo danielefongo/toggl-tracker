@@ -196,7 +196,7 @@ describe('Toggl Api Integration', () => {
   }
 
   const instance = axios.create({
-    baseURL: 'https://www.toggl.com/api/v8/',
+    baseURL: 'https://api.track.toggl.com/api/v8/',
     auth: {
       username: token,
       password: 'api_token'

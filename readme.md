@@ -144,10 +144,10 @@ You should don't create these. You can retrieve them using toggl dependency.
 Toggl is using [toggl-api v8](https://github.com/toggl/toggl_api_docs/blob/master/toggl_api.md) and [reports-api v2](https://github.com/toggl/toggl_api_docs/blob/master/reports.md).
 
 Methods (all async):
-* `rawTogglPost(url, object)`: raw post on toggl api. You can skip _"https://www.toggl.com/api/v8"_ on the url.
-* `rawTogglGet(url, queryObject)`: raw get on toggl api. You can skip _"https://www.toggl.com/api/v8"_ on the url. Query object will be converted to query string.
-* `rawReportsPost(url, object, responseType)`: raw get on reports api. You can skip _"https://toggl.com/reports/api/v2"_ on the url. Response type is 'json' by default. If you want to download an object like pdf, you can pass 'arraybuffer' instead.
-* `rawReportsGet(url, queryObject, responseType)`: raw get on reports api. You can skip _"https://toggl.com/reports/api/v2"_ on the url. Query object will be converted to query string. Response type is 'json' by default. If you want to download an object like pdf, you can pass 'arraybuffer' instead.
+* `rawTogglPost(url, object)`: raw post on toggl api. You can skip _"https://api.track.toggl.com/api/v8"_ on the url.
+* `rawTogglGet(url, queryObject)`: raw get on toggl api. You can skip _"https://api.track.toggl.com/api/v8"_ on the url. Query object will be converted to query string.
+* `rawReportsPost(url, object, responseType)`: raw get on reports api. You can skip _"https://api.track.toggl.com/reports/api/v2"_ on the url. Response type is 'json' by default. If you want to download an object like pdf, you can pass 'arraybuffer' instead.
+* `rawReportsGet(url, queryObject, responseType)`: raw get on reports api. You can skip _"https://api.track.toggl.com/reports/api/v2"_ on the url. Query object will be converted to query string. Response type is 'json' by default. If you want to download an object like pdf, you can pass 'arraybuffer' instead.
 * `createTimeEntries(project, task, description, timeSlots)`: create a time entry for each timeslot. You should use project, task and timeslot domain objects.
 * `createTimeEntry(project, task, description, timeSlot)`: create a time entry for single timeslot. You should use project, task and timeslot domain objects.
 * `getTimeEntries(from, to)`: obtain time entries in range. You should pass moments.

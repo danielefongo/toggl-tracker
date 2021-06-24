@@ -6,7 +6,7 @@ export class ReportsApi {
 
   constructor (token: string) {
     this.instance = axios.create({
-      baseURL: 'https://www.toggl.com/reports/api/v2/',
+      baseURL: 'https://api.track.toggl.com/reports/api/v2/',
       auth: { username: token, password: 'api_token' },
       headers: { 'Content-type': 'application/json' }
     })
