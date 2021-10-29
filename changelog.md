@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.1] - 2021-10-29
+
+### Fixed
+
+- Vulnerabilities in some packages
+
 ## [0.8.0] - 2021-06-24
 
 ### Changed
@@ -244,7 +250,8 @@ All notable changes to this project will be documented in this file.
 - Search for projects using fuzzy search.
 - Show helper if a not valid command is inserted.
 
-[unreleased]: https://github.com/danielefongo/toggl-tracker/compare/0.8.0...HEAD
+[unreleased]: https://github.com/danielefongo/toggl-tracker/compare/0.8.1...HEAD
+[0.8.1]: https://github.com/danielefongo/toggl-tracker/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/danielefongo/toggl-tracker/compare/0.7.7...0.8.0
 [0.7.7]: https://github.com/danielefongo/toggl-tracker/compare/0.7.6...0.7.7
 [0.7.6]: https://github.com/danielefongo/toggl-tracker/compare/0.7.5...0.7.6
