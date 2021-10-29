@@ -27,6 +27,7 @@ jobs:
         TOGGL_TEST_WORKSPACE: ${{ secrets.toggl_workspace }}
 
     - name: extract npm versions
+      if: github.ref == 'refs/heads/master'
       run: |
         echo ::set-env name=PACKAGE_VERSION::$(jq .version -r package.json)
         echo ::set-env name=RELEASED_VERSION::$(npm --silent view $PWD version)
@@ -38,10 +39,9 @@ jobs:
       run: |
         git config user.name ${{ github.event.pusher.name }}
         git config user.email ${{ github.event.pusher.email }}
-        git tag --annotate ${PACKAGE_VERSION} --message v${PACKAGE_VERSION}
         git push https://x-access-token:${GIT_TOKEN}@github.com/${GIT_REPO}.git --tags
-        npm publish --access public
-
+        NODE_ENV=production npm publish --access public
+        git tag --annotate ${PACKAGE_VERSION} --message v${PACKAGE_VERSION}
       env:
         NODE_AUTH_TOKEN: ${{secrets.npm_token}}
         GIT_TOKEN: ${{ github.token }}
