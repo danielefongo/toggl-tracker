@@ -37,13 +37,9 @@ export class Toggl {
   }
 
   async createTimeEntries (project: Project, task: Task, description: string, timeSlots: TimeSlot[]) {
-    const self = this
-    timeSlots.forEach((timeSlot, index) => {
-      setTimeout(function timer () {
-        self.createTimeEntry(project, task, description, timeSlot)
-          .catch(console.log)
-      }, index * 100)
-    })
+    for (const timeSlot of timeSlots) {
+      await this.createTimeEntry(project, task, description, timeSlot).catch(console.log)
+    }
   }
 
   async createTimeEntry (project: Project, task: Task, description: string, timeSlot: TimeSlot) {

@@ -13,6 +13,7 @@ export class TogglApi {
   }
 
   async createTimeEntry (timeEntry: any) {
+    await this.sleep()
     return this.post('/time_entries', { time_entry: timeEntry })
   }
 
@@ -64,5 +65,9 @@ export class TogglApi {
   private extractDataIfNeeded (payload: any) {
     if (payload === null || payload === undefined) return null
     return (payload.data !== undefined) ? payload.data : payload
+  }
+
+  private sleep () {
+    return new Promise((resolve) => setTimeout(() => resolve(true), 100))
   }
 }
