@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.2] - 2021-11-18
+
+### Fixed
+
+- Slow down requests to prevent API errors
+
 ## [0.8.1] - 2021-10-29
 
 ### Fixed
@@ -250,7 +256,8 @@ All notable changes to this project will be documented in this file.
 - Search for projects using fuzzy search.
 - Show helper if a not valid command is inserted.
 
-[unreleased]: https://github.com/danielefongo/toggl-tracker/compare/0.8.1...HEAD
+[unreleased]: https://github.com/danielefongo/toggl-tracker/compare/0.8.2...HEAD
+[0.8.2]: https://github.com/danielefongo/toggl-tracker/compare/0.8.1...0.8.2
 [0.8.1]: https://github.com/danielefongo/toggl-tracker/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/danielefongo/toggl-tracker/compare/0.7.7...0.8.0
 [0.7.7]: https://github.com/danielefongo/toggl-tracker/compare/0.7.6...0.7.7
