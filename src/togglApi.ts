@@ -17,7 +17,7 @@ export class TogglApi {
     return this.post('/time_entries', { time_entry: timeEntry })
   }
 
-  async getTimeEntries (workspaceId: string, startDateString: string, stopDateString: string) {
+  async getTimeEntries (startDateString: string, stopDateString: string) {
     return this.get('/time_entries', {
       start_date: startDateString,
       end_date: stopDateString

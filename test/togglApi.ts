@@ -89,7 +89,7 @@ describe('Toggl Api Integration', () => {
   }).timeout(1000)
 
   it('get time entries', async () => {
-    const entries = await togglApi.getTimeEntries(workspace, entryStart.format(), entryStop.format())
+    const entries = await togglApi.getTimeEntries(entryStart.format(), entryStop.format())
     const retrievedEntry = extractWithId(entries, entry.id)
 
     deepInclude(retrievedEntry, {
@@ -99,7 +99,7 @@ describe('Toggl Api Integration', () => {
   }).timeout(1000)
 
   it('get empty list of entries', async () => {
-    const entries = await togglApi.getTimeEntries(workspace, entryHalfTime.format(), entryHalfTime.format())
+    const entries = await togglApi.getTimeEntries(entryHalfTime.format(), entryHalfTime.format())
 
     lengthOf(entries, 0)
   }).timeout(1000)

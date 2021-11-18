@@ -59,7 +59,7 @@ export class Toggl {
   }
 
   async getTimeEntries (from: Moment, to: Moment): Promise<Entry[]> {
-    const entries = await this.togglApi.getTimeEntries(this.workspaceId, from.format(), to.format())
+    const entries = await this.togglApi.getTimeEntries(from.format(), to.format())
     return entries
       .filter((it: any) => it.wid.toString() === this.workspaceId)
       .map(this.convertToEntry)
